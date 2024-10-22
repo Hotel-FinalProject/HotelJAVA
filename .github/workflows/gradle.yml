@@ -8,7 +8,7 @@ on:
 # 환경설정
 env:
   VERSION: ${{ github.sha }}  # 커밋 SHA를 버전으로 설정
-  NAME: ErpPro
+  NAME: erppro
 
 jobs:
   # Spring Boot 애플리케이션을 빌드하여 도커허브에 푸시하는 과정
@@ -41,18 +41,18 @@ jobs:
 
       # 3. Docker 이미지 빌드
       - name: docker image build
-        run: docker build -t ${{ secrets.DOCKER_USERNAME | lower }}/ErpPro:${{ env.VERSION }} ./backend
+        run: docker build -t ${{ secrets.DOCKER_USERNAME  }}/erppro:${{ env.VERSION }} ./backend
 
       # 4. DockerHub 로그인
       - name: docker login
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME | lower }}
-          password: ${{ secrets.DOCKER_PASSWORD | lower }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       # 5. Docker Hub 이미지 푸시
       - name: docker Hub push
-        run: docker push ${{ secrets.DOCKER_USERNAME | lower }}/ErpPro:${{ env.VERSION }}
+        run: docker push ${{ secrets.DOCKER_USERNAME  }}/erppro:${{ env.VERSION }}
 
   deploy:
     needs: build-docker-image  # build 후에 실행되도록 정의
@@ -62,8 +62,8 @@ jobs:
       - name: docker login
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME | lower }}
-          password: ${{ secrets.DOCKER_PASSWORD | lower }}
+          username: ${{ secrets.DOCKER_USERNAME  }}
+          password: ${{ secrets.DOCKER_PASSWORD  }}
           
       # my_bridge_network 사용하도록 지정 (필요 시 언주석 해제)
       # - name: Docker run
