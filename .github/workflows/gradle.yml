@@ -7,9 +7,8 @@ on:
 
 # 환경설정
 env:
-  VERSION: ${{ github.sha }}
+  VERSION: ${{ github.sha }}  # 커밋 SHA를 버전으로 설정
   NAME: ErpPro
-
 
 jobs:
   # Spring Boot 애플리케이션을 빌드하여 도커허브에 푸시하는 과정
@@ -17,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       # 1. Java 17 세팅
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -29,6 +29,7 @@ jobs:
         run: chmod +x ./backend/gradlew
 
       # 2. Spring Boot 애플리케이션 빌드
+       # 2. Spring Boot 애플리케이션 빌드
       # - name: Build with Gradle
       #   uses: ./backend/gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       #   with:
@@ -54,18 +55,19 @@ jobs:
   deploy:
     needs: build-docker-image  # build 후에 실행되도록 정의
     name: Deploy
-    runs-on: [ self-hosted, label-erp ] # AWS ./configure에서 사용할 label명
+    runs-on: [ self-hosted, label-erp ]  # AWS ./configure에서 사용할 label명
     steps:
       - name: docker login
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      # my_bridge_network 사용하도록 지정
+          
+      # my_bridge_network 사용하도록 지정 (필요 시 언주석 해제)
       # - name: Docker run
-        # run: |
-        #   sudo docker stop devops-app1-1 && sudo docker rm devops-app1-1
-        #   sudo docker run -d --network devops_my_bridge_network --name devops-app1-1 --restart always ${{ secrets.USERNAME }}/devops:${{ env.VERSION }}
-        #   sudo docker stop devops-app2-1 && sudo docker rm devops-app2-1
-        #   sudo docker run -d --network devops_my_bridge_network --name devops-app2-1 --restart always ${{ secrets.USERNAME }}/devops:${{ env.VERSION }}
-        #   sudo docker image prune -af
+      #   run: |
+      #     sudo docker stop devops-app1-1 && sudo docker rm devops-app1-1
+      #     sudo docker run -d --network devops_my_bridge_network --name devops-app1-1 --restart always ${{ secrets.USERNAME }}/devops:${{ env.VERSION }}
+      #     sudo docker stop devops-app2-1 && sudo docker rm devops-app2-1
+      #     sudo docker run -d --network devops_my_bridge_network --name devops-app2-1 --restart always ${{ secrets.USERNAME }}/devops:${{ env.VERSION }}
+      #     sudo docker image prune -af
