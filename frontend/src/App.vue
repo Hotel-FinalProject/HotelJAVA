@@ -1,5 +1,6 @@
 <template>
   <DefaultLayout />
+  테스트다!!
 </template>
 
 <script>
