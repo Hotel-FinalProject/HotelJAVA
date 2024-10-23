@@ -7,7 +7,7 @@ on:
 
 # 환경설정
 env:
-  VERSION: ${{ github.sha }}  # 커밋 SHA를 버전으로 설정
+  VERSION: 'v1.0'
   NAME: erppro
 
 jobs:
