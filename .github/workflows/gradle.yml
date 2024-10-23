@@ -7,7 +7,7 @@ on:
 
 # 환경설정
 env:
-  VERSION: ${{ github.sha }}  # 커밋 SHA를 버전으로 설정
+  VERSION: 'v1.0'
   NAME: erppro
 
 jobs:
@@ -29,7 +29,7 @@ jobs:
         run: chmod +x ./backend/gradlew
 
       # 2. Spring Boot 애플리케이션 빌드
-       # 2. Spring Boot 애플리케이션 빌드
+      
       # - name: Build with Gradle
       #   uses: ./backend/gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       #   with:
@@ -45,7 +45,7 @@ jobs:
 
       # 4. DockerHub 로그인
       - name: docker login
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -57,19 +57,33 @@ jobs:
   deploy:
     needs: build-docker-image  # build 후에 실행되도록 정의
     name: Deploy
-    runs-on: [ self-hosted, label-erp ]  # AWS ./configure에서 사용할 label명
+    runs-on: [ self-hosted, finalproject ]  # AWS ./configure에서 사용할 label명
     steps:
       - name: docker login
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME  }}
           password: ${{ secrets.DOCKER_PASSWORD  }}
           
       # my_bridge_network 사용하도록 지정 (필요 시 언주석 해제)
-      # - name: Docker run
-      #   run: |
-      #     sudo docker stop devops-app1-1 && sudo docker rm devops-app1-1
-      #     sudo docker run -d --network devops_my_bridge_network --name devops-app1-1 --restart always ${{ secrets.USERNAME }}/devops:${{ env.VERSION }}
-      #     sudo docker stop devops-app2-1 && sudo docker rm devops-app2-1
-      #     sudo docker run -d --network devops_my_bridge_network --name devops-app2-1 --restart always ${{ secrets.USERNAME }}/devops:${{ env.VERSION }}
-      #     sudo docker image prune -af
+      - name: Docker run
+        run: |
+          # Nginx 컨테이너 실행
+          sudo docker run -d --name nginx --restart always -p 80:80 \
+            -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro \
+            nginx
+
+          # WAS1 컨테이너 실행
+          sudo docker stop was1 || true
+          sudo docker rm was1 || true
+          sudo docker run -d --name was1 --restart always -p 8081:8081 \
+            sumin22/erppro:v1.0
+
+          # WAS2 컨테이너 실행
+          sudo docker stop was2 || true
+          sudo docker rm was2 || true
+          sudo docker run -d --name was2 --restart always -p 8082:8081 \
+            sumin22/erppro:v1.0
+
+          # 불필요한 이미지 정리
+          sudo docker image prune -af
