@@ -7,4 +7,4 @@ ENTRYPOINT ["java","-jar","-Dspring.profiles.active=${USE_PROFILE}", "-Dserver.p
 
 
 # gradle로 된 프로젝트일 경우 ->
-docker build -t sumin22/erppro:0.1  .
+# docker build -t sumin22/erppro:0.1  .
