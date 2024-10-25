@@ -5,9 +5,9 @@ spring:
   application:
     name: backend
   datasource:
-    url: jdbc:mysql://localhost:3306/final_project?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/MSAFinal?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
-    password: mysql
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

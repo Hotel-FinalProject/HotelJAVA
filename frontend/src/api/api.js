@@ -11,8 +11,16 @@ function fetchTest(){
     return config.get('/users');
 }
 
-export default config;
+function signupUser(payload) {
+  return config.post('/users/signup', payload);
+}
+
+function loginUser(payload) {
+  return config.post('/users/login', payload);
+}
 
 export{
     fetchTest,
+    signupUser,
+    loginUser
 }
