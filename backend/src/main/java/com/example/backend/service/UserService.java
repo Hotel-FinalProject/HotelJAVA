@@ -26,7 +26,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private static final String SECRET = "msa6th_2"; // 실제로는 환경 변수로 관리하는 것이 안전합니다.
+    private static final String SECRET = "your_very_long_secret_key_that_is_at_least_msa6th_2team"; // 실제로는 환경 변수로 관리하는 것이 안전합니다.
 
     public User signup(User user){
         if (user.getPasswd() == null || user.getPasswd().isEmpty()) {
@@ -61,13 +61,11 @@ public class UserService {
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getEmail())
                 .claim("userIdx", user.getUserIdx())
-                .claim("role", user.getRole())
+//                .claim("role", user.getRole())
                 .expirationTime(new Date(new Date().getTime() + 60 * 60 * 1000)) // 토큰 만료 시간 1시간 설정
                 .build();
-
         // 서명 알고리즘 및 키 설정
         JWSSigner signer = new MACSigner(SECRET.getBytes()); // 바이트 배열로 변환하여 사용
-
         // JWT 생성 및 서명
         SignedJWT signedJWT = new SignedJWT(
                 new JWSHeader(JWSAlgorithm.HS256),
