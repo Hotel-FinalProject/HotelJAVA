@@ -35,21 +35,22 @@ export const useAuthStore = defineStore('auth', {
 
     // 로그인 처리
     async login(userData) {
-      try {
-        const response = await loginUser(userData); // 로그인 API 호출
-        this.currentUser = response.data; // 현재 사용자 정보 설정
-        this.isLoggedIn = true; // 로그인 상태 업데이트
-        console.log('로그인 성공:', response.data);
-      } catch (error) {
-        console.error('로그인 실패:', error);
+        try {
+          const response = await loginUser(userData); // 로그인 API 호출
+          this.currentUser = userData.email;
+          this.isLoggedIn = true;
+          this.token = response.data; // JWT 토큰 저장
+          console.log('로그인 성공:', response.data);
+        } catch (error) {
+          console.error('로그인 실패:', error);
+          throw new Error('로그인 실패'); // 예외 발생 시 Vue 컴포넌트에서 처리
+        }
+      },
+      logout() {
+        this.currentUser = null;
+        this.isLoggedIn = false;
+        this.token = null;
+        console.log('로그아웃 성공');
       }
-    },
-
-    // 로그아웃 처리
-    logout() {
-      this.currentUser = null;
-      this.isLoggedIn = false;
-      console.log('로그아웃 성공');
     }
-  }
 });

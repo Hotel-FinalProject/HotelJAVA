@@ -61,8 +61,8 @@
           await authStore.signup(payload); // Pinia의 signup 액션 호출
           alert('회원가입이 완료되었습니다!');
         } catch (error) {
-          console.error('회원가입 중 오류 발생: ', error);
-          alert('회원가입 중 오류가 발생했습니다.');
+          console.error(`회원가입 중 오류 발생: ${error.response.data}`);
+          alert(`회원가입 중 오류 발생: ${error.response.data}`);
         }
       };
   

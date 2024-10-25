@@ -19,23 +19,15 @@ public class UserController {
 
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<User> signUp(@RequestBody User user) {
-        System.out.println(user.getPasswd());
-        System.out.println("---------------");
-        User savedUser = userService.signup(user);
-        System.out.println(user.getPasswd());
-        System.out.println("---------------");
-        return ResponseEntity.ok(savedUser);
+    public ResponseEntity<?> signUp(@RequestBody User user) {
+        return userService.signup(user);
     }
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
-            System.out.println(loginRequest.getEmail() + " | "+ loginRequest.getPasswd());
-            System.out.println("---------------");
-            String token = userService.login(loginRequest.getEmail(), loginRequest.getPasswd());
-            return ResponseEntity.ok(token);
+            return userService.login(loginRequest.getEmail(), loginRequest.getPasswd());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(401).body("이메일 또는 비밀번호가 올바르지 않습니다.");
         } catch (Exception e) {

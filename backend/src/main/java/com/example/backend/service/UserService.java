@@ -11,6 +11,8 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,32 +30,44 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private static final String SECRET = "your_very_long_secret_key_that_is_at_least_msa6th_2team"; // 실제로는 환경 변수로 관리하는 것이 안전합니다.
 
-    public User signup(User user){
+    public ResponseEntity<?> signup(User user){
+        String passwordPattern = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{4,12}$";
+
+        // 이메일 중복 검사
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 사용 중인 이메일입니다.");
+        }
+
         if (user.getPasswd() == null || user.getPasswd().isEmpty()) {
-            throw new IllegalArgumentException("비밀번호가 입력되지 않았습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호가 입력되지 않았습니다.");
+        } else if (!user.getPasswd().matches(passwordPattern)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호는 4~12자, 영어 대/소문자 및 특수문자를 포함해야 합니다.");
         }
 
         String encodedPassword = passwordEncoder.encode(user.getPasswd());
         user.setPasswd(encodedPassword);
+        user.setRole("ROLE_USER");
 
-        return userRepository.save(user);
+        userRepository.save(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
     }
 
     // 로그인 처리 및 JWT 발급
-    public String login(String email, String rawPassword) {
+    public ResponseEntity<?> login(String email, String rawPassword) {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (passwordEncoder.matches(rawPassword, user.getPasswd())) {
                 // 비밀번호가 일치하면 JWT 생성
                 try {
-                    return createJwt(user);
+                    String token = createJwt(user);
+                    return ResponseEntity.ok(token);
                 } catch (JOSEException e) {
-                    throw new RuntimeException("JWT 생성 중 오류가 발생했습니다.", e);
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("JWT 생성 중 오류가 발생했습니다.");
                 }
             }
         }
-        throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 올바르지 않습니다.");
     }
 
     private String createJwt(User user) throws JOSEException {
@@ -61,7 +75,7 @@ public class UserService {
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getEmail())
                 .claim("userIdx", user.getUserIdx())
-//                .claim("role", user.getRole())
+                .claim("role", user.getRole())
                 .expirationTime(new Date(new Date().getTime() + 60 * 60 * 1000)) // 토큰 만료 시간 1시간 설정
                 .build();
         // 서명 알고리즘 및 키 설정
