@@ -1,11 +1,12 @@
 server:
   port: 8081
 
+
 spring:
   application:
     name: backend
   datasource:
-    url: jdbc:mysql://localhost:3306/MSAFinal?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/MSAFinal?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -16,3 +17,4 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+

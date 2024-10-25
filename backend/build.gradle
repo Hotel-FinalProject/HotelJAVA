@@ -34,7 +34,10 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	// 스프링 시큐리티
-//	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// nimbus-jose-jwt
+	implementation 'com.nimbusds:nimbus-jose-jwt:9.41.2'
+
 }
 
 tasks.named('test') {
