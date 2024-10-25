@@ -15,11 +15,11 @@
         </div>
         <div>
           <label for="passwd">비밀번호</label>
-          <input type="password" id="passwd" v-model="passwd" />
+          <input type="password" id="password" v-model="password" />
         </div>
         <div>
           <label for="passwdConfirm">비밀번호 확인</label>
-          <input type="password" id="passwdConfirm" v-model="passwdConfirm" />
+          <input type="password" id="passwordConfirm" v-model="passwordConfirm" />
         </div>
         <button type="submit">회원가입</button>
       </form>
@@ -39,12 +39,12 @@
       const email = ref('');
       const name = ref('');
       const phone = ref('');
-      const passwd = ref('');
-      const passwdConfirm = ref('');
+      const password = ref('');
+      const passwordConfirm = ref('');
   
       // 폼 제출 처리
       const submitForm = async () => {
-        if (passwd.value !== passwdConfirm.value) {
+        if (password.value !== passwordConfirm.value) {
           alert('비밀번호가 일치하지 않습니다.');
           return;
         }
@@ -53,7 +53,7 @@
           email: email.value,
           name: name.value,
           phone: phone.value,
-          passwd: passwd.value
+          password: password.value
         };
   
         try {
@@ -70,8 +70,8 @@
         email,
         name,
         phone,
-        passwd,
-        passwdConfirm,
+        password,
+        passwordConfirm,
         submitForm
       };
     }

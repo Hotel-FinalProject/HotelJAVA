@@ -38,14 +38,14 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 사용 중인 이메일입니다.");
         }
 
-        if (user.getPasswd() == null || user.getPasswd().isEmpty()) {
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호가 입력되지 않았습니다.");
-        } else if (!user.getPasswd().matches(passwordPattern)) {
+        } else if (!user.getPassword().matches(passwordPattern)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호는 4~12자, 영어 대/소문자 및 특수문자를 포함해야 합니다.");
         }
 
-        String encodedPassword = passwordEncoder.encode(user.getPasswd());
-        user.setPasswd(encodedPassword);
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
         user.setRole("ROLE_USER");
 
         userRepository.save(user);
@@ -57,7 +57,7 @@ public class UserService {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            if (passwordEncoder.matches(rawPassword, user.getPasswd())) {
+            if (passwordEncoder.matches(rawPassword, user.getPassword())) {
                 // 비밀번호가 일치하면 JWT 생성
                 try {
                     String token = createJwt(user);
@@ -74,7 +74,7 @@ public class UserService {
         // JWT Claims 생성
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getEmail())
-                .claim("userIdx", user.getUserIdx())
+                .claim("userIdx", user.getUserId())
                 .claim("role", user.getRole())
                 .expirationTime(new Date(new Date().getTime() + 60 * 60 * 1000)) // 토큰 만료 시간 1시간 설정
                 .build();
