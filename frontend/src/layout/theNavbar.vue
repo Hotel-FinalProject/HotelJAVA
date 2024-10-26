@@ -6,18 +6,7 @@
       <span class="brand-name" @click="to_home()">2팀</span>
     </div>
     <div class="navbar-icons">
-      <button class="navbar-btn" type="submit" aria-label="Notifications">
-        <img src="@/assets/bell-48.png" alt="" />
-      </button>
-      <!-- <button v-if="is_login()" class="navbar-btn" @click="to_my_page()" aria-label="my Page">
-        <img src="@/assets/user-48.png" alt="" />
-      </button> -->
-      <button class="navbar-btn" @click="to_my_page()" aria-label="my Page">
-        <img src="@/assets/user-48.png" alt="" />
-      </button>
-      <!-- <button class="navbar-btn" aria-label="Settings">
-        <img src="@/assets/settings-48.png" alt="">
-      </button> -->
+        <span class="login_btn">로그인</span>
     </div>
   </nav>
 </template>
@@ -40,18 +29,19 @@ export default {
 <!-- css, scss -->
 <style scoped>
 .navbar {
-  display: flex;
+   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #ffffff;
+  background-color: #00aef0;
   border-bottom: 1px solid #e0e0e0;
   padding: 10px 20px;
 }
 
 .navbar-logo {
-  display: flex;
-  align-items: center;
+
 }
+
+
 
 .logo {
   height: 40px;
@@ -67,6 +57,10 @@ export default {
 .navbar-icons {
   display: flex;
   align-items: center;
+}
+
+.login_btn{
+  color:white;
 }
 
 .navbar-btn {

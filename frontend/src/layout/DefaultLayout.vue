@@ -1,22 +1,18 @@
 <template>
   <div class="layout">
-    <NavBar />
     <div class="layout-content">
       <main class="main-content">
-        <router-view />
+        <router-view/>
       </main>
     </div>
-
   </div>
 </template>
 
 <script>
-import NavBar from "@/layout/theNavbar.vue";
+
 
 export default {
-  components: {
-    NavBar,
-  },
+  name: 'DefaultLayout',
 };
 </script>
 
