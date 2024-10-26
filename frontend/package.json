@@ -14,7 +14,9 @@
     "vue": "^3.2.13",
     "vue-cli-service": "^5.0.10",
     "vue-router": "^4.4.5",
-    "vuex": "^4.0.2"
+    "vuex": "^4.0.2",
+    "pinia": "^2.2.4"
+
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

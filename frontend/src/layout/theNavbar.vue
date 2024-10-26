@@ -6,7 +6,10 @@
       <span class="brand-name" @click="to_home()">2팀</span>
     </div>
     <div class="navbar-icons">
-        <span class="login_btn">로그인</span>
+        <router-link to ="/login">
+            <span class="login_btn">로그인</span>
+        </router-link>
+
     </div>
   </nav>
 </template>
