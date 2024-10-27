@@ -1,20 +1,27 @@
 server:
   port: 8081
 
-
 spring:
   application:
     name: backend
   datasource:
-    url: jdbc:mysql://localhost:3306/MSAFinal?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/erp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+
     username: root
-    password: root
+    password: Book123!@#
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto:  update
     show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
 
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+hotel:
+  key: dASeYJ8SmPH7lGQeCoxaZKsoEap6r7RmuZ%2BSb3v%2FRnbXskGgz77shCGy8vFkLQDTQI9ti8s5QETp7rI77mhDZQ%3D%3D

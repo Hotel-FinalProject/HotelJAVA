@@ -27,7 +27,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
-            return userService.login(loginRequest.getEmail(), loginRequest.getPasswd());
+            return userService.login(loginRequest.getEmail(), loginRequest.getPassword());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(401).body("이메일 또는 비밀번호가 올바르지 않습니다.");
         } catch (Exception e) {
