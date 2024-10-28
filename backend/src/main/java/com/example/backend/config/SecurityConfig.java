@@ -34,6 +34,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/**").permitAll()  // 회원가입 및 로그인 경로를 모든 사용자에게 허용
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 ->
+                        oauth2
+                                .authorizationEndpoint(authorization ->
+                                        authorization.baseUri("/api/users/oauth2/google")  // 구글 소셜 로그인 시작 경로
+                                )
+                                .defaultSuccessUrl("/", true)
                 );
 
         return http.build();

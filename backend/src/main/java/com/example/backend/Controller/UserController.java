@@ -6,6 +6,7 @@ import com.example.backend.repository.UserRepository;
 import com.example.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
@@ -17,13 +18,28 @@ public class UserController {
 
     private final UserService userService;
 
-    // 회원가입
+    /**
+     * 회원가입
+     * */
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody User user) {
         return userService.signup(user);
     }
 
-    // 로그인
+    /**
+     * OAuth 로그인
+     * */
+    @GetMapping("/oauth2/google")
+    public ResponseEntity<?> handleGoogleRedirect(OAuth2AuthenticationToken token) {
+        String email = token.getPrincipal().getAttribute("email");
+        String name = token.getPrincipal().getAttribute("name");
+
+        return userService.OAuthPostLogin(email, name);
+    }
+
+    /**
+     * 사이트 로그인
+     * */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {

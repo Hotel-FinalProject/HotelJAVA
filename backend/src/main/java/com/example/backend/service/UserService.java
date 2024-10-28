@@ -54,6 +54,31 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
     }
 
+    /** oauth 회원가입 및 로그인
+     * jwt 발급 로직
+     * */
+    public ResponseEntity<?> OAuthPostLogin(String email, String name) {
+        Optional<User> existUser = userRepository.findByEmail(email);
+
+        User user;
+        if(existUser.isEmpty()){
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setName(name);
+            newUser.setRole("ROLE_USER");
+            user = userRepository.save(newUser);
+        } else {
+            user = existUser.get();
+        }
+
+        try {
+            String token = createJwt(user);
+            return ResponseEntity.ok(token);
+        } catch (JOSEException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("JWT 생성 중 오류가 발생했습니다.");
+        }
+    }
+
     // 로그인 처리 및 JWT 발급
     public ResponseEntity<?> login(String email, String rawPassword) {
         Optional<User> userOptional = userRepository.findByEmail(email);
