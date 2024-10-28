@@ -18,6 +18,7 @@
   </template>
 
 <script>
+import router from '@/router';
 import { useAuthStore } from '@/store/regist_login'; // Pinia 스토어 import
 
 export default {
@@ -39,6 +40,7 @@ export default {
         const authStore = useAuthStore(); // Pinia 스토어 사용
         await authStore.login(payload);   // 로그인 시도 (Pinia action 호출)
         alert('로그인 성공!');
+        router.push({path:'/'})
       } catch (error) {
         console.error('로그인 중 오류 발생: ', error);
         alert('로그인 실패. 이메일과 비밀번호를 확인하세요.');
