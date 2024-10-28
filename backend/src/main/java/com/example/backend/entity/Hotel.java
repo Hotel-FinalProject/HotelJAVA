@@ -37,8 +37,8 @@ public class Hotel {
     private Double mapX; // 호텔 위치 X 좌표
     private Double mapY; // 호텔 위치 Y 좌표
     
-    private Date checkIn; // 호텔 체크인 날짜
-    private Date checkOut; // 호텔 체크아웃 날짜
+    private String checkIn; // 호텔 체크인 날짜
+    private String checkOut; // 호텔 체크아웃 날짜
 
     @OneToMany(mappedBy = "hotel")
     private List<Room> rooms;
