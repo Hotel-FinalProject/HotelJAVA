@@ -5,13 +5,13 @@ spring:
   application:
     name: backend
   datasource:
-    url: jdbc:mysql://localhost:3306/final_project?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/final_project?characterEncoding=utf8&useUnicode=true
     username: root
     password: mysql
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
