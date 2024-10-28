@@ -6,10 +6,12 @@
       <span class="brand-name" @click="to_home()">2팀</span>
     </div>
     <div class="navbar-icons">
-        <router-link to ="/login">
+        <router-link to ="/login" v-if="isLoggedIn">
             <span class="login_btn">로그인</span>
         </router-link>
-
+        <router-link to ="/my_page" v-else>
+            <span class="my_page_btn">마이페이지</span>
+        </router-link>
     </div>
   </nav>
 </template>
@@ -40,12 +42,6 @@ export default {
   padding: 10px 20px;
 }
 
-.navbar-logo {
-
-}
-
-
-
 .logo {
   height: 40px;
   margin-right: 10px;
@@ -62,7 +58,7 @@ export default {
   align-items: center;
 }
 
-.login_btn{
+.login_btn .my_page_btn{
   color:white;
 }
 
