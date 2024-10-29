@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.entity.Role;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
 import com.nimbusds.jose.JOSEException;
@@ -46,7 +47,7 @@ public class UserService {
 
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
-        user.setRole("ROLE_USER");
+        user.setRole(Role.USER);
 
         userRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
