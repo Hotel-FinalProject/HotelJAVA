@@ -37,7 +37,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	// nimbus-jose-jwt
 	implementation 'com.nimbusds:nimbus-jose-jwt:9.41.2'
-
+	// org.json 라이브러리 추가
+	implementation 'org.json:json:20210307'
 }
 
 tasks.named('test') {

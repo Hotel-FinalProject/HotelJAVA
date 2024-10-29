@@ -48,9 +48,9 @@ spring:
   application:
     name: backend
   datasource:
-    url: jdbc:mysql://localhost:3306/MSAFinal?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/final_project?characterEncoding=utf8&useUnicode=true
     username: root
-    password: Book123!@#
+    password: mysql
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
