@@ -1,49 +1,5 @@
-spring:
-  profiles:
-    active: local
-    group:
-      local: local, common, secret
-      blue: blue, common, secret
-      green: green, common, secret
 server:
-  env: blue
-
-
----
-spring:
-  config:
-    activate:
-      on-profile: local
-server:
-  port: 8090
-  serverAddress: localhost
-
-serverName: local_server
-
----
-spring:
-  config:
-    activate:
-      on-profile: blue
-server:
-  port: 8081
-  serverAddress: 3.34.197.241
-
-serverName: blue_server
-
----
-spring:
-  config:
-    activate:
-      on-profile: green
-server:
-  port: 8082
-  serverAddress: 3.34.197.241
-
-serverName: green_server
-
-
----
+  port: 9090
 spring:
   application:
     name: backend
