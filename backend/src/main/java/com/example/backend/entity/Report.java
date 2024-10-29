@@ -21,11 +21,11 @@ public class Report {
     private Long reportId; // 신고 관리 번호
 
     @ManyToOne
-    @JoinColumn(name = "reporter_id", referencedColumnName = "reporterId", nullable = false) // 신고한 사람 (외래키)
+    @JoinColumn(name = "reporter_id", referencedColumnName = "userId", nullable = false) // 신고한 사람 (외래키)
     private User reporter;
 
     @ManyToOne
-    @JoinColumn(name = "reported_id",referencedColumnName = "reportedId", nullable = false) // 신고 당한 사람 (외래키)
+    @JoinColumn(name = "reported_id",referencedColumnName = "userId", nullable = false) // 신고 당한 사람 (외래키)
     private User reported;
 
     @ManyToOne
