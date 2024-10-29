@@ -13,7 +13,7 @@ env:
 jobs:
   # Spring Boot 애플리케이션을 빌드하여 도커허브에 푸시하는 과정
   build-docker-image:
-    runs-on: ubuntu-latest  # self-hosted가 아닌 GitHub-hosted runner 사용
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -31,8 +31,8 @@ jobs:
       # 2. Spring Boot 애플리케이션 빌드
       - name: Build with Gradle
         run: |
-          cd backend  # backend 디렉토리로 이동
-          ./gradlew clean bootJar  # Gradle 빌드 명령 실행
+          cd backend
+          ./gradlew clean bootJar
 
       # 3. Docker 이미지 빌드
       - name: Docker image build
@@ -50,9 +50,9 @@ jobs:
         run: docker push ${{ secrets.DOCKER_USERNAME }}/erppro:${{ env.VERSION }}
 
   deploy:
-    needs: build-docker-image  # build 후에 실행되도록 정의
+    needs: build-docker-image
     name: Deploy
-    runs-on: ubuntu-latest  # self-hosted가 아닌 GitHub-hosted runner 사용
+    runs-on: ubuntu-latest
     steps:
       - name: Docker login
         uses: docker/login-action@v3
@@ -69,10 +69,10 @@ jobs:
       # 2. Run Docker Compose
       - name: Run Docker Compose
         run: |
-          cd backend  # docker-compose.yml 파일이 있는 디렉토리로 이동
-          sudo docker-compose down || true 
-          sudo docker-compose up -d  
+          cd backend
+          docker-compose down || true  # sudo 제거
+          docker-compose up -d  # sudo 제거
 
       # 불필요한 이미지 정리
       - name: Clean up unused images
-        run: sudo docker image prune -af
+        run: docker image prune -af  # sudo 제거
