@@ -36,7 +36,7 @@ public class HotelService {
     public void fetchAndSaveHotels() {
         try {
             // 기본 정보 URI 생성
-            String url = apiUrl + "?serviceKey=" + apiKey + "&MobileApp=AppTest&MobileOS=ETC&pageNo=1&numOfRows=100&areaCode=1";
+            String url = apiUrl + "?serviceKey=" + apiKey + "&MobileApp=AppTest&MobileOS=ETC&pageNo=1&numOfRows=175&areaCode=1";
             URI uri = new URI(url);
 
             HttpHeaders headers = new HttpHeaders();
