@@ -54,6 +54,7 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
+      # DockerHub 로그인
       - name: Docker login
         uses: docker/login-action@v3
         with:
@@ -70,9 +71,9 @@ jobs:
       - name: Run Docker Compose
         run: |
           cd $GITHUB_WORKSPACE/backend
-          docker-compose down || true  # sudo 제거
-          docker-compose up -d  # sudo 제거
+          docker-compose down || true  # 이전 컨테이너 정지
+          docker-compose up -d  # 새로운 컨테이너 시작
 
       # 불필요한 이미지 정리
       - name: Clean up unused images
-        run: docker image prune -af  # sudo 제거
+        run: docker image prune -af  # 사용하지 않는 이미지 정리
