@@ -60,18 +60,18 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # 1. Install docker-compose
       - name: Install docker-compose
         run: |
-            sudo apt-get update
-            sudo apt-get install -y docker-compose
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
-     #Run docker compose
+      # 2. Run Docker Compose
       - name: Run Docker Compose
         run: |
-            cd backend 
-            sudo docker-compose down || true 
-            sudo docker-compose up -d  
-
+          cd backend  # docker-compose.yml 파일이 있는 디렉토리로 이동
+          sudo docker-compose down || true 
+          sudo docker-compose up -d  
 
       # 불필요한 이미지 정리
       - name: Clean up unused images

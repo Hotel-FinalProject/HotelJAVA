@@ -2,6 +2,7 @@ package com.example.backend.entity;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,6 +42,6 @@ public class Hotel {
     private List<Review> reviews;
 
     @OneToMany(mappedBy = "hotel")
-    private Favorites favorite;
+    private Set<Favorites> favorite; //중복 방지
 }
 

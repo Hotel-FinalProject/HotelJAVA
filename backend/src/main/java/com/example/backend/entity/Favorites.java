@@ -23,8 +23,8 @@ public class Favorites {
 
     private Boolean status; // 찜 상태
 
-    @OneToOne
-    @JoinColumn(name = "hotel_id", nullable = false, unique = true)
+    @ManyToOne
+    @JoinColumn(name = "hotel_id",referencedColumnName = "hotelId", nullable = false, unique = true)
     private Hotel hotel;
 
     @ManyToOne
