@@ -37,7 +37,7 @@ public class Reservation {
     private String paymentStatus; // 결제 상태
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false) // 고객 아이디 (외래키)
+    @JoinColumn(name = "user_id",referencedColumnName = "userId", nullable = false) // 고객 아이디 (외래키)
     private User user;
 
     @OneToOne(mappedBy = "reservation")

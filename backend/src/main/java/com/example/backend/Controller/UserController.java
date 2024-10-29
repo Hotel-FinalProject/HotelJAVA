@@ -2,13 +2,10 @@ package com.example.backend.Controller;
 
 import com.example.backend.dto.LoginRequest;
 import com.example.backend.entity.User;
-import com.example.backend.repository.UserRepository;
 import com.example.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -33,6 +30,11 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("로그인 처리 중 오류가 발생했습니다.");
         }
+    }
+
+    @GetMapping("/test")
+    public String test(){
+        return "Test";
     }
 
 }

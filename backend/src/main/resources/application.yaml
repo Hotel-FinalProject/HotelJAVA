@@ -15,7 +15,7 @@ spring:
     activate:
       on-profile: local
 server:
-  port: 8081
+  port: 8090
   serverAddress: localhost
 
 serverName: local_server
@@ -48,7 +48,7 @@ spring:
   application:
     name: backend
   datasource:
-    url: jdbc:mysql://localhost:3306/erp?useSSL=false&serverTimezone=Asia/&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/erp?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
     username: root
     password: Book123!@#
     driver-class-name: com.mysql.cj.jdbc.Driver

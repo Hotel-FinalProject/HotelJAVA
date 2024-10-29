@@ -40,7 +40,7 @@ public class Hotel {
     @OneToMany(mappedBy = "hotel")
     private List<Review> reviews;
 
-    @OneToOne(mappedBy = "hotel")
+    @OneToMany(mappedBy = "hotel")
     private Favorites favorite;
 }
 

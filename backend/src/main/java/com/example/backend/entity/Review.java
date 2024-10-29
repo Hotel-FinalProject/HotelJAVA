@@ -37,11 +37,11 @@ public class Review {
     private Reservation reservation;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false) // 고객 관리 번호 (외래키)
+    @JoinColumn(name = "user_id", referencedColumnName = "userId", nullable = false) // 고객 관리 번호 (외래키)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "hotel_id", nullable = false) // 호텔 관리 번호 (외래키)
+    @JoinColumn(name = "hotel_id",referencedColumnName = "hotelId", nullable = false) // 호텔 관리 번호 (외래키)
     private Hotel hotel;
 }
 

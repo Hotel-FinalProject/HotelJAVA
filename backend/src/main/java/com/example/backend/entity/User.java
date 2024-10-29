@@ -2,13 +2,7 @@ package com.example.backend.entity;
 
 import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,7 +28,8 @@ public class User {
     @Column(nullable = false)
     private String phone; // 고객 전화번호
 
-    private String role; // 권한
+    @Enumerated(EnumType.STRING)
+    private Role role; // 권한
 
     @OneToMany(mappedBy = "user")
     private List<Reservation> reservations;

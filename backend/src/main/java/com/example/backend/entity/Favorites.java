@@ -24,11 +24,11 @@ public class Favorites {
     private Boolean status; // 찜 상태
 
     @OneToOne
-    @JoinColumn(name = "hotel_id", nullable = false, unique = true) // 호텔 관리 번호 (외래키)
+    @JoinColumn(name = "hotel_id", nullable = false, unique = true)
     private Hotel hotel;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false) // 고객 관리 번호 (외래키)
+    @JoinColumn(name = "user_id",referencedColumnName = "userId", nullable = false)
     private User user;
 }
 
