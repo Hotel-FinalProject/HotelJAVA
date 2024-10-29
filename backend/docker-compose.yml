@@ -3,19 +3,20 @@ version: '3'
 services:
   was1:
     build: .
-    image: "hotelproject:latest"
+    image: "sumin22/erppro:v1.0"
     ports:
       - "8081:8081"
     depends_on:
       - db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mydb
+      SPRING_DATASOURCE_URL:  jdbc:mysql://db:3306/erp?useSSL=false&serverTimezone=Asia&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_PASSWORD: Book123!@#
+      SPRING_PROFILES_ACTIVE: local
 
   was2:
     build: .
-    image: "hotelproject:latest"
+    image: "sumin22/erppro:v1.0"
     ports:
       - "8082:8081"
     depends_on:
@@ -31,7 +32,7 @@ services:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mydb
+      MYSQL_DATABASE: erp
 
   nginx:
     image: nginx
