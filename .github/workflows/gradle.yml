@@ -70,7 +70,7 @@ jobs:
       # 2. Run Docker Compose
       - name: Run Docker Compose
         run: |
-          cd $GITHUB_WORKSPACE/backend
+          cd $GITHUB_WORKSPACE/ErpPro/backend
           docker-compose down || true  # 이전 컨테이너 정지
           docker-compose up -d  # 새로운 컨테이너 시작
 
