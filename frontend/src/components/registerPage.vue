@@ -27,7 +27,7 @@
   </template>
   
   <script>
-  import { useAuthStore } from '@/store/regist_login'; // Pinia 스토어 가져오기
+  import { useAuthStore } from '@/store/register_login'; // Pinia 스토어 가져오기
   import { ref } from 'vue';
   
   export default {

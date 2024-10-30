@@ -18,6 +18,22 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 179544849550-03o449lptj1skbr25sqvt95vftvin1ii.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - email
+              - profile
+            redirect-uri: "http://localhost:8081/login/oauth2/code/{registrationId}"
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
 
 jwt:
   secret: your_very_long_secret_key_that_is_at_least_msa6th_2team

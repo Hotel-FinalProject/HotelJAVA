@@ -34,7 +34,7 @@
 
 <!-- javascript -->
 <script>
-import { useAuthStore } from '@/store/regist_login';
+import { useAuthStore } from '@/store/register_login';
 import { computed } from 'vue';
 
 export default {
@@ -43,7 +43,7 @@ export default {
     const authStore = useAuthStore();
 
     // Pinia 스토어에서 로그인 상태를 반응형으로 가져오기 위해 computed 사용
-    const isLoggedIn = computed(() => authStore.isLoggedIn);
+    const isLoggedIn = computed(() => authStore.LoggedIn);
     
     // 로그아웃 함수
     const logout = () => {

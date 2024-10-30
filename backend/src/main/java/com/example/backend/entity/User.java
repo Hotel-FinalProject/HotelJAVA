@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -44,6 +45,19 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Review> reviews;
+
+    @Builder
+    public User(String email, String password, String name){
+        this.email = email;
+        this.password = password;
+        this.name = name;
+    }
+
+    public User update(String name) {
+        this.name = name;
+
+        return this;
+    }
 }
 
 
