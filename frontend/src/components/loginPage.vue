@@ -1,24 +1,29 @@
 <template>
   <div class="container">
-    <form @submit.prevent="submitForm">
-      <div>
-        <label for="email">Email</label>
-        <input type="text" id="email" v-model="email" />
-      </div>
-      <div>
-        <label for="password">비밀번호</label>
-        <input type="password" id="passwd" v-model="passwd" />
-      </div>
-      <button type="submit">로그인</button>
-    </form>
-    <router-link to="/register">
-      <span class="register-btn">회원가입</span>
-    </router-link>
-  </div>
-  <div class="social-login">
-    <button @click="googleLogin" class="google-login-btn">
-      Google로 로그인
-    </button>
+    <div class="login-form">
+      <h2 class="title">로그인</h2>
+      <form @submit.prevent="submitForm">
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input type="text" id="email" v-model="email" />
+        </div>
+        <div class="input-group">
+          <label for="password">비밀번호</label>
+          <input type="password" id="passwd" v-model="passwd" />
+        </div>
+        <div class="action-buttons">
+          <div class="social-login">
+            <button @click="googleLogin" class="social-button google">G</button>
+            <button class="social-button naver">N</button>
+            <button class="social-button kakao">K</button>
+          </div>
+          <button type="submit" class="login-button">로그인</button>
+        </div>
+      </form>
+      <router-link to="/register">
+        <span class="register-btn">계정이 없으신가요? 가입하기 ➞</span>
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -75,3 +80,99 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f9f9f9;
+}
+
+.login-form {
+  background: #fff;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.input-group input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.login-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.social-login {
+  display: flex;
+  gap: 10px;
+}
+
+.social-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 16px;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.google {
+  background-color: #db4437;
+}
+
+.naver {
+  background-color: #2db400;
+}
+
+.kakao {
+  background-color: #ffeb00;
+  color: #000;
+}
+
+.register-btn {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+</style>
