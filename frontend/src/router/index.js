@@ -30,7 +30,7 @@ const routes = [
     component: () => import('@/components/HotelRoom.vue')
   },
   {
-    path: '/oauth2/redirect', // OAuth 리다이렉트 경로 추가
+    path: '/oauth2/success', // OAuth 리다이렉트 경로 추가
     component: OAuthRedirectHandler,
   }
 ];

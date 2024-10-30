@@ -32,7 +32,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email; // 고객 이메일
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String phone; // 고객 전화번호
 
     private String role; // 권한

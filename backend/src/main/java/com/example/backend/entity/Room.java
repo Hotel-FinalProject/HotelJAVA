@@ -25,9 +25,9 @@ public class Room {
     private Long roomId; // 객실 관리 번호
 
     private String type; // 객실 유형
-    private Long total; // 총 객실 수
+//    private Long total; // 총 객실 수
     private BigDecimal price; // 객실 가격
-    private String description; // 객실 설명
+    private String description; // 객실 설명₩
     private Long occupancy; // 기준 인원
 
     @ManyToOne

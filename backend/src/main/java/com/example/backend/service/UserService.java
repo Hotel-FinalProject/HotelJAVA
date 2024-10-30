@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Transactional
@@ -47,6 +48,28 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
     }
 
+    /** oauth 회원가입 및 로그인 */
+    public User OAuthPostLogin(String email, String name) {
+        Optional<User> existUser = userRepository.findByEmail(email);
+
+        User user;
+        if (existUser.isEmpty()) {
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setName(name);
+            // 임의의 비밀번호 설정 (UUID 사용)
+            String randomPassword = UUID.randomUUID().toString();
+            newUser.setPassword(passwordEncoder.encode(randomPassword));
+            newUser.setRole("ROLE_USER");
+            user = userRepository.save(newUser);
+        } else {
+            user = existUser.get();
+        }
+        return user;
+    }
+
+
+    // 로그인 처리 및 JWT 발급
     public ResponseEntity<?> login(String email, String rawPassword) {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {

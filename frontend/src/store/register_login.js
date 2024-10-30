@@ -40,7 +40,7 @@ export const useAuthStore = defineStore('auth', {
         const response = await loginUser(userData); // 로그인 API 호출
         this.currentUser = userData.email;
         this.LoggedIn = true;
-        sessionStorage.setItem('token', response.data);
+        this.setAccessToken(response.data);
         console.log('로그인 성공:', response.data);
       } catch (error) {
         console.error('로그인 실패:', error);

@@ -1,6 +1,7 @@
 package com.example.backend.config;
 
-import com.example.backend.service.customOAuth2UserService;
+import com.example.backend.service.CustomOAuth2UserService;
+import com.example.backend.util.LoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,14 +15,20 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
-
-import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
+
+    private final LoginSuccessHandler loginSuccessHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
+
+    // 생성자를 통해 LoginSuccessHandler와 CustomOAuth2UserService 의존성 주입
+    public SecurityConfig(LoginSuccessHandler loginSuccessHandler, CustomOAuth2UserService customOAuth2UserService) {
+        this.loginSuccessHandler = loginSuccessHandler;
+        this.customOAuth2UserService = customOAuth2UserService;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -33,44 +40,25 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 활성화
                 .csrf(csrf -> csrf.disable())  // CSRF 비활성화 (개발 중)
-                .csrf(AbstractHttpConfigurer :: disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/api/**", "/oauth2/**","/login/**").permitAll()  // 회원가입 및 로그인 경로를 모든 사용자에게 허용
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/**", "/oauth2/**", "/login/**").permitAll()  // 특정 경로 허용
                         .anyRequest().authenticated()
                 )
-//                .oauth2Login(oauth2 ->
-//                        oauth2
-//                                .authorizationEndpoint(authorization -> authorization
-//                                        .baseUri("http://localhost:8081/api/users/oauth2/google") // Google 소셜 로그인 요청 경로 설정
-//                                )
-//                                .defaultSuccessUrl("http://localhost:8082/", true) // Vue 홈 경로로 리다이렉트
-//                );
-//                .oauth2Login(oauth2 -> oauth2
-//                        .authorizationEndpoint(authorization ->
-//                                authorization.baseUri("/oauth2/authorization")
-//                        )
-//                        .redirectionEndpoint(redirection ->
-//                                redirection.baseUri("/login/oauth2/code/*")
-//                        )
-//                );
-                .oauth2Login(oauth2Login ->
-                        oauth2Login
-                                .loginPage("/login") // 로그인 페이지 설정
-                                .defaultSuccessUrl("/api/oauth2/success", true) // 성공 시 호출할 엔드포인트 설정
-                                .failureUrl("/login?error=true") // 실패 시 호출할 경로 설정
-                                .userInfoEndpoint(userInfo -> userInfo
-                                        .userService(customOAuth2UserService()) // CustomOAuth2UserService를 통해 유저 정보 처리
-                                )
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(authorization -> authorization
+                                .baseUri("/oauth2/authorization")
+                        )
+                        .redirectionEndpoint(redirection ->
+                                redirection.baseUri("/login/oauth2/code/*")
+                        )
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService) // CustomOAuth2UserService를 통해 유저 정보 처리
+                        )
+                        .successHandler(loginSuccessHandler) // 로그인 성공 시 사용자 정의 핸들러 지정
                 );
 
         return http.build();
-    }
-
-    @Bean
-    public customOAuth2UserService customOAuth2UserService() {
-        return new customOAuth2UserService();
     }
 
     @Bean
