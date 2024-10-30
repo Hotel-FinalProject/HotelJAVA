@@ -6,6 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface HotelApiRepository extends JpaRepository<Hotel, Long> {
-
-    boolean existsByContentid(Long contentid);
 }

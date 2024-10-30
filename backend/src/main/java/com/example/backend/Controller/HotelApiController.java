@@ -13,13 +13,4 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class HotelApiController {
-
-    @Autowired
-    private HotelApiService hotelService;
-
-    @GetMapping("/hotel_list")
-    public String fetchHotels() {
-        hotelService.saveHotel();
-        return "호텔 정보를 성공적으로 가져와서 저장했습니다.";
-    }
 }
