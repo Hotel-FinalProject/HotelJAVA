@@ -26,7 +26,8 @@ public class Room {
 
     private String name; // 객실 유형
     private Long total; // 총 객실 수
-    private BigDecimal price; // 객실 가격 (임의 설정)
+//    private int count; // 남은 객실 수
+    private BigDecimal price; // 객실 가격
     private String description; // 객실 설명
     private Long occupancy; // 기준 인원
     
@@ -40,7 +41,7 @@ public class Room {
     private boolean refrigerator;
     private boolean toiletries;
     private boolean sofa;
-    private boolean table;
+    private boolean tableYn;
     private boolean hairdryer;
 
     @ManyToOne
@@ -48,8 +49,11 @@ public class Room {
     private Hotel hotel;
 
     @ManyToOne
-    @JoinColumn(name = "reservation_id", nullable = false) // 예약 관리 번호 (외래키)
+    @JoinColumn(name = "reservation_id", nullable = true) // 예약 관리 번호 (외래키)
     private Reservation reservation;
+    
+//    @OneToMany(mappedBy = "room")
+//    private Reservation reservation;
 
     @OneToMany(mappedBy = "room")
     private List<RoomImage> images;

@@ -1,35 +1,39 @@
 package com.example.backend.Controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.example.backend.entity.Hotel;
 import com.example.backend.entity.Room;
 import com.example.backend.service.RoomService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/rooms")
+@RequiredArgsConstructor
 public class RoomController {
 
-    @Autowired
-    private RoomService roomService;
-    
-    // 객실 데이터 가져오기 및 DB 저장 엔드포인트
-    @PostMapping("/fetch")
-    public String fetchAndSaveRoomData(@RequestParam String apiUrl, @RequestBody Hotel hotel) {
-        roomService.fetchAndSaveRoomData(apiUrl, hotel);
-        return "Room data fetched and saved successfully.";
+    private final RoomService roomService;
+
+    // 객실 데이터를 API에서 가져와 DB에 저장
+    @PostMapping("/fetch/{contentId}")
+    public ResponseEntity<String> fetchAndSaveRooms(@PathVariable("contentId") Long contentId) {
+        try {
+            roomService.fetchAndSaveRooms(contentId);
+            return ResponseEntity.ok("Room data fetched and saved successfully");
+        } catch (URISyntaxException e) {
+            return ResponseEntity.badRequest().body("Invalid URI syntax: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("An error occurred while fetching and saving room data: " + e.getMessage());
+        }
     }
 
-    @GetMapping
-    public List<Room> getRooms() {
-        return roomService.getAllRooms();
+    // DB에서 객실 데이터를 contentId로 조회
+    @GetMapping("/hotel/{contentId}")
+    public ResponseEntity<List<Room>> getRoomsByContentId(@PathVariable("contentId") Long contentId) {
+        List<Room> rooms = roomService.getRoomsByContentId(contentId);
+        return ResponseEntity.ok(rooms);
     }
 }
+

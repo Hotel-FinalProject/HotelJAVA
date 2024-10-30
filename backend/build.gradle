@@ -34,8 +34,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	// 스프링 시큐리티
-<<<<<<< HEAD
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+//	implementation 'org.springframework.boot:spring-boot-starter-security'
 	// nimbus-jose-jwt
 	implementation 'com.nimbusds:nimbus-jose-jwt:9.41.2'
 	// org.json 라이브러리 추가
