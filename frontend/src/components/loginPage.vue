@@ -5,24 +5,27 @@
       <form @submit.prevent="submitForm">
         <div class="input-group">
           <label for="email">Email</label>
-          <input type="text" id="email" v-model="email" />
+          <input type="text" id="email" v-model="email" @keydown.enter="submitForm" />
         </div>
         <div class="input-group">
           <label for="password">비밀번호</label>
-          <input type="password" id="passwd" v-model="passwd" />
-        </div>
-        <div class="action-buttons">
-          <div class="social-login">
-            <button @click="googleLogin" class="social-button google">G</button>
-            <button class="social-button naver">N</button>
-            <button class="social-button kakao">K</button>
-          </div>
-          <button type="submit" class="login-button">로그인</button>
+          <input type="password" id="passwd" v-model="passwd" @keydown.enter="submitForm" />
         </div>
       </form>
-      <router-link to="/register">
-        <span class="register-btn">계정이 없으신가요? 가입하기 ➞</span>
-      </router-link>
+      <div class="top-actions">
+        <router-link to="/register">
+          <span class="register-btn">계정이 없으신가요? 가입하기 ➞</span>
+        </router-link>
+        <button type="submit" class="login-button" @click="submitForm">로그인</button>
+      </div>
+      <div class="divider">
+        <span>SNS LOGIN</span>
+      </div>
+      <div class="social-login">
+        <button @click="googleLogin" class="social-button google">G</button>
+        <button @click="naverLogin" class="social-button naver">N</button>
+        <button @click="kakaoLogin" class="social-button kakao">K</button>
+      </div>
     </div>
   </div>
 </template>
@@ -30,48 +33,36 @@
 <script>
 import router from "@/router";
 import { useAuthStore } from "@/store/register_login"; // Pinia 스토어 import
-// import axios from "axios"; // Axios import
 
 export default {
   name: "LoginForm",
   data() {
     return {
       email: "",
-      passwd: "", // 여기서 필드 이름을 'password'에서 'passwd'로 변경해야 일관성을 유지
+      passwd: "",
     };
   },
   methods: {
     async googleLogin() {
       window.location.href = "http://localhost:8081/oauth2/authorization/google";
-      // window.location.href = "http://localhost:8081/oauth2/authorization";
-      // window.location.href = "http://localhost:8081/oauth2/authorize/google";
-        // try {
-        //     // 백엔드에 OAuth2 로그인 요청을 보냄
-        //     const response = await axios.get("http://localhost:8081/oauth2/authorize/google");
-
-        //     if (response && response.data && response.data.redirectUrl) {
-        //         // 백엔드에서 받은 리다이렉트 URL로 이동
-        //         window.location.href = response.data.redirectUrl;
-        //     } else {
-        //         console.error("리다이렉션 URL이 응답에 없습니다.");
-        //         alert("로그인 처리 중 오류가 발생했습니다.");
-        //     }
-        // } catch (error) {
-        //     console.error("구글 로그인 요청 실패:", error);
-        //     alert("구글 로그인 요청 중 오류가 발생했습니다.");
-        // }
+    },
+    async naverLogin() {
+      // 네이버 로그인 기능 추가 필요 시 구현
+    },
+    async kakaoLogin() {
+      // 카카오 로그인 기능 추가 필요 시 구현
     },
     async submitForm() {
       const payload = {
         email: this.email,
-        passwd: this.passwd, // 로그인할 때 'passwd'를 사용하므로 데이터 필드 이름을 일치시킵니다.
+        passwd: this.passwd,
       };
 
       try {
-        const authStore = useAuthStore(); // Pinia 스토어 사용
-        await authStore.login(payload); // 로그인 시도 (Pinia action 호출)
+        const authStore = useAuthStore();
+        await authStore.login(payload);
         alert("로그인 성공!");
-        router.push({ path: "/" }); // 로그인 성공 시 홈 화면으로 리다이렉트
+        router.push({ path: "/" });
       } catch (error) {
         console.error("로그인 중 오류 발생: ", error);
         alert("로그인 실패. 이메일과 비밀번호를 확인하세요.");
@@ -122,10 +113,17 @@ export default {
   font-size: 16px;
 }
 
-.action-buttons {
+.top-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
+}
+
+.register-btn {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
 }
 
 .login-button {
@@ -138,14 +136,46 @@ export default {
   cursor: pointer;
 }
 
+.divider {
+  text-align: center;
+  margin: 20px 0;
+  position: relative;
+}
+
+.divider span {
+  background-color: #fff;
+  padding: 0 10px;
+  font-weight: bold;
+  color: #666;
+}
+
+.divider::before, .divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background-color: #ddd;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
 .social-login {
   display: flex;
+  justify-content: center;
   gap: 10px;
+  margin-top: 10px;
 }
 
 .social-button {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   font-weight: bold;
   font-size: 16px;
