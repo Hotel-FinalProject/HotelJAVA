@@ -35,6 +35,13 @@
       </div>
       <button type="submit" class="signup-button">회원가입</button>
     </form>
+    <div class="divider">
+        <span>SNS SIGNUP</span>
+      </div>
+      <div class="social-login">
+        <button @click="googleLogin" class="social-button google">G</button>
+        <button @click="naverLogin" class="social-button naver">N</button>
+      </div>
   </div>
 </template>
 
@@ -231,5 +238,61 @@ input[type="password"]:focus {
 .success {
   color: green;
   margin-top: 0.5rem;
+}
+
+.divider {
+  text-align: center;
+  margin: 20px 0;
+  position: relative;
+}
+
+.divider span {
+  background-color: #fff;
+  padding: 0 10px;
+  font-weight: bold;
+  color: #666;
+}
+
+.divider::before, .divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background-color: #ddd;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+.social-login {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.social-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 16px;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.google {
+  background-color: #db4437;
+}
+
+.naver {
+  background-color: #2db400;
 }
 </style>

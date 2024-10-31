@@ -11,13 +11,13 @@
           <label for="password">비밀번호</label>
           <input type="password" id="passwd" v-model="passwd" @keydown.enter="submitForm" />
         </div>
+        <div class="top-actions">
+          <router-link to="/register">
+            <span class="register-btn">계정이 없으신가요? 가입하기 ➞</span>
+          </router-link>
+          <button type="submit" class="login-button" @click="submitForm">로그인</button>
+        </div>
       </form>
-      <div class="top-actions">
-        <router-link to="/register">
-          <span class="register-btn">계정이 없으신가요? 가입하기 ➞</span>
-        </router-link>
-        <button type="submit" class="login-button" @click="submitForm">로그인</button>
-      </div>
       <div class="divider">
         <span>SNS LOGIN</span>
       </div>
@@ -73,7 +73,8 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: calc(100vh - 120px); /* 상단 메뉴바 높이를 뺀 나머지 공간 사용 */
+  margin-top: -50px; /* 약간 위로 당겨서 회원가입과 비슷한 높이로 조정 */
 }
 
 .login-form {
@@ -185,19 +186,5 @@ export default {
 
 .naver {
   background-color: #2db400;
-}
-
-.kakao {
-  background-color: #ffeb00;
-  color: #000;
-}
-
-.register-btn {
-  display: block;
-  text-align: center;
-  margin-top: 20px;
-  color: #007bff;
-  text-decoration: none;
-  font-weight: bold;
 }
 </style>
