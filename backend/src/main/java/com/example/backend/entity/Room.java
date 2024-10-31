@@ -50,10 +50,6 @@ public class Room {
     @ManyToOne
     @JoinColumn(name = "hotel_id", nullable = false) // 호텔 관리 번호 (외래키)
     private Hotel hotel;
-
-//    @ManyToOne
-//    @JoinColumn(name = "reservation_id", nullable = true) // 예약 관리 번호 (외래키)
-//    private Reservation reservation;
     
     @OneToMany(mappedBy = "rooms")
     private List<Reservation> reservation;

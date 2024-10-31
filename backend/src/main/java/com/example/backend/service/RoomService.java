@@ -10,6 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -17,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +33,7 @@ public class RoomService {
     private final RoomImageRepository roomImageRepository;
     private final HotelRepository hotelRepository;
     private final String API_URL = "http://apis.data.go.kr/B551011/KorService1/detailInfo1";
-    private final String SERVICE_KEY = ""; // 실제 인증 키로 변경 필요
+    private final String SERVICE_KEY = ""; // API 키 입력
 
     // 모든 호텔에 대한 객실 데이터를 추가하는 메서드
     @Transactional
@@ -53,8 +58,13 @@ public class RoomService {
                 API_URL, SERVICE_KEY, contentId);
         URI uri = new URI(url);
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "application/xml; charset=UTF-8");
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
         RestTemplate restTemplate = new RestTemplate();
-        String xmlResponse = restTemplate.getForObject(uri, String.class);
+        ResponseEntity<byte[]> response = restTemplate.exchange(uri, HttpMethod.GET, entity, byte[].class);
+        String xmlResponse = new String(response.getBody(), StandardCharsets.UTF_8);
 
         // XML 응답을 JSON으로 변환
         JSONObject jsonResponse = XML.toJSONObject(xmlResponse);
@@ -66,14 +76,14 @@ public class RoomService {
                                       .optJSONArray("item");
 
         if (items == null) {
-//            throw new IllegalArgumentException("API 응답에서 'items' 배열을 찾을 수 없습니다.");
-        	items = new JSONArray(); // 빈 배열로 초기화하여 오류 없이 진행
+            items = new JSONArray(); // 빈 배열로 초기화하여 오류 없이 진행
         }
 
         // API 데이터를 파싱하여 Room과 RoomImage 엔티티로 변환 후 저장
         List<Room> rooms = parseAndSaveRooms(items, hotel);
         roomRepository.saveAll(rooms);
     }
+
 
     private List<Room> parseAndSaveRooms(JSONArray items, Hotel hotel) {
         List<Room> rooms = new ArrayList<>();

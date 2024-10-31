@@ -31,11 +31,10 @@ public class HotelService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final String apiUrl = "https://apis.data.go.kr/B551011/KorService1/searchStay1";
     private final String detailApiUrl = "http://apis.data.go.kr/B551011/KorService1/detailIntro1";
-    private final String apiKey = ""; // 실제 API 키로 변경 필요
-
+    private final String apiKey = ""; // API 키 입력
+    
     public void fetchAndSaveHotels() {
         try {
-            // 기본 정보 URI 생성
             String url = apiUrl + "?serviceKey=" + apiKey + "&MobileApp=AppTest&MobileOS=ETC&pageNo=1&numOfRows=175&areaCode=1";
             URI uri = new URI(url);
 
@@ -43,27 +42,34 @@ public class HotelService {
             headers.set("Accept", "application/xml; charset=UTF-8");
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            // API 호출 및 UTF-8로 변환
             ResponseEntity<byte[]> response = restTemplate.exchange(uri, HttpMethod.GET, entity, byte[].class);
             String xmlResponse = new String(response.getBody(), StandardCharsets.UTF_8);
 
             // XML -> JSON 변환
             JSONObject jsonObject = XML.toJSONObject(xmlResponse);
-            JSONArray items = jsonObject.getJSONObject("response")
-                                        .getJSONObject("body")
-                                        .getJSONObject("items")
-                                        .getJSONArray("item");
 
-            // JSON 데이터를 Hotel 객체로 변환하여 DB에 저장
-            List<Hotel> hotels = parseJsonToHotels(items);
-            
-            // 상세 정보를 조회하여 체크인/체크아웃 시간 추가
-            for (Hotel hotel : hotels) {
-                setCheckInOutTimes(hotel);
+            // response, body, items 키가 존재하는지 확인 후 접근
+            if (jsonObject.has("response") 
+                && jsonObject.getJSONObject("response").has("body")
+                && jsonObject.getJSONObject("response").getJSONObject("body").has("items")) {
+                
+                JSONArray items = jsonObject.getJSONObject("response")
+                                            .getJSONObject("body")
+                                            .getJSONObject("items")
+                                            .optJSONArray("item");
+
+                if (items != null) {
+                    List<Hotel> hotels = parseJsonToHotels(items);
+                    for (Hotel hotel : hotels) {
+                        setCheckInOutTimes(hotel);
+                    }
+                    hotelRepository.saveAll(hotels);
+                } else {
+                    System.out.println("item 배열이 없습니다.");
+                }
+            } else {
+                System.out.println("response, body 또는 items 키가 JSON 응답에 없습니다.");
             }
-            
-            // 모든 호텔 정보를 DB에 저장
-            hotelRepository.saveAll(hotels);
 
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -73,7 +79,6 @@ public class HotelService {
     // 상세 정보 API를 호출하여 체크인/체크아웃 시간 설정
     private void setCheckInOutTimes(Hotel hotel) {
         try {
-            // 상세 정보 URI 생성
             String detailUrl = detailApiUrl
                     + "?ServiceKey=" + apiKey
                     + "&contentTypeId=32"
@@ -86,24 +91,32 @@ public class HotelService {
             headers.set("Accept", "application/xml; charset=UTF-8");
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            // API 호출 및 XML 응답을 JSON으로 변환
             ResponseEntity<byte[]> response = restTemplate.exchange(uri, HttpMethod.GET, entity, byte[].class);
             String xmlResponse = new String(response.getBody(), StandardCharsets.UTF_8);
             JSONObject jsonObject = XML.toJSONObject(xmlResponse);
 
-            // JSON에서 체크인 및 체크아웃 시간 추출
-            JSONObject item = jsonObject.getJSONObject("response")
-                                        .getJSONObject("body")
-                                        .getJSONObject("items")
-                                        .getJSONObject("item");
+            // response, body, items 키가 존재하는지 확인 후 접근
+            if (jsonObject.has("response") 
+                && jsonObject.getJSONObject("response").has("body")
+                && jsonObject.getJSONObject("response").getJSONObject("body").has("items")) {
+                
+                JSONObject item = jsonObject.getJSONObject("response")
+                                            .getJSONObject("body")
+                                            .getJSONObject("items")
+                                            .optJSONObject("item");
 
-            String checkInTime = item.optString("checkintime");
-            String checkOutTime = item.optString("checkouttime");
+                if (item != null) {
+                    String checkInTime = item.optString("checkintime");
+                    String checkOutTime = item.optString("checkouttime");
 
-            // Hotel 객체에 체크인/체크아웃 시간 설정
-            hotel.setCheckIn(checkInTime.isEmpty() ? null : checkInTime);
-            hotel.setCheckOut(checkOutTime.isEmpty() ? null : checkOutTime);
-
+                    hotel.setCheckIn(checkInTime.isEmpty() ? null : checkInTime);
+                    hotel.setCheckOut(checkOutTime.isEmpty() ? null : checkOutTime);
+                } else {
+                    System.out.println("item 객체가 없습니다.");
+                }
+            } else {
+                System.out.println("response, body 또는 items 키가 JSON 응답에 없습니다.");
+            }
 
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -141,3 +154,80 @@ public class HotelService {
         return hotelRepository.findByContentId(contentId);
     }
 }
+
+//public void fetchAndSaveHotels() {
+//try {
+//  // 기본 정보 URI 생성
+//  String url = apiUrl + "?serviceKey=" + apiKey + "&MobileApp=AppTest&MobileOS=ETC&pageNo=1&numOfRows=175&areaCode=1";
+//  URI uri = new URI(url);
+//
+//  HttpHeaders headers = new HttpHeaders();
+//  headers.set("Accept", "application/xml; charset=UTF-8");
+//  HttpEntity<String> entity = new HttpEntity<>(headers);
+//
+//  // API 호출 및 UTF-8로 변환
+//  ResponseEntity<byte[]> response = restTemplate.exchange(uri, HttpMethod.GET, entity, byte[].class);
+//  String xmlResponse = new String(response.getBody(), StandardCharsets.UTF_8);
+//
+//  // XML -> JSON 변환
+//  JSONObject jsonObject = XML.toJSONObject(xmlResponse);
+//  JSONArray items = jsonObject.getJSONObject("response")
+//                              .getJSONObject("body")
+//                              .getJSONObject("items")
+//                              .getJSONArray("item");
+//
+//  // JSON 데이터를 Hotel 객체로 변환하여 DB에 저장
+//  List<Hotel> hotels = parseJsonToHotels(items);
+//  
+//  // 상세 정보를 조회하여 체크인/체크아웃 시간 추가
+//  for (Hotel hotel : hotels) {
+//      setCheckInOutTimes(hotel);
+//  }
+//  
+//  // 모든 호텔 정보를 DB에 저장
+//  hotelRepository.saveAll(hotels);
+//
+//} catch (URISyntaxException e) {
+//  e.printStackTrace();
+//}
+//}
+//
+//// 상세 정보 API를 호출하여 체크인/체크아웃 시간 설정
+//private void setCheckInOutTimes(Hotel hotel) {
+//try {
+//  // 상세 정보 URI 생성
+//  String detailUrl = detailApiUrl
+//          + "?ServiceKey=" + apiKey
+//          + "&contentTypeId=32"
+//          + "&contentId=" + hotel.getContentId()
+//          + "&MobileOS=ETC"
+//          + "&MobileApp=AppTest";
+//  URI uri = new URI(detailUrl);
+//
+//  HttpHeaders headers = new HttpHeaders();
+//  headers.set("Accept", "application/xml; charset=UTF-8");
+//  HttpEntity<String> entity = new HttpEntity<>(headers);
+//
+//  // API 호출 및 XML 응답을 JSON으로 변환
+//  ResponseEntity<byte[]> response = restTemplate.exchange(uri, HttpMethod.GET, entity, byte[].class);
+//  String xmlResponse = new String(response.getBody(), StandardCharsets.UTF_8);
+//  JSONObject jsonObject = XML.toJSONObject(xmlResponse);
+//
+//  // JSON에서 체크인 및 체크아웃 시간 추출
+//  JSONObject item = jsonObject.getJSONObject("response")
+//                              .getJSONObject("body")
+//                              .getJSONObject("items")
+//                              .getJSONObject("item");
+//
+//  String checkInTime = item.optString("checkintime");
+//  String checkOutTime = item.optString("checkouttime");
+//
+//  // Hotel 객체에 체크인/체크아웃 시간 설정
+//  hotel.setCheckIn(checkInTime.isEmpty() ? null : checkInTime);
+//  hotel.setCheckOut(checkOutTime.isEmpty() ? null : checkOutTime);
+//
+//
+//} catch (URISyntaxException e) {
+//  e.printStackTrace();
+//}
+//}
