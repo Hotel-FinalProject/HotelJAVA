@@ -18,11 +18,17 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String SECRET;
 
-    public String createJwt(String subject, Long userId, String role) throws JOSEException {
+    /** JWT 토큰 생성 로직
+     * @param userId 로그인 시도한 유저의 idx
+     * @param name 로그인 시도한 유저의 이름
+     * @param role 로그인 시도한 유저의 권한
+     * */
+    public String createJwt(String subject, Long userId, String name, String role) throws JOSEException {
         // JWT Claims 생성
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(subject)
                 .claim("userIdx", userId)
+                .claim("name", name)
                 .claim("role", role)
                 .expirationTime(new Date(new Date().getTime() + 60 * 60 * 1000)) // 토큰 만료 시간 1시간 설정
                 .build();
@@ -35,7 +41,6 @@ public class JwtUtil {
                 new JWSHeader(JWSAlgorithm.HS256),
                 claimsSet
         );
-
         signedJWT.sign(signer);
 
         // JWT 문자열 반환

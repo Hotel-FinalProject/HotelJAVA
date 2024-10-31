@@ -24,7 +24,6 @@
       <div class="social-login">
         <button @click="googleLogin" class="social-button google">G</button>
         <button @click="naverLogin" class="social-button naver">N</button>
-        <button @click="kakaoLogin" class="social-button kakao">K</button>
       </div>
     </div>
   </div>
@@ -47,10 +46,7 @@ export default {
       window.location.href = "http://localhost:8081/oauth2/authorization/google";
     },
     async naverLogin() {
-      // 네이버 로그인 기능 추가 필요 시 구현
-    },
-    async kakaoLogin() {
-      // 카카오 로그인 기능 추가 필요 시 구현
+      window.location.href = "http://localhost:8081/oauth2/authorization/naver"
     },
     async submitForm() {
       const payload = {
