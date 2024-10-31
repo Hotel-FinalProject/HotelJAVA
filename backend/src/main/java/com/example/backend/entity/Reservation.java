@@ -37,8 +37,8 @@ public class Reservation {
     
     private String paymentStatus; // 결제 상태
     
-//    private Date checkIn;
-//    private Date checkOut;    
+    private Date checkIn;
+    private Date checkOut;    
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false) // 고객 아이디 (외래키)
@@ -47,12 +47,12 @@ public class Reservation {
     @OneToOne(mappedBy = "reservation")
     private Payment payment;
 
-    @OneToMany(mappedBy = "reservation")
-    private List<Room> rooms;
-    
-//    @ManyToOne
-//    @JoinColumn(name = "room_id", nullable = true)
+//    @OneToMany(mappedBy = "reservation")
 //    private List<Room> rooms;
+    
+    @ManyToOne
+    @JoinColumn(name = "room_id")
+    private Room rooms;
 
     @OneToOne(mappedBy = "reservation")
     private Review review;

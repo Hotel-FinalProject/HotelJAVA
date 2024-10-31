@@ -28,8 +28,22 @@ public class RoomService {
     private final RoomImageRepository roomImageRepository;
     private final HotelRepository hotelRepository;
     private final String API_URL = "http://apis.data.go.kr/B551011/KorService1/detailInfo1";
-    private final String SERVICE_KEY = "CYJBOGwIQxPrPCXYckpw8Y1TSh95hf06DbqCionckIINZdwaK3L1RvFTl2mxFbGEVRyji%2F4AhD4mtRa91Kz9vg%3D%3D"; // 실제 인증 키로 변경 필요
+    private final String SERVICE_KEY = ""; // 실제 인증 키로 변경 필요
 
+    // 모든 호텔에 대한 객실 데이터를 추가하는 메서드
+    @Transactional
+    public void fetchAndSaveAllRooms() throws URISyntaxException {
+        List<Hotel> hotels = hotelRepository.findAll(); // 모든 호텔 가져오기
+        for (Hotel hotel : hotels) {
+            try {
+                fetchAndSaveRooms(hotel.getContentId()); // 각 호텔의 contentId로 객실 정보 저장
+            } catch (Exception e) {
+                System.out.println("Error fetching rooms for contentId " + hotel.getContentId() + ": " + e.getMessage());
+                // 로그만 남기고 다음 호텔로 진행
+            }
+        }
+    }
+    // 특정 호텔에 대한 객실 데이터를 API에서 가져와 저장하는 메서드
     @Transactional
     public void fetchAndSaveRooms(Long contentId) throws URISyntaxException {
         Hotel hotel = hotelRepository.findByContentId(contentId)
@@ -52,7 +66,8 @@ public class RoomService {
                                       .optJSONArray("item");
 
         if (items == null) {
-            throw new IllegalArgumentException("API 응답에서 'items' 배열을 찾을 수 없습니다.");
+//            throw new IllegalArgumentException("API 응답에서 'items' 배열을 찾을 수 없습니다.");
+        	items = new JSONArray(); // 빈 배열로 초기화하여 오류 없이 진행
         }
 
         // API 데이터를 파싱하여 Room과 RoomImage 엔티티로 변환 후 저장
@@ -107,9 +122,14 @@ public class RoomService {
         return images;
     }
 
+    // 특정 호텔의 객실 조회
     public List<Room> getRoomsByContentId(Long contentId) {
         Hotel hotel = hotelRepository.findByContentId(contentId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid contentId"));
         return roomRepository.findByHotel(hotel);
+    }
+    // 모든 객실 조회
+    public List<Room> getAllRooms() {
+        return roomRepository.findAll(); // 모든 객실 조회
     }
 }

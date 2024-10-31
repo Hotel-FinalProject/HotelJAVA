@@ -31,12 +31,12 @@ public class HotelService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final String apiUrl = "https://apis.data.go.kr/B551011/KorService1/searchStay1";
     private final String detailApiUrl = "http://apis.data.go.kr/B551011/KorService1/detailIntro1";
-    private final String apiKey = "CYJBOGwIQxPrPCXYckpw8Y1TSh95hf06DbqCionckIINZdwaK3L1RvFTl2mxFbGEVRyji%2F4AhD4mtRa91Kz9vg%3D%3D"; // 실제 API 키로 변경 필요
+    private final String apiKey = ""; // 실제 API 키로 변경 필요
 
     public void fetchAndSaveHotels() {
         try {
             // 기본 정보 URI 생성
-            String url = apiUrl + "?serviceKey=" + apiKey + "&MobileApp=AppTest&MobileOS=ETC&pageNo=1&numOfRows=5&areaCode=1";
+            String url = apiUrl + "?serviceKey=" + apiKey + "&MobileApp=AppTest&MobileOS=ETC&pageNo=1&numOfRows=175&areaCode=1";
             URI uri = new URI(url);
 
             HttpHeaders headers = new HttpHeaders();

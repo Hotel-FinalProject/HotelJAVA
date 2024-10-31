@@ -3,6 +3,7 @@ package com.example.backend.entity;
 import java.math.BigDecimal;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,8 +27,10 @@ public class Room {
 
     private String name; // 객실 유형
     private Long total; // 총 객실 수
-//    private int count; // 남은 객실 수
+    private int count; // 남은 객실 수
     private BigDecimal price; // 객실 가격
+    
+    @Column(length = 1000)
     private String description; // 객실 설명
     private Long occupancy; // 기준 인원
     
@@ -48,12 +51,12 @@ public class Room {
     @JoinColumn(name = "hotel_id", nullable = false) // 호텔 관리 번호 (외래키)
     private Hotel hotel;
 
-    @ManyToOne
-    @JoinColumn(name = "reservation_id", nullable = true) // 예약 관리 번호 (외래키)
-    private Reservation reservation;
-    
-//    @OneToMany(mappedBy = "room")
+//    @ManyToOne
+//    @JoinColumn(name = "reservation_id", nullable = true) // 예약 관리 번호 (외래키)
 //    private Reservation reservation;
+    
+    @OneToMany(mappedBy = "rooms")
+    private List<Reservation> reservation;
 
     @OneToMany(mappedBy = "room")
     private List<RoomImage> images;
