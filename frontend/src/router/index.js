@@ -11,7 +11,7 @@ const routes = [
   },
   {
     path: '/my_page',
-    component: () => import('@/components/UserMypage.vue')
+    component: () => import('@/components/UserPages/UserMypage.vue')
   },
   {
     path: '/register',
@@ -32,6 +32,10 @@ const routes = [
   {
     path: '/oauth2/success', // OAuth 리다이렉트 경로 추가
     component: OAuthRedirectHandler,
+  },
+  {
+    path: '/find-my-id', // OAuth 리다이렉트 경로 추가
+    component: () => import ('@/components/UserPages/FindId.vue'),
   }
 ];
 

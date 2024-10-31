@@ -13,7 +13,7 @@
         </div>
         <div class="top-actions">
           <router-link to="/register">
-            <span class="register-btn">계정이 없으신가요? 가입하기 ➞</span>
+            <span class="register-btn">가입하기</span>
           </router-link>
           <button type="submit" class="login-button" @click="submitForm">로그인</button>
         </div>

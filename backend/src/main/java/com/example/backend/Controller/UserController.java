@@ -7,10 +7,9 @@ import com.example.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -48,4 +47,15 @@ public class UserController {
             return ResponseEntity.ok("사용 가능한 이메일 입니다.");
         }
     }
+
+    /** 아이디 조회 */
+    @PostMapping("/find-id")
+    public ResponseEntity<String> findId(@RequestBody User user) {
+        Optional<User> foundUser = userRepository.findByNameAndPhone(user.getName(), user.getPhone());
+        if (foundUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 사용자를 찾을 수 없습니다.");
+        }
+        return ResponseEntity.ok(foundUser.get().getEmail());
+    }
+
 }

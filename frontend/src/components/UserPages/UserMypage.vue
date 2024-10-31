@@ -32,7 +32,7 @@
   </template>
   
   <script>
-  import SidebarComponent from '@/components/UserMyPageSidebar.vue';
+  import SidebarComponent from '@/components/UserPages/UserMyPageSidebar.vue';
   
   export default {
     name: 'MyPage',

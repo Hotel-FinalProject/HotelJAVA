@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -33,7 +32,6 @@ public class UserService {
         String emailPattern = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$";
         String phonePattern = "^\\d{3}-\\d{3,4}-\\d{4}$";
         String localPhonePattern = "^\\d{3}-\\d{3,4}-\\d{4}$";
-
 
         // 이메일 유효성 검사
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
@@ -98,5 +96,10 @@ public class UserService {
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 올바르지 않습니다.");
+    }
+
+    /** 이름과 전화번호로 사용자 조회 */
+    public Optional<User> findUserByNameAndPhone(String name, String phone) {
+        return userRepository.findByNameAndPhone(name, phone);
     }
 }
