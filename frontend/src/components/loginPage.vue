@@ -116,6 +116,10 @@ export default {
   margin-bottom: 20px;
 }
 
+.top-actions a{
+  text-decoration-line: none;
+}
+
 .register-btn {
   color: #007bff;
   text-decoration: none;
