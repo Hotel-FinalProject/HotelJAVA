@@ -38,16 +38,16 @@ public class RoomService {
     // 모든 호텔에 대한 객실 데이터를 추가하는 메서드
     @Transactional
     public void fetchAndSaveAllRooms() throws URISyntaxException {
-        List<Hotel> hotels = hotelRepository.findAll(); // 모든 호텔 가져오기
+        List<Hotel> hotels = hotelRepository.findAll();
         for (Hotel hotel : hotels) {
             try {
-                fetchAndSaveRooms(hotel.getContentId()); // 각 호텔의 contentId로 객실 정보 저장
+                fetchAndSaveRooms(hotel.getContentId());
             } catch (Exception e) {
                 System.out.println("Error fetching rooms for contentId " + hotel.getContentId() + ": " + e.getMessage());
-                // 로그만 남기고 다음 호텔로 진행
             }
         }
     }
+    
     // 특정 호텔에 대한 객실 데이터를 API에서 가져와 저장하는 메서드
     @Transactional
     public void fetchAndSaveRooms(Long contentId) throws URISyntaxException {
@@ -76,10 +76,9 @@ public class RoomService {
                                       .optJSONArray("item");
 
         if (items == null) {
-            items = new JSONArray(); // 빈 배열로 초기화하여 오류 없이 진행
+            items = new JSONArray();
         }
 
-        // API 데이터를 파싱하여 Room과 RoomImage 엔티티로 변환 후 저장
         List<Room> rooms = parseAndSaveRooms(items, hotel);
         roomRepository.saveAll(rooms);
     }
@@ -138,8 +137,9 @@ public class RoomService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid contentId"));
         return roomRepository.findByHotel(hotel);
     }
+    
     // 모든 객실 조회
     public List<Room> getAllRooms() {
-        return roomRepository.findAll(); // 모든 객실 조회
+        return roomRepository.findAll();
     }
 }
