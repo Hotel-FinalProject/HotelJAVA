@@ -19,8 +19,17 @@ function loginUser(payload) {
   return config.post('/users/login', payload);
 }
 
+function checkEmail(email) {
+  return config.get('/users/check-email', {
+    params: {
+      email: email
+    }
+  });
+}
+
 export{
     fetchTest,
     signupUser,
-    loginUser
+    loginUser,
+    checkEmail
 }

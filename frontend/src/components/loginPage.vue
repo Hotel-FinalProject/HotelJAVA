@@ -74,7 +74,6 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f9f9f9;
 }
 
 .login-form {

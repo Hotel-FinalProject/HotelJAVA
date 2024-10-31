@@ -1,37 +1,43 @@
 import { defineStore } from 'pinia';
-import { signupUser, loginUser } from '@/api/api'; // 회원가입과 로그인 API 호출 함수
+import { signupUser, loginUser, checkEmail } from '@/api/api'; // API 호출 함수 가져오기
 
 /** 로그인/아웃, 회원가입 로직 */
 export const useAuthStore = defineStore('auth', {
-  // 상태 정의
   state: () => ({
     currentUser: null,
     accessToken: null,
     LoggedIn: false,
+    emailMessage: "", // 이메일 중복 확인 메시지
+    isEmailAvailable: false // 이메일 사용 가능 여부
   }),
 
-  // Getters
-  getters: {
-    getUsers(state) {
-      return state.users;
-    },
-    isAuthenticated(state) {
-      return state.LoggedIn;
-    }
-  },
-
-  // Actions
   actions: {
     /** 회원가입 처리 */
     async signup(userData) {
-      await signupUser(userData)
-        .then(response => {
-          console.log(response);
-          this.users.push(response.data);
-        })
-        .catch(error => {
-          console.error(error);
-        })
+      try {
+        const response = await signupUser(userData);
+        console.log(response);
+        return response; // 성공적으로 처리된 경우 반환
+      } catch (error) {
+        console.error(error);
+        throw error; // 오류 발생 시 Vue 컴포넌트에서 처리할 수 있도록 예외 throw
+      }
+    },
+
+    /** 이메일 중복 확인 */
+    async checkEmailAvailability(email) {
+      try {
+        const response = await checkEmail(email);
+        this.emailMessage = response.data;
+        this.isEmailAvailable = true;
+      } catch (error) {
+        if (error.response && error.response.status === 409) {
+          this.emailMessage = error.response.data; // 이미 사용 중인 이메일
+        } else {
+          this.emailMessage = "이메일 중복 확인 중 오류가 발생했습니다.";
+        }
+        this.isEmailAvailable = false;
+      }
     },
 
     /** 로그인 처리 */
@@ -44,7 +50,7 @@ export const useAuthStore = defineStore('auth', {
         console.log('로그인 성공:', response.data);
       } catch (error) {
         console.error('로그인 실패:', error);
-        throw new Error('로그인 실패'); // 예외 발생 시 Vue 컴포넌트에서 처리
+        throw new Error('로그인 실패');
       }
     },
 
@@ -73,13 +79,6 @@ export const useAuthStore = defineStore('auth', {
       } else {
         this.LoggedIn = false;
       }
-    },
-
-    /** OAuth2 리다이렉션 처리 */
-    handleOAuth2Redirect(token) {
-      // 리다이렉션 이후 받은 토큰을 Pinia 상태에 저장
-      this.setAccessToken(token);
-      console.log('OAuth2 로그인 성공, 토큰 설정:', token);
     }
   }
 });
