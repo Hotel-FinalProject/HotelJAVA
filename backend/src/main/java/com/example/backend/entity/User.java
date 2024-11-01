@@ -37,6 +37,11 @@ public class User {
 
     private String role; // 권한
 
+    @Column(nullable = false)
+    private String loginType;
+
+    private String oauthProvider;
+
     @OneToMany(mappedBy = "user")
     private List<Reservation> reservations;
 

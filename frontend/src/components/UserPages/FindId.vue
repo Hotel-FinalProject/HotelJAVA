@@ -1,71 +1,86 @@
 <template>
-    <div class="container">
-      <form @submit.prevent="submitForm">
-        <h2>아이디 찾기</h2>
-        <div class="form-group">
-          <label for="name">이름</label>
-          <input type="text" id="name" v-model="name" />
-        </div>
-        <div class="form-group">
-          <label for="phone">전화번호</label>
-          <input type="text" id="phone" v-model="phone" />
-        </div>
-        <button type="submit" class="find-button">아이디 찾기</button>
-      </form>
-  
-      <!-- 모달 -->
-      <div v-if="isModalVisible" class="modal">
-        <div class="modal-content">
-          <span @click="closeModal" class="close">&times;</span>
-          <p>조회된 아이디: {{ foundEmail }}</p>
-        </div>
+  <div class="container">
+    <form @submit.prevent="submitForm">
+      <h2>아이디 찾기</h2>
+      <div class="form-group">
+        <label for="name">이름</label>
+        <input type="text" id="name" v-model="name" />
+      </div>
+      <div class="form-group">
+        <label for="phone">전화번호</label>
+        <input type="text" id="phone" v-model="phone" @input="formatPhone" />
+      </div>
+      <button type="submit" class="find-button">아이디 찾기</button>
+    </form>
+
+    <!-- 모달 -->
+    <div v-if="isModalVisible" class="modal">
+      <div class="modal-content">
+        <span @click="closeModal" class="close">&times;</span>
+        <p>조회된 아이디: {{ foundEmail }}</p>
       </div>
     </div>
-  </template>
-  
-  <script>
-  import { useFindIdStore } from "@/store/findId"; // Pinia 스토어 import
-  import { ref } from "vue";
-  
-  export default {
-    name: "FindId",
-    setup() {
-      const findIdStore = useFindIdStore();
-  
-      // 리액티브 변수 정의
-      const name = ref("");
-      const phone = ref("");
-      const foundEmail = ref("");
-      const isModalVisible = ref(false);
-  
-      // 아이디 찾기 폼 제출
-      const submitForm = async () => {
-        try {
-          // Store의 findId 메서드 호출
-          await findIdStore.findId({ name: name.value, phone: phone.value });
-          foundEmail.value = findIdStore.foundEmail; // Store에서 가져온 foundEmail 설정
-          isModalVisible.value = true; // 모달 표시
-        } catch (error) {
-          alert("아이디를 찾을 수 없습니다. 입력한 정보를 다시 확인해주세요.");
-        }
-      };
-  
-      // 모달 닫기
-      const closeModal = () => {
-        isModalVisible.value = false;
-      };
-  
-      return {
-        name,
-        phone,
-        foundEmail,
-        isModalVisible,
-        submitForm,
-        closeModal,
-      };
-    },
-  };
-  </script>
+  </div>
+</template>
+
+<script>
+import { useFindIdStore } from "@/store/findId"; // Pinia 스토어 import
+import { ref } from "vue";
+
+export default {
+  name: "FindId",
+  setup() {
+    const findIdStore = useFindIdStore();
+
+    // 리액티브 변수 정의
+    const name = ref("");
+    const phone = ref("");
+    const foundEmail = ref("");
+    const isModalVisible = ref(false);
+
+    // 전화번호 입력 포맷 설정 함수
+    const formatPhone = () => {
+      let cleaned = phone.value.replace(/\D/g, ""); // 숫자 이외의 문자 제거
+      if (cleaned.length > 3 && cleaned.length <= 7) {
+        phone.value = `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
+      } else if (cleaned.length > 7) {
+        phone.value = `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7, 11)}`;
+      } else {
+        phone.value = cleaned;
+      }
+    };
+
+    // 아이디 찾기 폼 제출
+    const submitForm = async () => {
+      try {
+        console.log("name : " + name.value + " phone : " + phone.value);
+
+        // Store의 findId 메서드 호출
+        await findIdStore.findId({ name: name.value, phone: phone.value });
+        foundEmail.value = findIdStore.foundEmail; // Store에서 가져온 foundEmail 설정
+        isModalVisible.value = true; // 모달 표시
+      } catch (error) {
+        alert("아이디를 찾을 수 없습니다. 입력한 정보를 다시 확인해주세요.");
+      }
+    };
+
+    // 모달 닫기
+    const closeModal = () => {
+      isModalVisible.value = false;
+    };
+
+    return {
+      name,
+      phone,
+      foundEmail,
+      isModalVisible,
+      submitForm,
+      closeModal,
+      formatPhone,
+    };
+  },
+};
+</script>
   
   <style scoped>
   .container {

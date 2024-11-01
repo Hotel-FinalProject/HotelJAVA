@@ -31,6 +31,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        String provider = "";
 
         if (oAuth2User != null) {
             // 네이버 로그인일 경우 response 안에 정보가 담겨 있다.
@@ -39,21 +40,26 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
             String email;
             String name;
+            String phone;
 
             // 네이버와 기타 소셜 로그인을 분기 처리
             if (responseMap != null) {
                 // 네이버 소셜 로그인 응답 처리
                 email = (String) responseMap.get("email");
                 name = (String) responseMap.get("name");
+                phone = (String) responseMap.get("mobile");
+                provider = "naver";
             } else {
                 // 구글 또는 다른 소셜 로그인 응답 처리
                 email = (String) attributes.get("email");
                 name = (String) attributes.get("name");
+                phone = (String) attributes.get("phone");
+                provider = "google";
             }
 
             try {
                 // 사용자 데이터베이스에 저장
-                User user = userService.OAuthPostLogin(email, name);
+                User user = userService.OAuthPostLogin(email, name, phone, provider);
 
                 // 사용자 정보를 기반으로 JWT 생성
                 String token = jwtUtil.createJwt(user.getEmail(), user.getUserId(), user.getName(), user.getRole());

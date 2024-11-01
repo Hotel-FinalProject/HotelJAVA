@@ -55,13 +55,14 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         user.setRole("ROLE_USER");
+        user.setLoginType("normal");
 
         userRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
     }
 
     /** oauth 회원가입 및 로그인 */
-    public User OAuthPostLogin(String email, String name) {
+    public User OAuthPostLogin(String email, String name, String phone, String provider) {
         Optional<User> existUser = userRepository.findByEmail(email);
 
         User user;
@@ -69,10 +70,13 @@ public class UserService {
             User newUser = new User();
             newUser.setEmail(email);
             newUser.setName(name);
+            newUser.setPhone(phone);
             // 임의의 비밀번호 설정 (UUID 사용)
             String randomPassword = UUID.randomUUID().toString();
             newUser.setPassword(passwordEncoder.encode(randomPassword));
             newUser.setRole("ROLE_USER");
+            newUser.setLoginType("oauth");
+            newUser.setOauthProvider(provider);
             user = userRepository.save(newUser);
         } else {
             user = existUser.get();
@@ -98,8 +102,4 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 올바르지 않습니다.");
     }
 
-    /** 이름과 전화번호로 사용자 조회 */
-    public Optional<User> findUserByNameAndPhone(String name, String phone) {
-        return userRepository.findByNameAndPhone(name, phone);
-    }
 }
