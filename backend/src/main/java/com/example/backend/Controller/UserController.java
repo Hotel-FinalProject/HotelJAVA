@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -55,41 +57,51 @@ public class UserController {
         String name = requestBody.get("name");
         String phone = requestBody.get("phone");
 
-        // 이름을 기반으로 사용자를 조회
-        Optional<User> userOptional = userRepository.findByName(name);
+        // 이름을 기반으로 사용자 리스트를 조회
+        List<User> userList = userRepository.findByName(name);
 
-        if (userOptional.isEmpty()) {
+        if (userList.isEmpty()) {
             // 이름이 일치하는 사용자가 없는 경우
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 이름의 사용자를 찾을 수 없습니다.");
         }
 
-        User user = userOptional.get();
+        // 소셜 계정과 일반 계정 구분을 위한 리스트
+        List<User> socialAccounts = new ArrayList<>();
+        List<User> normalAccounts = new ArrayList<>();
 
-        // 전화번호 일치 여부 확인
-        if (!user.getPhone().equals(phone)) {
-            // 전화번호가 일치하지 않는 경우
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("전화번호가 일치하지 않습니다.");
+        // 소셜 로그인 계정과 일반 로그인 계정을 구분
+        for (User user : userList) {
+            if ("oauth".equals(user.getLoginType())) {
+                socialAccounts.add(user);
+            } else if ("normal".equals(user.getLoginType()) && user.getPhone().equals(phone)) {
+                normalAccounts.add(user);
+            }
         }
 
-        // 로그인 유형에 따라 응답 처리
-        if ("oauth".equals(user.getLoginType())) {
-            // 소셜 로그인인 경우 로그인 제공자를 확인하여 메시지 반환
-            String provider = user.getOauthProvider();
-            if ("google".equalsIgnoreCase(provider)) {
-                return ResponseEntity.ok("구글 소셜 로그인입니다.");
-            } else if ("naver".equalsIgnoreCase(provider)) {
-                return ResponseEntity.ok("네이버 소셜 로그인입니다.");
-            } else {
-                return ResponseEntity.ok("소셜 로그인입니다.");
+        // 소셜 계정이 여러 개일 경우
+        if (!socialAccounts.isEmpty()) {
+            StringBuilder responseMessage = new StringBuilder("소셜 로그인 계정입니다. ");
+
+            // 소셜 로그인 제공자 정보 추가
+            for (User socialUser : socialAccounts) {
+                String provider = socialUser.getOauthProvider();
+                responseMessage.append("[").append(provider).append("]");
             }
-        } else if ("normal".equals(user.getLoginType())) {
-            // 일반 로그인인 경우 이메일 반환
+
+            responseMessage.append(" 소셜 제공자를 통해 로그인해 주세요.");
+            return ResponseEntity.ok(responseMessage.toString());
+        }
+
+        // 일반 계정이 있을 경우
+        if (!normalAccounts.isEmpty()) {
+            User user = normalAccounts.get(0);
             return ResponseEntity.ok("회원님의 이메일은 " + user.getEmail() + " 입니다.");
         }
 
-        // loginType이 명확하지 않을 경우 오류 메시지 반환
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("로그인 유형을 확인할 수 없습니다.");
+        // 해당 이름의 소셜 계정은 있으나 전화번호가 일치하지 않을 경우
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("전화번호가 일치하지 않습니다.");
     }
+
 
 
 }

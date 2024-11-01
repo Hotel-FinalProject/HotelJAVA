@@ -84,6 +84,7 @@ public class UserService {
         return user;
     }
 
+
     /** 로그인 처리 및 JWT 발급 */
     public ResponseEntity<?> login(String email, String rawPassword) {
         Optional<User> userOptional = userRepository.findByEmail(email);

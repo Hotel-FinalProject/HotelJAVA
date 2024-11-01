@@ -17,7 +17,7 @@
     <div v-if="isModalVisible" class="modal">
       <div class="modal-content">
         <span @click="closeModal" class="close">&times;</span>
-        <p>조회된 아이디: {{ foundEmail }}</p>
+        <p>{{ foundEmail }}</p>
       </div>
     </div>
   </div>
