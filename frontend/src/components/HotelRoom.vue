@@ -30,7 +30,7 @@
           <h2 class = "price"> 36,000원</h2>
           <div class= "reservation-bottom">
             <div class = "room-count">남은객실 3개 </div>
-            <router-link to ="/rooms">
+            <router-link to ="/payment">
               <button class = "reservation_btn"> 예약하기 </button>
             </router-link>
           </div>

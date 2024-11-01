@@ -1,5 +1,6 @@
 package com.example.backend.entity;
 
+import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -35,6 +36,9 @@ public class Reservation {
     private int guestNum; // 투숙 인원
     
     private String paymentStatus; // 결제 상태
+    
+    private Date checkIn;
+    private Date checkOut;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false) // 고객 아이디 (외래키)
@@ -43,8 +47,12 @@ public class Reservation {
     @OneToOne(mappedBy = "reservation")
     private Payment payment;
 
-    @OneToMany(mappedBy = "reservation")
-    private List<Room> rooms;
+//    @OneToMany(mappedBy = "reservation")
+//    private List<Room> rooms;
+
+    @ManyToOne
+    @JoinColumn(name = "room_id", nullable = true)
+    private Room room;
 
     @OneToOne(mappedBy = "reservation")
     private Review review;

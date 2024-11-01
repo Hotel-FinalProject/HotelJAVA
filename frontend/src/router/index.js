@@ -33,6 +33,10 @@ const routes = [
         component: () => import('@/components/HotelRoom.vue')
       },
       {
+        path : 'payment',
+        component: () => import('@/components/PaymentPage.vue')
+      },
+      {
           path: '/register',
           component: register,
         },
