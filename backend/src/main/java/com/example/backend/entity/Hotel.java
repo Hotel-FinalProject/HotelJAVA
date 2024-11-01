@@ -11,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,8 +31,15 @@ public class Hotel {
     @Column(nullable = true)
     private String imageUrl; // 호텔 이미지 URL (S3 이미지 경로)
 
-    private Date checkIn; // 호텔 체크인 날짜
-    private Date checkOut; // 호텔 체크아웃 날짜
+    private String hotelnum; // 호텔 전화번호
+    
+    private Long contentId; // API에서 제공하는 호텔 고유 식별자
+    
+    private Double mapX; // 호텔 위치 X 좌표
+    private Double mapY; // 호텔 위치 Y 좌표
+    
+    private String checkIn; // 호텔 체크인 날짜
+    private String checkOut; // 호텔 체크아웃 날짜
 
     @OneToMany(mappedBy = "hotel")
     private List<Room> rooms;

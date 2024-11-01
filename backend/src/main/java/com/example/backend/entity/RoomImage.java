@@ -23,7 +23,7 @@ public class RoomImage {
 
     @Column(nullable = true)
     private String imageUrl; // 객실 이미지 URL (S3 이미지 경로)
-
+    
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false) // 객실 관리 번호 (외래키)
     private Room room;
