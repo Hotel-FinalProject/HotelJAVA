@@ -35,20 +35,18 @@ public class RoomService {
     private final String API_URL = "http://apis.data.go.kr/B551011/KorService1/detailInfo1";
     private final String SERVICE_KEY = ""; // API 키 입력
 
-    // 모든 호텔에 대한 객실 데이터를 추가하는 메서드
     @Transactional
     public void fetchAndSaveAllRooms() throws URISyntaxException {
-        List<Hotel> hotels = hotelRepository.findAll(); // 모든 호텔 가져오기
+        List<Hotel> hotels = hotelRepository.findAll();
         for (Hotel hotel : hotels) {
             try {
-                fetchAndSaveRooms(hotel.getContentId()); // 각 호텔의 contentId로 객실 정보 저장
+                fetchAndSaveRooms(hotel.getContentId());
             } catch (Exception e) {
                 System.out.println("Error fetching rooms for contentId " + hotel.getContentId() + ": " + e.getMessage());
-                // 로그만 남기고 다음 호텔로 진행
             }
         }
     }
-    // 특정 호텔에 대한 객실 데이터를 API에서 가져와 저장하는 메서드
+    
     @Transactional
     public void fetchAndSaveRooms(Long contentId) throws URISyntaxException {
         Hotel hotel = hotelRepository.findByContentId(contentId)
@@ -66,20 +64,18 @@ public class RoomService {
         ResponseEntity<byte[]> response = restTemplate.exchange(uri, HttpMethod.GET, entity, byte[].class);
         String xmlResponse = new String(response.getBody(), StandardCharsets.UTF_8);
 
-        // XML 응답을 JSON으로 변환
         JSONObject jsonResponse = XML.toJSONObject(xmlResponse);
 
-        // 'items' 배열이 존재하는지 확인
         JSONArray items = jsonResponse.optJSONObject("response")
                                       .optJSONObject("body")
                                       .optJSONObject("items")
                                       .optJSONArray("item");
 
         if (items == null) {
-            items = new JSONArray(); // 빈 배열로 초기화하여 오류 없이 진행
+            items = new JSONArray();
         }
 
-        // API 데이터를 파싱하여 Room과 RoomImage 엔티티로 변환 후 저장
+        // 파싱
         List<Room> rooms = parseAndSaveRooms(items, hotel);
         roomRepository.saveAll(rooms);
     }
@@ -93,7 +89,7 @@ public class RoomService {
             Room room = new Room();
             room.setHotel(hotel);
             room.setName(item.optString("roomtitle", "Unknown"));
-            room.setTotal(item.optLong("roomcount", 0L));
+            room.setTotal(10);
             room.setPrice(new BigDecimal(100000)); // 임의 가격 설정
             room.setDescription(item.optString("roomintro", "No description available"));
             room.setOccupancy(item.optLong("roombasecount", 2L));
@@ -109,7 +105,6 @@ public class RoomService {
             room.setTableYn(item.optString("roomtable", "N").equals("Y"));
             room.setHairdryer(item.optString("roomhairdryer", "N").equals("Y"));
 
-            // RoomImage 엔티티 설정 및 저장
             List<RoomImage> images = saveRoomImages(item, room);
             room.setImages(images);
 
@@ -132,14 +127,13 @@ public class RoomService {
         return images;
     }
 
-    // 특정 호텔의 객실 조회
     public List<Room> getRoomsByContentId(Long contentId) {
         Hotel hotel = hotelRepository.findByContentId(contentId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid contentId"));
         return roomRepository.findByHotel(hotel);
     }
-    // 모든 객실 조회
+    
     public List<Room> getAllRooms() {
-        return roomRepository.findAll(); // 모든 객실 조회
+        return roomRepository.findAll();
     }
 }

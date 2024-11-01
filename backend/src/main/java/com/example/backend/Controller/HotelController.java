@@ -18,14 +18,14 @@ public class HotelController {
     @Autowired
     private HotelService hotelService;
 
-    // Tour API에서 데이터 가져와서 DB에 저장
+    // API 호출
     @PostMapping("/hotels/fetch")
     public String fetchAndSaveHotels() {
         hotelService.fetchAndSaveHotels();
         return "호텔 데이터가 업데이트되었습니다.";
     }
 
-    // DB에서 호텔 리스트 조회
+    // 모든 호텔 조회
     @GetMapping("/hotels")
     public List<Hotel> getAllHotels() {
         return hotelService.getAllHotels();

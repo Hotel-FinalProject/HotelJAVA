@@ -46,9 +46,6 @@ public class Reservation {
 
     @OneToOne(mappedBy = "reservation")
     private Payment payment;
-
-//    @OneToMany(mappedBy = "reservation")
-//    private List<Room> rooms;
     
     @ManyToOne
     @JoinColumn(name = "room_id")

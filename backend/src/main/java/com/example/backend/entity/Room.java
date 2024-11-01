@@ -26,8 +26,7 @@ public class Room {
     private Long roomId; // 객실 관리 번호
 
     private String name; // 객실 유형
-    private Long total; // 총 객실 수
-    private int count; // 남은 객실 수
+    private int total = 10; // 총 객실 수
     private BigDecimal price; // 객실 가격
     
     @Column(length = 1000)
