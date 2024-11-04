@@ -1,7 +1,6 @@
 server:
   port: 8081
 
-
 spring:
   application:
     name: backend
@@ -18,13 +17,25 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USER}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
   security:
     oauth2:
       client:
         registration:
           naver:
-            clientId: 9EWyUF5g73oX_Rw5ouos
-            clientSecret: QG3wQOti25
+            clientId: ${NAVER_CLIENT_ID}
+            clientSecret: ${NAVER_CLIENT_SECRET}
             scope:
               - email
               - response

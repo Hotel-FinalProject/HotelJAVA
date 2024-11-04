@@ -22,10 +22,10 @@ public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
 
-    /** 회원가입 */
+    /** 회원가입 요청 */
     @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@RequestBody User user) {
-        return userService.signup(user);
+    public ResponseEntity<?> signUp(@RequestBody User user, @RequestParam String verificationToken) {
+        return userService.signup(user, verificationToken);
     }
 
     /** 사이트 로그인 */
@@ -102,6 +102,20 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("전화번호가 일치하지 않습니다.");
     }
 
+    /** 이메일 인증 메일 요청 */
+    @PostMapping("/send-verification-email")
+    public ResponseEntity<?> sendVerificationEmail(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일이 필요합니다.");
+        }
+        return userService.sendVerificationEmail(email);
+    }
 
+    /** 이메일 인증 요청 */
+    @GetMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+        return userService.verifyEmail(token);
+    }
 
 }

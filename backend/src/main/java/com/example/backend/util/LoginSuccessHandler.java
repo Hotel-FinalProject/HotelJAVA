@@ -53,7 +53,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
                 // 구글 또는 다른 소셜 로그인 응답 처리
                 email = (String) attributes.get("email");
                 name = (String) attributes.get("name");
-                phone = (String) attributes.get("phone");
+                phone = (String) attributes.get("phoneNumbers");
                 provider = "google";
             }
 

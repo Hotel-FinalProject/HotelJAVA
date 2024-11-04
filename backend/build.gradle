@@ -39,6 +39,8 @@ dependencies {
 	implementation 'com.nimbusds:nimbus-jose-jwt:9.41.2'
 	// OAuth
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	// SMTP
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 tasks.named('test') {
