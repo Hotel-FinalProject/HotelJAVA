@@ -73,7 +73,7 @@
     </div>
     <div class="payment-method-conatiner">
         <h3>결제 수단</h3>
-        <div> <button>결제</button></div>
+        <div> <button @click="submitReservation" class="submit-button">결제</button></div>
     </div>
     <div class="payment-agree-conatiner">
         <div class ="payment-agree-top">
@@ -118,7 +118,47 @@
 </div>
 
 </template>
+
+
 <script>
+
+export default {
+  data() {
+    return {
+      userName: '',
+      userPhone: '',
+      totalPrice: 100, // 예시 결제 금액
+    };
+  },
+  methods: {
+    submitReservation() {
+      const IMP = window.IMP; // 아임포트 객체
+      IMP.init('imp45605876'); // 가맹점 식별코드 (아임포트에서 발급받은 가맹점 코드)
+
+      IMP.request_pay(
+        {
+          pg: 'html5_inicis', // PG사 선택 (예: 'kakao', 'html5_inicis' 등)
+          pay_method: 'card', // 결제 수단
+          merchant_uid: `mid_${new Date().getTime()}`, // 고유 주문번호
+          name: '숙소 예약 결제',
+          amount: this.totalPrice,
+          buyer_name: this.userName,
+          buyer_tel: this.userPhone,
+        },
+        function (rsp) {
+          if (rsp.success) {
+            // 결제 성공 시 처리 로직
+            alert('결제가 완료되었습니다.');
+            // 결제 정보를 서버로 전송하여 추가 처리
+          } else {
+            // 결제 실패 시 처리 로직
+            alert(`결제에 실패하였습니다: ${rsp.error_msg}`);
+          }
+        }
+      );
+    },
+  },
+};
 </script>
 <style>
 .details-container{

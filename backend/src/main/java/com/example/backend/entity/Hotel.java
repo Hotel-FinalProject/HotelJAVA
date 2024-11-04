@@ -39,6 +39,7 @@ public class Hotel {
 
     private String checkIn; // 호텔 체크인 날짜
     private String checkOut; // 호텔 체크아웃 날짜
+    private Double rating; // 호텔별점
 
     @OneToMany(mappedBy = "hotel")
     private List<Room> rooms;

@@ -26,7 +26,7 @@ public class Payment {
     private String method; // 결제 방법
     private BigDecimal amount; // 결제 금액
     private Date date; // 결제 날짜
-    private Long transactionId; // 거래 관리 번호
+    private String transactionId; // 거래 관리 번호 (고유번호)
 
     @OneToOne
     @JoinColumn(name = "reservation_id", nullable = false) // 예약 관리 번호 (외래키)
