@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import DefaultLayout from '@/layout/DefaultLayout.vue';
 import register from '@/components/registerPage.vue';
-import login from '@/components/loginPage.vue'
+import login from '@/components/loginPage.vue';
 
 const routes = [
   {
@@ -25,24 +25,23 @@ const routes = [
         component: () => import('@/components/testVue3.vue')
       },
       {
-        path : 'hotel-details',
+        path: 'hotel-details/:id',
         component: () => import('@/components/HotelDetails.vue')
       },
       {
-        path : 'rooms',
+        path: 'room-details/:roomId', // 동적 매개변수 roomId를 추가하여 특정 객실 페이지로 이동
         component: () => import('@/components/HotelRoom.vue')
       },
       {
-          path: '/register',
-          component: register,
-        },
-        {
-          path: '/login',
-          component: login,
-        }
+        path: '/register',
+        component: register,
+      },
+      {
+        path: '/login',
+        component: login,
+      }
     ]
   },
-
 ];
 
 const router = createRouter({

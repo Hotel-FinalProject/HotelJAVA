@@ -3,6 +3,8 @@ package com.example.backend.entity;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -49,6 +51,7 @@ public class Reservation {
     
     @ManyToOne
     @JoinColumn(name = "room_id")
+    @JsonBackReference // 순환 참조 방지
     private Room rooms;
 
     @OneToOne(mappedBy = "reservation")

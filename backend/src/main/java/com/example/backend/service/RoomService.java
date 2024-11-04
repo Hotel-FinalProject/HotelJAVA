@@ -1,9 +1,13 @@
 package com.example.backend.service;
 
+import java.util.stream.Collectors;
+import com.example.backend.dto.RoomDTO;
 import com.example.backend.entity.Hotel;
 import com.example.backend.entity.Room;
+import com.example.backend.entity.RoomCount;
 import com.example.backend.entity.RoomImage;
 import com.example.backend.repository.HotelRepository;
+import com.example.backend.repository.RoomCountRepository;
 import com.example.backend.repository.RoomRepository;
 import com.example.backend.repository.RoomImageRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +26,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +37,9 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final RoomImageRepository roomImageRepository;
     private final HotelRepository hotelRepository;
+    private final RoomCountRepository roomCountRepository;
     private final String API_URL = "http://apis.data.go.kr/B551011/KorService1/detailInfo1";
-    private final String SERVICE_KEY = ""; // API 키 입력
+    private final String SERVICE_KEY = "CYJBOGwIQxPrPCXYckpw8Y1TSh95hf06DbqCionckIINZdwaK3L1RvFTl2mxFbGEVRyji%2F4AhD4mtRa91Kz9vg%3D%3D"; // API 키 입력
 
     @Transactional
     public void fetchAndSaveAllRooms() throws URISyntaxException {
@@ -104,10 +110,17 @@ public class RoomService {
             room.setSofa(item.optString("roomsofa", "N").equals("Y"));
             room.setTableYn(item.optString("roomtable", "N").equals("Y"));
             room.setHairdryer(item.optString("roomhairdryer", "N").equals("Y"));
-
+            
+            // Room을 먼저 저장
+            roomRepository.save(room);
+            
+            // RoomImage를 저장
             List<RoomImage> images = saveRoomImages(item, room);
+            roomImageRepository.saveAll(images); // 이미지 저장 추가
+            
+            // 이미지 리스트 설정
             room.setImages(images);
-
+            
             rooms.add(room);
         }
         return rooms;
@@ -136,4 +149,68 @@ public class RoomService {
     public List<Room> getAllRooms() {
         return roomRepository.findAll();
     }
+    
+    // RoomService에서 RoomDTO 리스트 반환 예제
+    public List<RoomDTO> getRoomsByHotelId(Long hotelId) {
+    	Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid hotel ID"));
+    	
+        List<Room> rooms = roomRepository.findByHotel(hotel);
+        
+        return rooms.stream().map(room -> {
+            RoomDTO roomDTO = new RoomDTO();
+            roomDTO.setRoomId(room.getRoomId());
+            roomDTO.setName(room.getName());
+            roomDTO.setPrice(room.getPrice());
+            roomDTO.setDescription(room.getDescription());
+            roomDTO.setOccupancy(room.getOccupancy());
+            roomDTO.setImageUrls(room.getImages().stream()
+                .map(RoomImage::getImageUrl)
+                .collect(Collectors.toList()));
+            return roomDTO;
+        }).collect(Collectors.toList());
+    }
+    
+    public List<RoomDTO> getAllRoomsAsDTO() {
+        List<Room> rooms = roomRepository.findAll();
+        return rooms.stream().map(room -> {
+            RoomDTO roomDTO = new RoomDTO();
+            roomDTO.setRoomId(room.getRoomId());
+            roomDTO.setName(room.getName());
+            roomDTO.setPrice(room.getPrice());
+            roomDTO.setDescription(room.getDescription());
+            roomDTO.setOccupancy(room.getOccupancy());
+            roomDTO.setImageUrls(room.getImages().stream()
+                .map(RoomImage::getImageUrl)
+                .collect(Collectors.toList()));
+            roomDTO.setAvailableRooms(getAvailableRooms(room)); // 남은 객실 수 설정
+            return roomDTO;
+        }).collect(Collectors.toList());
+    }
+    
+    // 특정 날짜의 남은 객실 수 계산
+    private int getAvailableRooms(Room room) {
+        RoomCount roomCount = roomCountRepository.findByRoomAndDate(room, LocalDate.now())
+            .orElse(new RoomCount(null, LocalDate.now(), room.getTotal(), room)); // 기본적으로 전체 객실 수 설정
+        return roomCount.getRoomCount();
+    }
+    
+ // RoomService 클래스
+    public RoomDTO getRoomById(Long roomId) {
+        Room room = roomRepository.findById(roomId)
+            .orElseThrow(() -> new IllegalArgumentException("Room not found with ID: " + roomId));
+        
+        RoomDTO roomDTO = new RoomDTO();
+        roomDTO.setRoomId(room.getRoomId());
+        roomDTO.setName(room.getName());
+        roomDTO.setPrice(room.getPrice());
+        roomDTO.setDescription(room.getDescription());
+        roomDTO.setOccupancy(room.getOccupancy());
+        roomDTO.setImageUrls(room.getImages().stream()
+            .map(RoomImage::getImageUrl)
+            .collect(Collectors.toList()));
+        
+        return roomDTO;
+    }
+
 }

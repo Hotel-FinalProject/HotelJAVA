@@ -1,5 +1,6 @@
 package com.example.backend.Controller;
 
+import com.example.backend.dto.RoomDTO;
 import com.example.backend.entity.Room;
 import com.example.backend.service.RoomService;
 import lombok.RequiredArgsConstructor;
@@ -43,16 +44,30 @@ public class RoomController {
     }
 
     // 특정 호텔 객실 조회
-    @GetMapping("/hotel/{contentId}")
-    public ResponseEntity<List<Room>> getRoomsByContentId(@PathVariable("contentId") Long contentId) {
-        List<Room> rooms = roomService.getRoomsByContentId(contentId);
-        return ResponseEntity.ok(rooms);
-    }
+//    @GetMapping("/hotel/{contentId}")
+//    public ResponseEntity<List<Room>> getRoomsByContentId(@PathVariable("contentId") Long contentId) {
+//        List<Room> rooms = roomService.getRoomsByContentId(contentId);
+//        return ResponseEntity.ok(rooms);
+//    }
 
     // 모든 호텔 객실 조회
     @GetMapping("/all")
     public ResponseEntity<List<Room>> getAllRooms() {
         List<Room> rooms = roomService.getAllRooms();
         return ResponseEntity.ok(rooms);
+    }
+    
+    // 특정 호텔 객실 조회 (RoomDTO로 반환)
+    @GetMapping("/hotel/{contentId}")
+    public ResponseEntity<List<RoomDTO>> getRoomsByContentId(@PathVariable("contentId") Long contentId) {
+        List<RoomDTO> rooms = roomService.getRoomsByHotelId(contentId);
+        return ResponseEntity.ok(rooms);
+    }
+    
+    // 특정 객실 조회 (RoomDTO로 반환)
+    @GetMapping("/{roomId}")
+    public ResponseEntity<RoomDTO> getRoomById(@PathVariable("roomId") Long roomId) {
+        RoomDTO room = roomService.getRoomById(roomId);
+        return ResponseEntity.ok(room);
     }
 }
