@@ -13,7 +13,8 @@
           </router-link>
         </li>
         <li>
-          <router-link to="/register">
+          <!-- <router-link to="/register"> -->
+          <router-link to="/verify-email">
             <span class="signup_btn">회원가입</span>
           </router-link>
         </li>
