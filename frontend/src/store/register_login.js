@@ -1,4 +1,3 @@
-import jwt_decode from "jwt-decode";
 import { defineStore } from 'pinia';
 import { signupUser, loginUser, checkEmail, sendVerificationEmailAPI, verifyEmailToken } from '@/api/api'; // API 호출 함수 가져오기
 
@@ -63,16 +62,6 @@ export const useAuthStore = defineStore('auth', {
       } catch (error) {
         console.error("이메일 인증 실패:", error);
         this.isVerified = false;
-        throw error;
-      }
-    },
-
-    /** JWT 디코딩 */
-    decodeJwt(token) {
-      try {
-        return jwt_decode(token);
-      } catch (error) {
-        console.error("토큰 디코딩 중 오류:", error);
         throw error;
       }
     },
