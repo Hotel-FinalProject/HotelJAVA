@@ -6,10 +6,6 @@
         <label for="name">이름</label>
         <input type="text" id="name" v-model="name" />
       </div>
-      <div class="form-group">
-        <label for="phone">전화번호</label>
-        <input type="text" id="phone" v-model="phone" @input="formatPhone" />
-      </div>
       <button type="submit" class="find-button">아이디 찾기</button>
     </form>
 
@@ -34,33 +30,21 @@ export default {
 
     // 리액티브 변수 정의
     const name = ref("");
-    const phone = ref("");
     const foundEmail = ref("");
     const isModalVisible = ref(false);
-
-    // 전화번호 입력 포맷 설정 함수
-    const formatPhone = () => {
-      let cleaned = phone.value.replace(/\D/g, ""); // 숫자 이외의 문자 제거
-      if (cleaned.length > 3 && cleaned.length <= 7) {
-        phone.value = `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
-      } else if (cleaned.length > 7) {
-        phone.value = `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7, 11)}`;
-      } else {
-        phone.value = cleaned;
-      }
-    };
 
     // 아이디 찾기 폼 제출
     const submitForm = async () => {
       try {
-        console.log("name : " + name.value + " phone : " + phone.value);
+        console.log("name : " + name.value );
 
         // Store의 findId 메서드 호출
-        await findIdStore.findId({ name: name.value, phone: phone.value });
+        await findIdStore.findId( name.value );
         foundEmail.value = findIdStore.foundEmail; // Store에서 가져온 foundEmail 설정
         isModalVisible.value = true; // 모달 표시
       } catch (error) {
-        alert("아이디를 찾을 수 없습니다. 입력한 정보를 다시 확인해주세요.");
+        foundEmail.value = "아이디를 찾을 수 없습니다. 입력한 정보를 다시 확인해주세요.";
+        isModalVisible.value = true;
       }
     };
 
@@ -71,12 +55,10 @@ export default {
 
     return {
       name,
-      phone,
       foundEmail,
       isModalVisible,
       submitForm,
       closeModal,
-      formatPhone,
     };
   },
 };

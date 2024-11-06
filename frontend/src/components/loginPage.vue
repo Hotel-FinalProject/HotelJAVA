@@ -12,8 +12,8 @@
           <input type="password" id="passwd" v-model="passwd" @keydown.enter="submitForm" />
         </div>
         <div class="top-actions">
-          <router-link to="/register">
-            <span class="register-btn">가입하기</span>
+          <router-link to="/find-my-id">
+            <span class="find-id-btn">아이디 찾기</span>
           </router-link>
           <button type="submit" class="login-button" @click="submitForm">로그인</button>
         </div>
@@ -120,7 +120,7 @@ export default {
   text-decoration-line: none;
 }
 
-.register-btn {
+.find-id-btn {
   color: #007bff;
   text-decoration: none;
   font-weight: bold;

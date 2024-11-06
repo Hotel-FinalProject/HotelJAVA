@@ -33,8 +33,8 @@ function checkEmail(email) {
 }
 
 /** 유저 ID찾기 */
-function findIdUser(payload) {
-  return config.post('/users/find-id', payload);
+function findIdUser(name) {
+  return config.post('/users/find-id', { name });
 }
 
 /** 이메일 인증 */
