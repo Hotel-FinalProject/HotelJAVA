@@ -4,6 +4,7 @@ import com.example.backend.dto.LoginRequest;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.service.UserService;
+import com.example.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -21,10 +23,28 @@ public class UserController {
 
     private final UserService userService;
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
+
+    @GetMapping("/test")
+    public ResponseEntity<?> testUser(@RequestHeader("Authorization") String token) {
+        try {
+            // Bearer 부분을 제거하고 실제 토큰 값만 추출
+            String actualToken = token.replace("Bearer ", "");
+
+            // 토큰을 이용해 유저 ID 확인
+            Long userId = jwtUtil.verifyJwtAndGetUserId(actualToken);
+
+            // 유저 ID가 확인되면 응답
+            return ResponseEntity.ok("유저 ID는 " + userId + "입니다.");
+        } catch (Exception e) {
+            // 토큰 검증 실패 시
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요.");
+        }
+    }
 
     /** 회원가입 요청 */
     @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@RequestBody User user, @RequestParam String verificationToken) {
+    public ResponseEntity<?> signUp(@RequestBody User user, @RequestHeader String verificationToken) {
         return userService.signup(user, verificationToken);
     }
 
@@ -51,11 +71,10 @@ public class UserController {
         }
     }
 
-    /** 아이디 조회 */
+    /** 아이디 찾기 */
     @PostMapping("/find-id")
-    public ResponseEntity<String> findId(@RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<Object> findId(@RequestBody Map<String, String> requestBody) {
         String name = requestBody.get("name");
-        String phone = requestBody.get("phone");
 
         // 이름을 기반으로 사용자 리스트를 조회
         List<User> userList = userRepository.findByName(name);
@@ -73,7 +92,7 @@ public class UserController {
         for (User user : userList) {
             if ("oauth".equals(user.getLoginType())) {
                 socialAccounts.add(user);
-            } else if ("normal".equals(user.getLoginType()) && user.getPhone().equals(phone)) {
+            } else if ("normal".equals(user.getLoginType())) {
                 normalAccounts.add(user);
             }
         }
@@ -82,24 +101,31 @@ public class UserController {
         if (!socialAccounts.isEmpty()) {
             StringBuilder responseMessage = new StringBuilder("소셜 로그인 계정입니다. ");
 
-            // 소셜 로그인 제공자 정보 추가
-            for (User socialUser : socialAccounts) {
-                String provider = socialUser.getOauthProvider();
-                responseMessage.append("[").append(provider).append("]");
-            }
-
-            responseMessage.append(" 소셜 제공자를 통해 로그인해 주세요.");
+            responseMessage.append("소셜 제공자를 통해 로그인해 주세요.");
             return ResponseEntity.ok(responseMessage.toString());
         }
 
         // 일반 계정이 있을 경우
         if (!normalAccounts.isEmpty()) {
-            User user = normalAccounts.get(0);
-            return ResponseEntity.ok("회원님의 이메일은 " + user.getEmail() + " 입니다.");
+            // 이메일을 마스킹하여 반환
+            List<String> maskedEmails = normalAccounts.stream()
+                    .map(user -> maskEmail(user.getEmail()))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(maskedEmails);
         }
 
-        // 해당 이름의 소셜 계정은 있으나 전화번호가 일치하지 않을 경우
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("전화번호가 일치하지 않습니다.");
+        // 해당 이름의 소셜 계정은 있으나 일반 계정이 없을 경우
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("일반 계정을 찾을 수 없습니다.");
+    }
+
+    /** 아이디 찾기 이메일 마스킹 로직 */
+    private String maskEmail(String email) {
+        int atIdx = email.indexOf("@");
+        if (atIdx > 1) {
+            return email.substring(0, 2) + "****" + email.substring(atIdx);
+        }
+        return email; // 이메일 형식이 올바르지 않으면 마스킹하지 않음
     }
 
     /** 이메일 인증 메일 요청 */

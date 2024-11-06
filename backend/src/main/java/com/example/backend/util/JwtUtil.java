@@ -107,4 +107,38 @@ public class JwtUtil {
         // 이메일 반환 (subject)
         return signedJWT.getJWTClaimsSet().getSubject();
     }
+
+    /** JWT 검증 및 유저 ID 반환 로직
+     * @param token 검증하려는 JWT 토큰
+     * @return JWT의 userId
+     * @throws ParseException 토큰 파싱 실패 시 예외 발생
+     * @throws JOSEException 서명 검증 실패 시 예외 발생
+     * */
+    public Long verifyJwtAndGetUserId(String token) throws ParseException, JOSEException {
+        // JWT 파싱
+        SignedJWT signedJWT = SignedJWT.parse(token);
+
+        // 서명 검증
+        JWSVerifier verifier = new MACVerifier(SECRET.getBytes());
+        if (!signedJWT.verify(verifier)) {
+            throw new JOSEException("JWT 서명 검증에 실패했습니다.");
+        }
+
+        // 만료 시간 확인
+        Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        if (new Date().after(expirationTime)) {
+            throw new JOSEException("JWT가 만료되었습니다.");
+        }
+
+        // 유저 ID 반환 (Claims에서 userId를 추출)
+        Long userId = signedJWT.getJWTClaimsSet().getLongClaim("userId");
+
+        // 유저 ID가 없다면 예외를 던집니다.
+        if (userId == null) {
+            throw new JOSEException("유저 ID가 포함되지 않은 토큰입니다.");
+        }
+
+        return userId;
+    }
+
 }
