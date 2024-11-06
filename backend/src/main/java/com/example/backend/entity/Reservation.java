@@ -3,6 +3,8 @@ package com.example.backend.entity;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -42,22 +44,30 @@ public class Reservation {
 
     @LastModifiedDate
     private Date updateDate;
-    
+
     private Date checkIn;
     private Date checkOut;
 
+    private String paymentStatus; // 결제 상태
+
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false) // 고객 아이디 (외래키)
+    @JoinColumn(name = "user_id",referencedColumnName = "userId", nullable = false) // 고객 아이디 (외래키)
     private User user;
+
 
     @OneToOne
     @JoinColumn(name = "payment_id", nullable = false) // 예약 관리 번호 (외래키)
 
     private Payments payment;
 
+//    @ManyToOne
+//    @JoinColumn(name = "room_id", nullable = true)
+//    private Room room;
+    
     @ManyToOne
-    @JoinColumn(name = "room_id", nullable = true)
-    private Room room;
+    @JoinColumn(name = "room_id")
+    @JsonBackReference
+    private Room rooms;
 
     @OneToOne(mappedBy = "reservation")
     private Review review;

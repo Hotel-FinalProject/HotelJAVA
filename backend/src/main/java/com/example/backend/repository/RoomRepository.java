@@ -8,6 +8,6 @@ import com.example.backend.entity.Hotel;
 import com.example.backend.entity.Room;
 
 public interface RoomRepository extends JpaRepository<Room, Long> {
-//	List<Room> findByContentId(Long contentId);
+	
 	List<Room> findByHotel(Hotel hotel);
 }

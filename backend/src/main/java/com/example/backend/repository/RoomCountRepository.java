@@ -1,9 +1,15 @@
 package com.example.backend.repository;
 
-import com.example.backend.entity.RoomCount;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.time.LocalDate;
+import java.util.Optional;
 
-@Repository
-public interface RoomCountRepository  extends JpaRepository<RoomCount,Long> {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.example.backend.entity.Room;
+import com.example.backend.entity.RoomCount;
+
+public interface RoomCountRepository extends JpaRepository<RoomCount, Long> {
+	
+    Optional<RoomCount> findByRoomAndDate(Room room, LocalDate date);
+
 }

@@ -13,7 +13,7 @@ env:
 jobs:
   # Spring Boot 애플리케이션을 빌드하여 도커허브에 푸시하는 과정
   build-docker-image:
-    runs-on: ubuntu-latest  # self-hosted가 아닌 GitHub-hosted runner 사용
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -31,8 +31,8 @@ jobs:
       # 2. Spring Boot 애플리케이션 빌드
       - name: Build with Gradle
         run: |
-          cd backend  # backend 디렉토리로 이동
-          ./gradlew clean bootJar  # Gradle 빌드 명령 실행
+          cd backend
+          ./gradlew clean bootJar
 
       # 3. Docker 이미지 빌드
       - name: Docker image build
@@ -50,46 +50,39 @@ jobs:
         run: docker push ${{ secrets.DOCKER_USERNAME }}/erppro:${{ env.VERSION }}
 
   deploy:
-    needs: build-docker-image  # build 후에 실행되도록 정의
+    needs: build-docker-image
     name: Deploy
-    runs-on: ubuntu-latest  # self-hosted가 아닌 GitHub-hosted runner 사용
+    runs-on: ubuntu-latest
     steps:
-      - name: Docker login
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      # Nginx 컨테이너 실행
-      - name: Run Nginx container
+      # 1. AWS CLI 설치
+      - name: Install AWS CLI
         run: |
-          sudo docker stop nginx || true
-          sudo docker rm nginx || true
-          sudo docker run -d --name nginx --restart always -p 80:80 \
-            -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro nginx
+          sudo apt-get update
+          sudo apt-get install -y awscli
 
-      # WAS1 컨테이너 실행
-      - name: Run WAS1 container
+      # 2. AWS 자격 증명 설정
+      - name: Configure AWS credentials
         run: |
-          sudo docker stop was1 || true
-          sudo docker rm was1 || true
-          sudo docker run -d --name was1 --restart always -p 8081:8081 \
-            -e SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/mydb \
-            -e SPRING_DATASOURCE_USERNAME=root \
-            -e SPRING_DATASOURCE_PASSWORD=root \
-            ${{ secrets.DOCKER_USERNAME }}/erppro:${{ env.VERSION }}
+          echo "[default]" > ~/.aws/config
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/config
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/config
 
-      # WAS2 컨테이너 실행
-      - name: Run WAS2 container
+      # 3. EC2 인스턴스에 SSH로 접속하여 Docker Compose 실행
+      - name: Deploy to AWS EC2
+        env:
+          INSTANCE_IP: ${{ secrets.INSTANCE_IP }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         run: |
-          sudo docker stop was2 || true
-          sudo docker rm was2 || true
-          sudo docker run -d --name was2 --restart always -p 8082:8081 \
-            -e SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/mydb \
-            -e SPRING_DATASOURCE_USERNAME=root \
-            -e SPRING_DATASOURCE_PASSWORD=root \
-            ${{ secrets.DOCKER_USERNAME }}/erppro:${{ env.VERSION }}
-
-      # 불필요한 이미지 정리
-      - name: Clean up unused images
-        run: sudo docker image prune -af
+          echo "${{ secrets.PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@$INSTANCE_IP << 'EOF'
+            # 이전 컨테이너 정지
+            cd /home/ubuntu
+            docker-compose down || true
+          
+            # 새로운 컨테이너 시작
+            docker-compose up -d
+          
+            # 불필요한 이미지 정리
+            docker image prune -af
+          EOF

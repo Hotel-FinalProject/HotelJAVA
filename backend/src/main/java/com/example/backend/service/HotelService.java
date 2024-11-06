@@ -3,7 +3,6 @@ package com.example.backend.service;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,13 +27,12 @@ public class HotelService {
 
     @Autowired
     private HotelRepository hotelRepository;
-
-    @Value("${api.key}")
-    private  String apiKey;
-
     private final RestTemplate restTemplate = new RestTemplate();
     private final String apiUrl = "https://apis.data.go.kr/B551011/KorService1/searchStay1";
     private final String detailApiUrl = "http://apis.data.go.kr/B551011/KorService1/detailIntro1";
+
+    @Value("${api.key}")
+    private  String apiKey;
 
     public void fetchAndSaveHotels() {
         try {
@@ -48,10 +46,8 @@ public class HotelService {
             ResponseEntity<byte[]> response = restTemplate.exchange(uri, HttpMethod.GET, entity, byte[].class);
             String xmlResponse = new String(response.getBody(), StandardCharsets.UTF_8);
 
-            // XML -> JSON 변환
             JSONObject jsonObject = XML.toJSONObject(xmlResponse);
 
-            // response, body, items 키가 존재하는지 확인 후 접근
             if (jsonObject.has("response")
                     && jsonObject.getJSONObject("response").has("body")
                     && jsonObject.getJSONObject("response").getJSONObject("body").has("items")) {
@@ -79,7 +75,7 @@ public class HotelService {
         }
     }
 
-    // 상세 정보 API를 호출하여 체크인/체크아웃 시간 설정
+    // 체크인/체크아웃
     private void setCheckInOutTimes(Hotel hotel) {
         try {
             String detailUrl = detailApiUrl
@@ -98,7 +94,6 @@ public class HotelService {
             String xmlResponse = new String(response.getBody(), StandardCharsets.UTF_8);
             JSONObject jsonObject = XML.toJSONObject(xmlResponse);
 
-            // response, body, items 키가 존재하는지 확인 후 접근
             if (jsonObject.has("response")
                     && jsonObject.getJSONObject("response").has("body")
                     && jsonObject.getJSONObject("response").getJSONObject("body").has("items")) {
@@ -126,7 +121,7 @@ public class HotelService {
         }
     }
 
-    // JSON 데이터를 파싱하여 Hotel 객체로 변환
+    // 파싱
     private List<Hotel> parseJsonToHotels(JSONArray items) {
         List<Hotel> hotels = new ArrayList<>();
         for (int i = 0; i < items.length(); i++) {
@@ -147,13 +142,17 @@ public class HotelService {
         return hotels;
     }
 
-    // DB에서 모든 호텔 리스트 조회
     public List<Hotel> getAllHotels() {
         return hotelRepository.findAll();
     }
 
-    // Hotel을 contentId로 조회하는 메서드 추가
     public Optional<Hotel> findByContentId(Long contentId) {
         return hotelRepository.findByContentId(contentId);
     }
+
+    public Hotel getHotelById(Long id) {
+        return hotelRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("호텔을 찾을 수 없습니다. ID: " + id));
+    }
+
 }

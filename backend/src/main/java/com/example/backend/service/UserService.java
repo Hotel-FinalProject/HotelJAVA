@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UserService {
 
     private final UserRepository userRepository;
-//    private final JavaMailSender mailSender;
+    //    private final JavaMailSender mailSender;
     private final JwtUtil jwtUtil;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final Map<String, String> verificationTokens = new ConcurrentHashMap<>();

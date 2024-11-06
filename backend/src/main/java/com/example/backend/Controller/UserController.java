@@ -41,13 +41,17 @@ public class UserController {
         }
     }
 
-    /** 회원가입 요청 */
+    /**
+     * 회원가입 요청
+     */
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody User user, @RequestParam String verificationToken, @RequestParam String verificationCode) {
         return userService.signup(user, verificationToken, verificationCode);
     }
 
-    /** 사이트 로그인 */
+    /**
+     * 사이트 로그인
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
@@ -59,18 +63,22 @@ public class UserController {
         }
     }
 
-    /** 이메일 중복 확인 */
+    /**
+     * 이메일 중복 확인
+     */
     @GetMapping("/check-email")
-    public ResponseEntity<String> checkEmail(@RequestParam String email){
+    public ResponseEntity<String> checkEmail(@RequestParam String email) {
         boolean exists = userRepository.existsByEmail(email);
-        if(exists){
+        if (exists) {
             return ResponseEntity.status(409).body("이미 사용중인 이메일 입니다.");
         } else {
             return ResponseEntity.ok("사용 가능한 이메일 입니다.");
         }
     }
 
-    /** 아이디 조회 */
+    /**
+     * 아이디 조회
+     */
     @PostMapping("/find-id")
     public ResponseEntity<String> findId(@RequestBody Map<String, String> requestBody) {
         String name = requestBody.get("name");
@@ -122,20 +130,5 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("전화번호가 일치하지 않습니다.");
     }
 
-    /** 이메일 인증 메일 요청 */
-//    @PostMapping("/send-verification-email")
-//    public ResponseEntity<?> sendVerificationEmail(@RequestBody Map<String, String> requestBody) {
-//        String email = requestBody.get("email");
-//        if (email == null || email.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일이 필요합니다.");
-//        }
-//        return userService.sendVerificationEmail(email);
-//    }
-//
-//    /** 이메일 인증 요청 */
-//    @GetMapping("/verify-email")
-//    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
-//        return userService.verifyEmail(token);
-//    }
-
 }
+

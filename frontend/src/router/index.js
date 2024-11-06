@@ -22,11 +22,12 @@ const routes = [
     component: login,
   },
   {
-    path : '/hotel-details',
+    path: '/hotel-details/:id',
     component: () => import('@/components/HotelDetails.vue')
   },
   {
-    path : '/rooms',
+    path: '/room-details/:roomId',
+
     component: () => import('@/components/HotelRoom.vue')
   },
   {
@@ -41,12 +42,15 @@ const routes = [
     path: '/payment', // OAuth 리다이렉트 경로 추가
     component: () => import ('@/components/PaymentPage.vue'),
   }
-  
+
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior() {
+    return { top: 0 };
+  }
 });
 
 export default router;

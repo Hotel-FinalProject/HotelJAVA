@@ -1,5 +1,7 @@
 package com.example.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,12 +25,10 @@ public class RoomImage {
 
     @Column(nullable = true)
     private String imageUrl; // 객실 이미지 URL (S3 이미지 경로)
-
-//    @Column(nullable = true)
-//    private String imageAlt; // 객실 이미지 설명 (alt 텍스트)
     
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false) // 객실 관리 번호 (외래키)
+    @JsonBackReference
     private Room room;
 }
 
