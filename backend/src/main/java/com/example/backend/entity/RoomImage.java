@@ -28,7 +28,7 @@ public class RoomImage {
     
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false) // 객실 관리 번호 (외래키)
-    @JsonBackReference // Room과의 순환 참조 방지
+    @JsonBackReference
     private Room room;
 }
 

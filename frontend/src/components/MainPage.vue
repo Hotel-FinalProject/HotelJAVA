@@ -115,9 +115,9 @@ export default {
 }
 
 .img-container {
-  width: 180px; /* 고정된 너비 */
-  height: 120px; /* 고정된 높이 */
-  object-fit: cover; /* 이미지 비율을 유지하면서 컨테이너에 맞게 자름 */
+  width: 180px;
+  height: 120px;
+  object-fit: cover;
   border-radius: 10px;
 }
 
@@ -126,7 +126,7 @@ export default {
   font-weight: bold;
   text-align: center;
   width: 90%;
-  max-width: 140px; /* 이미지 폭에 맞춰 이름 너비 제한 */
+  max-width: 140px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

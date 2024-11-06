@@ -12,5 +12,24 @@ public class RoomDTO {
 	    private BigDecimal price;
 	    private String description;
 	    private Long occupancy;
-	    private List<String> imageUrls;private int availableRooms; // 남은 객실 수 필드 추가
+	    private List<String> imageUrls;
+	    private String primaryImageUrl;
+	    private int availableRooms;
+	    
+	    private boolean bathFacility;
+	    private boolean bath;
+	    private boolean airCondition;
+	    private boolean tv;
+	    private boolean cable;
+	    private boolean internet;
+	    private boolean refrigerator;
+	    private boolean toiletries;
+	    private boolean sofa;
+	    private boolean tableYn;
+	    private boolean hairdryer;
+	    
+	    private String hotelPhone;
+	    private String hotelAddress;
+	    private String hotelCheckIn;
+	    private String hotelCheckOut;
 }

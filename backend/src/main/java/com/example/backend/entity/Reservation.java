@@ -51,7 +51,7 @@ public class Reservation {
     
     @ManyToOne
     @JoinColumn(name = "room_id")
-    @JsonBackReference // 순환 참조 방지
+    @JsonBackReference
     private Room rooms;
 
     @OneToOne(mappedBy = "reservation")

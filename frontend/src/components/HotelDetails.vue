@@ -1,6 +1,16 @@
 <template>
   <div v-if="hotel" class="details-container">
-    <img :src="hotel.imageUrl || defaultImage" class="img-container" alt="Hotel Image" />
+    <!-- 호텔 이미지 -->
+    <div class="img-container">
+      <template v-if="hotel.imageUrl">
+        <img :src="hotel.imageUrl" alt="Hotel Image" />
+      </template>
+      <template v-else>
+        <p class="no-image-text">업체측에서 제공된 이미지가 없습니다</p>
+      </template>
+    </div>
+
+    <!-- 호텔 정보 -->
     <div class="hotel-info-card">
       <h2 class="hotel-name">{{ hotel.name }}</h2>
       <div class="hotel-info">
@@ -8,10 +18,8 @@
         <span>({{ hotel.reviewCount || 0 }} 리뷰)</span>
       </div>
       <div class="hotel-info-details">
-        <p>전화번호 : {{ hotel.hotelnum || "N/A" }}</p>
-        <p>주소 : {{ hotel.address || "N/A" }}</p>
-        <p>체크인 : {{ hotel.checkIn || "N/A" }}</p>
-        <p>체크아웃 : {{ hotel.checkOut || "N/A" }}</p>
+        <p>전화번호 : {{ hotel.hotelnum || "업체측에서 제공된 정보가 없습니다." }}</p>
+        <p>주소 : {{ hotel.address || "업체측에서 제공된 정보가 없습니다." }}</p>
       </div>
     </div>
 
@@ -129,6 +137,15 @@ export default {
   border-radius: 15px;
   overflow: hidden;
   margin-bottom: 20px;
+}
+.no-image-text {
+  font-size: 16px;
+  color: gray;
+  text-align: center;
+  padding: 50px 0;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  background-color: #f8f8f8;
 }
 .hotel-info-card {
   background-color: #f9f9f9;

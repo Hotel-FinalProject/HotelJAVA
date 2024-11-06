@@ -39,7 +39,7 @@ public class RoomService {
     private final HotelRepository hotelRepository;
     private final RoomCountRepository roomCountRepository;
     private final String API_URL = "http://apis.data.go.kr/B551011/KorService1/detailInfo1";
-    private final String SERVICE_KEY = "CYJBOGwIQxPrPCXYckpw8Y1TSh95hf06DbqCionckIINZdwaK3L1RvFTl2mxFbGEVRyji%2F4AhD4mtRa91Kz9vg%3D%3D"; // API 키 입력
+    private final String SERVICE_KEY = ""; // API 키 입력
 
     @Transactional
     public void fetchAndSaveAllRooms() throws URISyntaxException {
@@ -111,14 +111,11 @@ public class RoomService {
             room.setTableYn(item.optString("roomtable", "N").equals("Y"));
             room.setHairdryer(item.optString("roomhairdryer", "N").equals("Y"));
             
-            // Room을 먼저 저장
             roomRepository.save(room);
             
-            // RoomImage를 저장
             List<RoomImage> images = saveRoomImages(item, room);
-            roomImageRepository.saveAll(images); // 이미지 저장 추가
+            roomImageRepository.saveAll(images);
             
-            // 이미지 리스트 설정
             room.setImages(images);
             
             rooms.add(room);
@@ -150,7 +147,6 @@ public class RoomService {
         return roomRepository.findAll();
     }
     
-    // RoomService에서 RoomDTO 리스트 반환 예제
     public List<RoomDTO> getRoomsByHotelId(Long hotelId) {
     	Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid hotel ID"));
@@ -167,6 +163,20 @@ public class RoomService {
             roomDTO.setImageUrls(room.getImages().stream()
                 .map(RoomImage::getImageUrl)
                 .collect(Collectors.toList()));
+            roomDTO.setAvailableRooms(getAvailableRooms(room));
+            
+            roomDTO.setBathFacility(room.isBathFacility());
+            roomDTO.setBath(room.isBath());
+            roomDTO.setAirCondition(room.isAirCondition());
+            roomDTO.setTv(room.isTv());
+            roomDTO.setCable(room.isCable());
+            roomDTO.setInternet(room.isInternet());
+            roomDTO.setRefrigerator(room.isRefrigerator());
+            roomDTO.setToiletries(room.isToiletries());
+            roomDTO.setSofa(room.isSofa());
+            roomDTO.setTableYn(room.isTableYn());
+            roomDTO.setHairdryer(room.isHairdryer());
+            
             return roomDTO;
         }).collect(Collectors.toList());
     }
@@ -183,7 +193,7 @@ public class RoomService {
             roomDTO.setImageUrls(room.getImages().stream()
                 .map(RoomImage::getImageUrl)
                 .collect(Collectors.toList()));
-            roomDTO.setAvailableRooms(getAvailableRooms(room)); // 남은 객실 수 설정
+            roomDTO.setAvailableRooms(getAvailableRooms(room));
             return roomDTO;
         }).collect(Collectors.toList());
     }
@@ -191,11 +201,10 @@ public class RoomService {
     // 특정 날짜의 남은 객실 수 계산
     private int getAvailableRooms(Room room) {
         RoomCount roomCount = roomCountRepository.findByRoomAndDate(room, LocalDate.now())
-            .orElse(new RoomCount(null, LocalDate.now(), room.getTotal(), room)); // 기본적으로 전체 객실 수 설정
+            .orElse(new RoomCount(null, LocalDate.now(), room.getTotal(), room));
         return roomCount.getRoomCount();
     }
     
- // RoomService 클래스
     public RoomDTO getRoomById(Long roomId) {
         Room room = roomRepository.findById(roomId)
             .orElseThrow(() -> new IllegalArgumentException("Room not found with ID: " + roomId));
@@ -210,7 +219,33 @@ public class RoomService {
             .map(RoomImage::getImageUrl)
             .collect(Collectors.toList()));
         
+        List<String> imageUrls = room.getImages().stream()
+            .map(RoomImage::getImageUrl)
+            .collect(Collectors.toList());
+        roomDTO.setImageUrls(imageUrls);
+        roomDTO.setPrimaryImageUrl(!imageUrls.isEmpty() ? imageUrls.get(0) : null);
+
+        
+        roomDTO.setAvailableRooms(getAvailableRooms(room));
+        
+        roomDTO.setBathFacility(room.isBathFacility());
+        roomDTO.setBath(room.isBath());
+        roomDTO.setAirCondition(room.isAirCondition());
+        roomDTO.setTv(room.isTv());
+        roomDTO.setCable(room.isCable());
+        roomDTO.setInternet(room.isInternet());
+        roomDTO.setRefrigerator(room.isRefrigerator());
+        roomDTO.setToiletries(room.isToiletries());
+        roomDTO.setSofa(room.isSofa());
+        roomDTO.setTableYn(room.isTableYn());
+        roomDTO.setHairdryer(room.isHairdryer());
+        
+        Hotel hotel = room.getHotel();
+        roomDTO.setHotelPhone(hotel.getHotelnum());
+        roomDTO.setHotelAddress(hotel.getAddress());
+        roomDTO.setHotelCheckIn(hotel.getCheckIn());
+        roomDTO.setHotelCheckOut(hotel.getCheckOut());
+        
         return roomDTO;
     }
-
 }

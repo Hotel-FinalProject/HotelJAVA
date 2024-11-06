@@ -43,13 +43,6 @@ public class RoomController {
         }
     }
 
-    // 특정 호텔 객실 조회
-//    @GetMapping("/hotel/{contentId}")
-//    public ResponseEntity<List<Room>> getRoomsByContentId(@PathVariable("contentId") Long contentId) {
-//        List<Room> rooms = roomService.getRoomsByContentId(contentId);
-//        return ResponseEntity.ok(rooms);
-//    }
-
     // 모든 호텔 객실 조회
     @GetMapping("/all")
     public ResponseEntity<List<Room>> getAllRooms() {

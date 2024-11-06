@@ -55,6 +55,6 @@ public class Hotel {
     private List<Review> reviews;
 
     @OneToMany(mappedBy = "hotel")
-    private Set<Favorites> favorite; //중복 방지
+    private Set<Favorites> favorite;
 }
 

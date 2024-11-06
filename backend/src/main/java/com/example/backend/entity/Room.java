@@ -38,29 +38,29 @@ public class Room {
     private Long occupancy; // 기준 인원
     
     // 편의시설 관련 필드
-    private boolean bathFacility;
-    private boolean bath;
+    private boolean bathFacility; // 목욕 시설
+    private boolean bath; // 욕조
     private boolean airCondition;
     private boolean tv;
     private boolean cable;
     private boolean internet;
-    private boolean refrigerator;
-    private boolean toiletries;
+    private boolean refrigerator; // 냉장고
+    private boolean toiletries; // 세면도구
     private boolean sofa;
-    private boolean tableYn;
-    private boolean hairdryer;
+    private boolean tableYn; // 테이블
+    private boolean hairdryer; // 드라이기
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hotel_id", nullable = false) // 호텔 관리 번호 (외래키)
-    @JsonBackReference // 순환 참조 방지
+    @JsonBackReference
     private Hotel hotel;
     
     @OneToMany(mappedBy = "rooms")
-    @JsonManagedReference // Reservation과의 관계에서 Room이 Managed Reference
+    @JsonManagedReference
     private List<Reservation> reservation;
 
     @OneToMany(mappedBy = "room")
-    @JsonManagedReference // Room이 RoomImage와의 관계에서 Managed Reference
+    @JsonManagedReference
     private List<RoomImage> images;
 }
 

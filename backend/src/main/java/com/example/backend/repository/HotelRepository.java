@@ -12,7 +12,4 @@ import com.example.backend.entity.Hotel;
 public interface HotelRepository extends JpaRepository<Hotel, Long> {
 	
 	Optional<Hotel> findByContentId(Long contentId);
-	
-	// 페이징된 호텔 목록 조회
-//    Page<Hotel> findAll(Pageable pageable);
 }

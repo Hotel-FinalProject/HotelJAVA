@@ -29,7 +29,7 @@ const routes = [
         component: () => import('@/components/HotelDetails.vue')
       },
       {
-        path: 'room-details/:roomId', // 동적 매개변수 roomId를 추가하여 특정 객실 페이지로 이동
+        path: 'room-details/:roomId',
         component: () => import('@/components/HotelRoom.vue')
       },
       {
@@ -47,6 +47,9 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior() {
+    return { top: 0 };
+  }
 });
 
 export default router;
