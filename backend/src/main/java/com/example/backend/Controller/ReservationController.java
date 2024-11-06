@@ -1,62 +1,64 @@
 package com.example.backend.Controller;
 
 import com.example.backend.dto.ReservationDTO;
-import com.example.backend.entity.Payment;
 import com.example.backend.entity.User;
 import com.example.backend.service.PaymentService;
-
+import com.example.backend.service.UserService;
+import com.example.backend.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.text.ParseException;
 
 @RestController
 @RequestMapping("/api/auth")
-//public class ReservationController {
-//
-//    @Autowired
-//    private  ReservationService reservationService;
-//
-//
-//    @PostMapping("/reservation")
-//    public ResponseEntity<Payment> createReservation(
-//            @AuthenticationPrincipal User user, // 로그인한 사용자 정보
-//            @RequestBody ReservationDTO reservationDTO) {
-//
-//        Payment payment = reservationService.createReservationAndProcessPayment(user, reservationDTO);
-//        return ResponseEntity.ok(payment);
-//    }
-//}
-
 public class ReservationController {
 
     @Autowired
+    private PaymentService paymentService;
 
-    private  PaymentService paymentService;
+    @Autowired
+    private UserController userController;
 
-    @PostMapping("/verify")
-    public ResponseEntity<String> verifyPayment(@RequestBody Map<String, String> requestBody) {
-        String impUid = requestBody.get("imp_uid");
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @PostMapping("/reservation/{imp_uid}")
+    public ResponseEntity<?> verifyPayment(
+            @PathVariable("imp_uid") String imp_uid,
+            @RequestBody ReservationDTO reservationDTO,
+            @RequestHeader("Authorization") String token) {
 
         try {
-            // 아임포트 토큰 발급
-            String token = paymentService.getAuthToken();
+            // 토큰에서 "Bearer " 부분 제거
+            String actualToken = token.replace("Bearer ", "");
 
-            // 결제 검증 요청
-            Map<String, Object> paymentData = paymentService.verifyPayment(impUid, token);
+            // JWT에서 userId 추출
+            Long userId = jwtUtil.verifyJwtAndGetUserId(actualToken);
 
-            if (paymentData != null && paymentData.get("status").equals("paid")) {
-                // 결제 완료된 상태
-                return ResponseEntity.ok("결제가 완료되었습니다.");
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("결제 검증에 실패했습니다.");
+            // userId 출력 (디버그용)
+            System.out.println("Extracted userId: " + userId);
+
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
             }
 
+            if (imp_uid != null) {
+                paymentService.verifyPayment(userId, imp_uid, reservationDTO);
+                return ResponseEntity.ok("결제 완료");
+            } else {
+                return ResponseEntity.badRequest().body("결제 검증 실패");
+            }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("결제 확인 중 오류 발생: " + e.getMessage());
+            // 예외 발생 시 예외 메시지와 함께 응답
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요. 오류: " + e.getMessage());
         }
     }
+
+
+
 }

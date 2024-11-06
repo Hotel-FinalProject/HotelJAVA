@@ -10,7 +10,6 @@ public class ReservationDTO {
     private int guestNum; // 투숙 인원
     private Date checkIn; // 체크인 날짜
     private Date checkOut; // 체크아웃 날짜
-    private String paymentMethod; // 결제 방법
-    private String uid;
-    private int amount;
+
+    private Long userId;
 }

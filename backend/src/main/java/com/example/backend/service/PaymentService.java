@@ -1,65 +1,94 @@
 package com.example.backend.service;
 
-import com.example.backend.entity.Payment;
+import com.example.backend.dto.ReservationDTO;
 import com.example.backend.entity.Reservation;
+import com.example.backend.entity.User;
+import com.example.backend.entity.Payments;
 import com.example.backend.repository.PaymentRepository;
-import org.json.JSONObject;
+import com.example.backend.repository.ReservationRepository;
+import com.example.backend.repository.UserRepository;
+import com.siot.IamportRestClient.IamportClient;
+import com.siot.IamportRestClient.response.IamportResponse;
+import com.siot.IamportRestClient.response.Payment;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.math.BigDecimal;
-import org.springframework.http.HttpHeaders;
 import java.util.Date;
-import java.util.Map;
 
 @Service
 public class PaymentService {
 
-    private final String IMP_KEY = ""; // 아임포트 가맹점 키
-    private final String IMP_SECRET = ""; // 아임포트 가맹점 비밀 키
+    private final IamportClient iamportClient;
+    private final PaymentRepository paymentRepository;
+    private final ReservationRepository reservationRepository;
+    private final UserRepository userRepository;
 
-    public String getAuthToken() {
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "https://api.iamport.kr/users/getToken";
+    // 생성자를 통한 주입 방식
+    @Autowired
+    public PaymentService(
+            @Value("${import.api-key}") String serviceKey,
+            @Value("${import.secret-key}") String secretKey,
+            PaymentRepository paymentRepository,
+            ReservationRepository reservationRepository,
+            UserRepository userRepository) {
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("imp_key", IMP_KEY);
-        requestBody.put("imp_secret", IMP_SECRET);
-
-        HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
-        ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            JSONObject jsonResponse = new JSONObject(response.getBody());
-            return jsonResponse.getJSONObject("response").getString("access_token");
-        } else {
-            throw new RuntimeException("Failed to get Iamport token");
-        }
+        this.iamportClient = new IamportClient(serviceKey, secretKey);
+        this.paymentRepository = paymentRepository;
+        this.reservationRepository = reservationRepository;
+        this.userRepository = userRepository;
     }
 
-    public Map<String, Object> verifyPayment(String impUid, String token) {
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "https://api.iamport.kr/payments/" + impUid;
+    @Transactional
+    public void verifyPayment(Long userId, String imp_uid, ReservationDTO reservationDTO) throws IOException {
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        IamportResponse<Payment> iamportResponse = iamportClient.paymentByImpUid(imp_uid);
 
-        if (response.getStatusCode() == HttpStatus.OK) {
-            JSONObject jsonResponse = new JSONObject(response.getBody());
-            return jsonResponse.getJSONObject("response").toMap();
+        if (iamportResponse == null || iamportResponse.getResponse() == null) {
+            throw new RuntimeException("결제 정보를 가져오는 데 실패했습니다. imp_uid: " + imp_uid);
+        }
+
+        BigDecimal amount = iamportResponse.getResponse().getAmount();
+        String status = iamportResponse.getResponse().getStatus();
+        String paymentMethod = iamportResponse.getResponse().getPgProvider();
+        Date date = new Date();
+        if ("paid".equals(status)) {
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. userId: " + userId));
+            if (paymentRepository.countByTransactionIdContainsIgnoreCase(imp_uid) == 0) {
+                Payments payments = Payments.builder()
+                        .transactionId(imp_uid)
+                        .amount(amount)
+                        .date(date)
+                        .status("결제완료")
+                        .method(paymentMethod)
+                        .build();
+
+                payments = paymentRepository.save(payments);
+
+
+                Reservation reservation = Reservation.builder()
+                        .user(user)
+                        .payment(payments)
+                        .status("예약 완료")
+                        .checkIn(reservationDTO.getCheckIn())
+                        .checkOut(reservationDTO.getCheckOut())
+                        .guestNum(reservationDTO.getGuestNum())
+                        .build();
+
+                reservationRepository.save(reservation);
+
+            } else {
+                throw new RuntimeException("이미 결제 되었습니다.");
+            }
         } else {
-            throw new RuntimeException("Failed to verify payment");
+            throw new RuntimeException("결제 오류: 결제 상태가 " + status + "입니다.");
         }
     }
-
-
 
 }

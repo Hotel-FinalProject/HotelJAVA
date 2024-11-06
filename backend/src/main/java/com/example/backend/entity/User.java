@@ -1,5 +1,7 @@
 package com.example.backend.entity;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -10,14 +12,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId; // 고객 관리 번호
@@ -31,10 +37,15 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email; // 고객 이메일
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String phone; // 고객 전화번호
 
     private String role; // 권한
+
+    @Column(nullable = false)
+    private String loginType;
+
+    private String oauthProvider;
 
     @OneToMany(mappedBy = "user")
     private List<Reservation> reservations;
@@ -44,6 +55,21 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Review> reviews;
+
+    @Builder
+    public User(String email, String password, String name){
+        this.email = email;
+        this.password = password;
+        this.name = name;
+    }
+
+    public User update(String name) {
+        this.name = name;
+
+        return this;
+    }
+
+
 }
 
 

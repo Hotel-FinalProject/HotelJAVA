@@ -33,21 +33,29 @@
         </div>
         <h2 class="price">47,000원</h2>
         <div class ="reservation-info">
-            <h3> 예약자 정보 <span class="asterisk">*</span></h3>
-            <div class="info-container">
-                <div class="user-conatiner">
-                    <span class="user-info"> 성명</span><span class="asterisk">*</span><br>
-                    <div>
-                        <input class="user-input" type="text">
+            <div class="reservation-info-conatiner">
+                <h3> 예약자 정보 <span class="asterisk">*</span></h3>
+                <div class="info-container">
+                    <div class="user-conatiner">
+                        <span class="user-info"> 성명</span><span class="asterisk">*</span><br>
+                        <div>
+                            <input class="user-input" type="text">
+                        </div>
                     </div>
-                </div>
-                <div class="user-conatiner">
-                    <span class="user-info"> 휴대폰 번호</span><span class="asterisk">*</span><br>
-                    <div>
-                        <input class="user-input"  type="tel">
+                    <div class="user-conatiner">
+                        <span class="user-info"> 휴대폰 번호</span><span class="asterisk">*</span><br>
+                        <div>
+                            <input class="user-input"  type="tel">
+                        </div>
                     </div>
-                </div>
-                <div class="tel-info"> 입력하신 번호는 숙소로 전달됩니다. </div>
+                    <div class="user-conatiner">
+                        <span class="user-info"> 요청사항</span><br>
+                        
+                        <div>
+                            <input class="request"  type="text">
+                        </div>
+                    </div>
+                </div>         
             </div>
         </div>
     </div>
@@ -73,7 +81,11 @@
     </div>
     <div class="payment-method-conatiner">
         <h3>결제 수단</h3>
-        <div> <button @click="submitReservation" class="submit-button">결제</button></div>
+        <div> <button @click="submitReservation('html5_inicis')" class="submit-button">카드 결제</button></div>
+        <div> <button @click="submitReservation('kakaopay')" class="submit-button">카카오페이</button></div>
+        <div> <button @click="submitReservation('tosspay')" class="submit-button">토스페이</button></div>
+        
+   
     </div>
     <div class="payment-agree-conatiner">
         <div class ="payment-agree-top">
@@ -121,37 +133,69 @@
 
 
 <script>
+import axios from 'axios';
+import { useAuthStore } from "@/store/register_login";
 
 export default {
   data() {
     return {
       userName: '',
       userPhone: '',
-      totalPrice: 100, // 예시 결제 금액
+      totalPrice: 47000, // 결제 금액
     };
   },
+  created() {
+    // 로그인 상태 확인
+    const authStore = useAuthStore();
+    authStore.checkLoginStatus(); // 로그인 상태 확인 후 저장
+    this.isLoggedIn = authStore.LoggedIn; // 로그인 여부 상태 저장
+  },
+
   methods: {
-    submitReservation() {
+    async submitReservation(pg_method) {
+     const authStore = useAuthStore(); // 로그인 상태 가져오기
+     const userId = authStore.currentUser ? authStore.currentUser.id : null; // 로그인한 유저의 index 값
+        
+      if (!userId) {
+        alert("로그인 후 예약을 진행해주세요.");
+        return;
+      }
       const IMP = window.IMP; // 아임포트 객체
-      IMP.init('imp45605876'); // 가맹점 식별코드 (아임포트에서 발급받은 가맹점 코드)
+      IMP.init('imp45605876'); // 가맹점 식별코드
 
       IMP.request_pay(
         {
-          pg: 'html5_inicis', // PG사 선택 (예: 'kakao', 'html5_inicis' 등)
-          pay_method: 'card', // 결제 수단
-          merchant_uid: `mid_${new Date().getTime()}`, // 고유 주문번호
+          pg: pg_method,
+          pay_method: 'card',
+          merchant_uid: `mid_${new Date().getTime()}`,
           name: '숙소 예약 결제',
           amount: this.totalPrice,
           buyer_name: this.userName,
           buyer_tel: this.userPhone,
         },
-        function (rsp) {
+        async (rsp) => {
           if (rsp.success) {
-            // 결제 성공 시 처리 로직
-            alert('결제가 완료되었습니다.');
-            // 결제 정보를 서버로 전송하여 추가 처리
+            const imp_uid = rsp.imp_uid;
+            try {
+              // 예약 정보 저장
+              const reservationResponse = await axios.post(`http://localhost:8081/api/auth/reservation`, {
+                userId: userId, 
+                userName: this.userName,
+                userPhone: this.userPhone,
+                checkIn: '2024-10-26T14:00:00',
+                checkOut: '2024-10-27T14:00:00',
+                totalPrice: this.totalPrice,
+                guestNum: 2,
+                imp_uid: imp_uid,
+              });
+
+              console.log(reservationResponse.data);
+              alert('결제가 완료되었습니다.');
+            } catch (error) {
+              console.error('서버 요청 실패:', error);
+              alert('결제 정보 저장에 실패하였습니다.');
+            }
           } else {
-            // 결제 실패 시 처리 로직
             alert(`결제에 실패하였습니다: ${rsp.error_msg}`);
           }
         }
@@ -159,6 +203,10 @@ export default {
     },
   },
 };
+
+
+     
+
 </script>
 <style>
 .details-container{
@@ -219,6 +267,17 @@ hr{
 .asterisk{
     color:red;
 }
+.reservation-info{
+    border : 1px solid lightgray;
+    width: 100%;
+}
+.reservation-info-conatiner{
+    margin-left:20px;
+}
+.info-container{
+    width:100%;
+
+}
 .user-info,.tel-info{
     color : rgb(109, 109, 109)
 }
@@ -227,12 +286,18 @@ hr{
      color : rgb(109, 109, 109)
 }
 .user-conatiner{
-    margin-top:10px;
+    width: 100%;
     margin-bottom:20px;
 }
 .user-input{
     margin-top:10px;
-    width: 100%;
+    width: 97%;
+    
+}
+.request{
+    width: 97%;
+    height:100px;
+    margin-top:10px;
 }
 .payment-info-title{
     display:flex;

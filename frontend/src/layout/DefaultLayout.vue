@@ -1,10 +1,8 @@
 <template>
   <div class="layout">
-    <div class="layout-content">
-      <main class="main-content">
-        <router-view/>
-      </main>
-    </div>
+    <main class="main-content">
+      <router-view/>
+    </main>
   </div>
 </template>
 
@@ -30,6 +28,6 @@ export default {
 
 .main-content {
   flex: 1;
-  padding: 20px;
+  padding: 10px;
 }
 </style>

@@ -22,6 +22,8 @@ public class Room {
     private BigDecimal price; // 객실 가격
     @Column(length = 1000)
     private String description; // 객실 설명
+
+    private String type; // 객실 유형
     private Long occupancy; // 기준 인원
     
     // 편의시설 관련 필드
