@@ -12,9 +12,9 @@ const config = axios.create({
 /** 회원가입 */
 function signupUser(userData, verificationToken) {
   return config.post('/users/signup', userData, {
-    params: {
-      verificationToken: verificationToken,
-    },
+    headers: {
+      'Authorization': `Bearer ${verificationToken}`,
+    }, 
   });
 }
 
@@ -49,6 +49,15 @@ function verifyEmailToken(token) {
   return config.get('/users/verify-email', {
     params: {
       token: token
+    }
+  });
+}
+
+/** 유저 정보 가져오기 */
+export function getUserInfo(token) {
+  return config.get('/users/me', {
+    headers: {
+      'Authorization': `Bearer ${token}`
     }
   });
 }
