@@ -21,13 +21,6 @@ export const useAuthStore = defineStore('auth', {
           throw new Error("이메일 인증 토큰이 없습니다.");
         }
 
-        // const payload = {
-        //   ...userData,
-        //   verificationToken: this.verificationToken
-        // };
-
-        // const response = await signupUser(payload);
-        // return response;
         const response = await signupUser(userData, this.verificationToken);
         return response;
       } catch (error) {
@@ -114,8 +107,8 @@ export const useAuthStore = defineStore('auth', {
     checkLoginStatus() {
       const token = sessionStorage.getItem('token');
       if (token) {
-        this.accessToken = token;
-        this.LoggedIn = true;
+          this.accessToken = token;
+          this.LoggedIn = true;
       } else {
         this.LoggedIn = false;
       }
