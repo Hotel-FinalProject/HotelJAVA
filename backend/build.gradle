@@ -67,7 +67,8 @@ dependencies {
 	implementation 'javax.annotation:javax.annotation-api:1.3.2'
 	// OAuth
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-
+	// SMTP
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 tasks.named('test') {

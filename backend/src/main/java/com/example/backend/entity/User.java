@@ -57,7 +57,7 @@ public class User  {
     private List<Review> reviews;
 
     @Builder
-    public User(String email, String password, String name){
+    public User(String email, String password, String name) {
         this.email = email;
         this.password = password;
         this.name = name;
@@ -65,7 +65,6 @@ public class User  {
 
     public User update(String name) {
         this.name = name;
-
         return this;
     }
 

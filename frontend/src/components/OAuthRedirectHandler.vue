@@ -19,8 +19,9 @@ export default {
       const token = route.query.token;
 
       if (token) {
-        // 토큰을 Pinia 스토어에 저장하고 인증 상태를 업데이트
+        // 토큰을 Pinia 스토어, 세션 스토리지에 저장하고 인증 상태를 업데이트
         authStore.setAccessToken(token);
+        sessionStorage.setItem('token', token);
 
         // 메인 페이지로 리다이렉트
         router.push({ path: "/" });
