@@ -96,17 +96,19 @@
     <!-- 편의시설 정보 -->
     <div class="amenities-container">
       <h2 class="section-title">편의시설</h2>
-      <p>목욕시설: <span>{{ room.bathFacility ? '✅' : '❌' }}</span></p>
-      <p>욕조: <span>{{ room.bath ? '✅' : '❌' }}</span></p>
-      <p>에어컨: <span>{{ room.airCondition ? '✅' : '❌' }}</span></p>
-      <p>TV: <span>{{ room.tv ? '✅' : '❌' }}</span></p>
-      <p>케이블: <span>{{ room.cable ? '✅' : '❌' }}</span></p>
-      <p>인터넷: <span>{{ room.internet ? '✅' : '❌' }}</span></p>
-      <p>냉장고: <span>{{ room.refrigerator ? '✅' : '❌' }}</span></p>
-      <p>세면도구: <span>{{ room.toiletries ? '✅' : '❌' }}</span></p>
-      <p>소파: <span>{{ room.sofa ? '✅' : '❌' }}</span></p>
-      <p>테이블: <span>{{ room.tableYn ? '✅' : '❌' }}</span></p>
-      <p>드라이기: <span>{{ room.hairdryer ? '✅' : '❌' }}</span></p>
+      <div class="amenities-grid">
+        <p>목욕시설: <span>{{ room.bathFacility ? '✅' : '❌' }}</span></p>
+        <p>욕조: <span>{{ room.bath ? '✅' : '❌' }}</span></p>
+        <p>에어컨: <span>{{ room.airCondition ? '✅' : '❌' }}</span></p>
+        <p>TV: <span>{{ room.tv ? '✅' : '❌' }}</span></p>
+        <p>케이블: <span>{{ room.cable ? '✅' : '❌' }}</span></p>
+        <p>인터넷: <span>{{ room.internet ? '✅' : '❌' }}</span></p>
+        <p>냉장고: <span>{{ room.refrigerator ? '✅' : '❌' }}</span></p>
+        <p>세면도구: <span>{{ room.toiletries ? '✅' : '❌' }}</span></p>
+        <p>소파: <span>{{ room.sofa ? '✅' : '❌' }}</span></p>
+        <p>테이블: <span>{{ room.tableYn ? '✅' : '❌' }}</span></p>
+        <p>드라이기: <span>{{ room.hairdryer ? '✅' : '❌' }}</span></p>
+      </div>
     </div>
   </div>
 </template>
@@ -306,6 +308,11 @@ export default {
 }
 .amenities-container {
   margin-top: 20px;
+}
+.amenities-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
 }
 .section-title {
   font-size: 20px;
