@@ -27,7 +27,7 @@ public class RoomCount {
 	 
 	 private LocalDate date;
 
-	@ColumnDefault("10")
+	 @ColumnDefault("10")
 	 private int roomCount;
 	 
 	 @ManyToOne(fetch = FetchType.LAZY)

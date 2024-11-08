@@ -269,6 +269,7 @@ export default {
   position: absolute;
   bottom: 10px;
   left: 10px;
+  margin-left: 10px;
 }
 .reservation-bottom {
   display: flex;

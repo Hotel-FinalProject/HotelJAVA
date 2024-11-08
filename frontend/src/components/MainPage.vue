@@ -199,7 +199,7 @@ export default {
   max-height: 150px;
   overflow-y: auto;
   position: absolute;
-  width: 965px;
+  width: 1000px;
 }
 
 .autocomplete-item {
