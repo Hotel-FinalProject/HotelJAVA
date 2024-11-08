@@ -3,6 +3,8 @@ import MainPage from "@/components/MainPage.vue";
 import register from '@/components/registerPage.vue';
 import login from '@/components/loginPage.vue'
 import OAuthRedirectHandler from '@/components/OAuthRedirectHandler.vue';
+import EmailVerificationPage from '@/components/UserPages/EmailVerificationPage.vue';
+import HotelAdminPage from '@/components/HotelAdminPage.vue'; // 호텔 관리자 페이지
 
 const routes = [
   {
@@ -41,8 +43,15 @@ const routes = [
   {
     path: '/payment', // OAuth 리다이렉트 경로 추가
     component: () => import ('@/components/PaymentPage.vue'),
-  }
-
+  },
+  {
+    path: '/verify-email', // 이메일 인증 페이지 경로
+    component: EmailVerificationPage
+  },
+  {
+    path: '/admin/hotel', // 호텔 관리자 페이지 경로
+    component: HotelAdminPage
+  },
 ];
 
 const router = createRouter({
