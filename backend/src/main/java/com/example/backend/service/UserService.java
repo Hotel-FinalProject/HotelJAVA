@@ -129,9 +129,11 @@ public class UserService {
     }
 
     /** 이메일 인증 메일 전송 */
-    public ResponseEntity<?> sendVerificationEmail(String email) {
+    public ResponseEntity<?> sendVerificationEmail(String email, String mode) {
         Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
+
+        // 'signup' 모드인 경우에만 이메일 중복 여부를 확인
+        if ("signup".equals(mode) && userOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 사용 중인 이메일입니다.");
         }
 
@@ -143,16 +145,14 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("JWT 생성 중 오류가 발생했습니다.");
         }
 
-        // 이메일 발송
-        sendVerificationEmailInternal(email, verificationToken);  // 이메일 발송 추가
+        // 이메일 발송 - 모드를 포함하여 전송
+        sendVerificationEmailInternal(email, verificationToken, mode);
 
         return ResponseEntity.ok("인증 이메일이 발송되었습니다.");
     }
 
-
-
     /** 내부용 이메일 인증 메일 전송 */
-    private void sendVerificationEmailInternal(String toEmail, String token) {
+    private void sendVerificationEmailInternal(String toEmail, String token, String mode) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -160,8 +160,20 @@ public class UserService {
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
             helper.setSubject("[수동태] 이메일 인증 요청");
-            String link = "http://localhost:8082/verify-email?token=" + token;  // JWT를 링크에 포함
-            helper.setText("아래 링크를 클릭하여 이메일 인증을 완료해주세요: \n" + link, true);
+
+            // 이메일에 포함될 링크에 mode 쿼리 파라미터 추가
+            String link = "http://localhost:8082/verify-email?token=" + token + "&mode=" + mode;
+
+            // HTML 형식으로 버튼 생성하여 이메일 본문에 추가
+            String emailContent = "<html>" +
+                    "<body>" +
+                    "<p>아래 버튼을 클릭하여 이메일 인증을 완료해주세요:</p>" +
+                    "<a href=\"" + link + "\" style=\"display: inline-block; padding: 10px 20px; font-size: 16px; color: #ffffff; background-color: #6c5ce7; text-decoration: none; border-radius: 5px;\">이메일 인증하기</a>" +
+                    "<p>감사합니다.</p>" +
+                    "</body>" +
+                    "</html>";
+
+            helper.setText(emailContent, true);
 
             mailSender.send(message);
         } catch (MessagingException e) {
@@ -173,13 +185,11 @@ public class UserService {
     /** 이메일 인증 처리 */
     public ResponseEntity<?> verifyEmail(String token) {
         Map<String, Object> response = new HashMap<>();
-        // JWT를 이용한 검증
         try {
             String email = jwtUtil.verifyJwt(token);
             log.info("인증된 이메일: {}", email);
             response.put("success", true);
             response.put("email", email);
-            // 인증 성공 메시지만 반환하고, Vue에서 라우터를 통해 이동하도록 처리
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("유효하지 않은 인증 토큰입니다. 토큰: {}", token, e);

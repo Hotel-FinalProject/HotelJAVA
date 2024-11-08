@@ -14,7 +14,7 @@ function signupUser(userData, verificationToken) {
   return config.post('/users/signup', userData, {
     headers: {
       'verificationToken': `Bearer ${verificationToken}`,
-    }, 
+    },
   });
 }
 
@@ -38,11 +38,13 @@ function findIdUser(name) {
 }
 
 /** 이메일 인증 */
-function sendVerificationEmailAPI(email) {
+function sendVerificationEmailAPI(email, mode) {
   return config.post('/users/send-verification-email', {
-    email: email
+    email: email,
+    mode: mode,  // 모드를 함께 전송
   });
 }
+
 
 /** 이메일 인증 확인 */
 function verifyEmailToken(token) {

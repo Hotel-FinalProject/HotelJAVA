@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import MainPage from "@/components/MainPage.vue";
-import register from '@/components/registerPage.vue';
-import login from '@/components/loginPage.vue'
+import register from '@/components/RegisterPage.vue';
+import login from '@/components/LoginPage.vue'
 import OAuthRedirectHandler from '@/components/OAuthRedirectHandler.vue';
-import EmailVerificationPage from '@/components/UserPages/EmailVerificationPage.vue';
+import EmailVerificationPage from '@/components/UserPages/EmailVerification.vue';
+import PasswordReset from '@/components/UserPages/PasswordReset.vue'
 
 const routes = [
   {
@@ -46,7 +47,11 @@ const routes = [
   {
     path: '/verify-email', // 이메일 인증 페이지 경로
     component: EmailVerificationPage
-  }
+  },
+  {
+    path: '/reset-password', // 이메일 인증 페이지 경로
+    component: PasswordReset
+  },
 ];
 
 const router = createRouter({

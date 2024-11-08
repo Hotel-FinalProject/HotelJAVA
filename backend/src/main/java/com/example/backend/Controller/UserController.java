@@ -151,21 +151,25 @@ public class UserController {
         return email; // 이메일 형식이 올바르지 않으면 마스킹하지 않음
     }
 
-    /**
-     * 이메일 인증 메일 요청
-     */
+    /** 이메일 인증 메일 요청 */
     @PostMapping("/send-verification-email")
     public ResponseEntity<?> sendVerificationEmail(@RequestBody Map<String, String> requestBody) {
         String email = requestBody.get("email");
+        String mode = requestBody.get("mode"); // mode 값 추가
+
         if (email == null || email.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일이 필요합니다.");
         }
-        return userService.sendVerificationEmail(email);
+
+        if (mode == null || (!mode.equals("signup") && !mode.equals("resetPassword"))) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효하지 않은 모드입니다.");
+        }
+
+        return userService.sendVerificationEmail(email, mode);
     }
 
-    /**
-     * 이메일 인증 요청
-     */
+
+    /** 이메일 인증 요청 */
     @GetMapping("/verify-email")
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
         return userService.verifyEmail(token);

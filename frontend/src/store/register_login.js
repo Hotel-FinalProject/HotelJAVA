@@ -32,9 +32,9 @@ export const useAuthStore = defineStore('auth', {
     },
 
     /** 이메일 인증 요청 */
-    async sendVerificationEmail(email) {
+    async sendVerificationEmail(email, mode) {
       try {
-        const response = await sendVerificationEmailAPI(email);
+        const response = await sendVerificationEmailAPI(email, mode);
         this.isVerified = true;
         this.verificationToken = response.data; // 이메일 인증 JWT 토큰을 상태로 저장
         return response;
@@ -43,7 +43,8 @@ export const useAuthStore = defineStore('auth', {
         this.isVerified = false;
         throw error;
       }
-    },
+    }
+    ,
 
     /** 이메일 인증 토큰 확인 및 저장 */
     async verifyEmailToken(token) {
@@ -81,7 +82,7 @@ export const useAuthStore = defineStore('auth', {
     async login(userData) {
       try {
         const response = await loginUser(userData);
-        
+
         // 수정된 부분
         this.currentUser = response.data.email;  // 서버 응답에서 가져오기
         this.LoggedIn = true;
@@ -89,11 +90,11 @@ export const useAuthStore = defineStore('auth', {
         // 응답에서 token과 userId를 추출하여 상태에 저장
         this.userId = response.data.userId;
         this.setAccessToken(response.data.token);
-        
+
         // 세션에 필요한 데이터 저장
         sessionStorage.setItem('userId', response.data.userId);
         sessionStorage.setItem('currentUser', response.data.email);
-        
+
       } catch (error) {
         console.error('로그인 실패:', error);
         throw new Error('로그인 실패');
@@ -113,7 +114,7 @@ export const useAuthStore = defineStore('auth', {
       this.accessToken = null;
       this.LoggedIn = false;
       this.userId = null;
-      
+
       // 세션에서 데이터 제거
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('userId');
@@ -125,7 +126,7 @@ export const useAuthStore = defineStore('auth', {
       const token = sessionStorage.getItem('token');
       const userId = sessionStorage.getItem('userId');
       const currentUser = sessionStorage.getItem('currentUser');
-      
+
       if (token) {
         this.accessToken = token;
         this.userId = userId;
