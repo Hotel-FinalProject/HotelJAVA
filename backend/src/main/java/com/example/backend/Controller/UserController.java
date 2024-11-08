@@ -42,13 +42,29 @@ public class UserController {
         }
     }
 
-    /** 회원가입 요청 */
+    /**
+     * 회원가입 요청
+     */
     @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@RequestBody User user, @RequestHeader String verificationToken) {
+    public ResponseEntity<?> signUp(@RequestBody User user, @RequestHeader("verificationToken") String authorizationHeader) {
+        String verificationToken = null;
+
+        // 헤더에서 Bearer 토큰 파싱
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            verificationToken = authorizationHeader.substring(7);
+        }
+
+        if (verificationToken == null || verificationToken.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효하지 않은 인증 토큰입니다.");
+        }
+
         return userService.signup(user, verificationToken);
     }
 
-    /** 사이트 로그인 */
+
+    /**
+     * 사이트 로그인
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
@@ -60,7 +76,9 @@ public class UserController {
         }
     }
 
-    /** 이메일 중복 확인 */
+    /**
+     * 이메일 중복 확인
+     */
     @GetMapping("/check-email")
     public ResponseEntity<String> checkEmail(@RequestParam String email) {
         boolean exists = userRepository.existsByEmail(email);
@@ -71,7 +89,9 @@ public class UserController {
         }
     }
 
-    /** 아이디 찾기 */
+    /**
+     * 아이디 찾기
+     */
     @PostMapping("/find-id")
     public ResponseEntity<Object> findId(@RequestBody Map<String, String> requestBody) {
         String name = requestBody.get("name");
@@ -120,7 +140,9 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("일반 계정을 찾을 수 없습니다.");
     }
 
-    /** 아이디 찾기 이메일 마스킹 로직 */
+    /**
+     * 아이디 찾기 이메일 마스킹 로직
+     */
     private String maskEmail(String email) {
         int atIdx = email.indexOf("@");
         if (atIdx > 1) {
@@ -129,7 +151,9 @@ public class UserController {
         return email; // 이메일 형식이 올바르지 않으면 마스킹하지 않음
     }
 
-    /** 이메일 인증 메일 요청 */
+    /**
+     * 이메일 인증 메일 요청
+     */
     @PostMapping("/send-verification-email")
     public ResponseEntity<?> sendVerificationEmail(@RequestBody Map<String, String> requestBody) {
         String email = requestBody.get("email");
@@ -139,7 +163,9 @@ public class UserController {
         return userService.sendVerificationEmail(email);
     }
 
-    /** 이메일 인증 요청 */
+    /**
+     * 이메일 인증 요청
+     */
     @GetMapping("/verify-email")
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
         return userService.verifyEmail(token);

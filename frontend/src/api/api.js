@@ -13,7 +13,7 @@ const config = axios.create({
 function signupUser(userData, verificationToken) {
   return config.post('/users/signup', userData, {
     headers: {
-      'Authorization': `Bearer ${verificationToken}`,
+      'verificationToken': `Bearer ${verificationToken}`,
     }, 
   });
 }

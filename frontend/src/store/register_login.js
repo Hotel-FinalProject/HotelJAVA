@@ -12,6 +12,7 @@ export const useAuthStore = defineStore('auth', {
     isVerified: false, // 이메일 인증 여부
     verificationToken: null, // 이메일 인증 토큰 저장
     email: null,
+    userId: null,
   }),
 
   actions: {
@@ -80,9 +81,19 @@ export const useAuthStore = defineStore('auth', {
     async login(userData) {
       try {
         const response = await loginUser(userData);
-        this.currentUser = userData.email;
+        
+        // 수정된 부분
+        this.currentUser = response.data.email;  // 서버 응답에서 가져오기
         this.LoggedIn = true;
-        this.setAccessToken(response.data);
+
+        // 응답에서 token과 userId를 추출하여 상태에 저장
+        this.userId = response.data.userId;
+        this.setAccessToken(response.data.token);
+        
+        // 세션에 필요한 데이터 저장
+        sessionStorage.setItem('userId', response.data.userId);
+        sessionStorage.setItem('currentUser', response.data.email);
+        
       } catch (error) {
         console.error('로그인 실패:', error);
         throw new Error('로그인 실패');
@@ -101,15 +112,25 @@ export const useAuthStore = defineStore('auth', {
       this.currentUser = null;
       this.accessToken = null;
       this.LoggedIn = false;
+      this.userId = null;
+      
+      // 세션에서 데이터 제거
       sessionStorage.removeItem('token');
+      sessionStorage.removeItem('userId');
+      sessionStorage.removeItem('currentUser');
     },
 
     /** 로그인 상태 확인 */
     checkLoginStatus() {
       const token = sessionStorage.getItem('token');
+      const userId = sessionStorage.getItem('userId');
+      const currentUser = sessionStorage.getItem('currentUser');
+      
       if (token) {
-          this.accessToken = token;
-          this.LoggedIn = true;
+        this.accessToken = token;
+        this.userId = userId;
+        this.currentUser = currentUser;
+        this.LoggedIn = true;
       } else {
         this.LoggedIn = false;
       }
