@@ -2,10 +2,12 @@ package com.example.backend.service;
 
 import com.example.backend.dto.ReservationDTO;
 import com.example.backend.entity.Reservation;
+import com.example.backend.entity.Room;
 import com.example.backend.entity.User;
 import com.example.backend.entity.Payments;
 import com.example.backend.repository.PaymentRepository;
 import com.example.backend.repository.ReservationRepository;
+import com.example.backend.repository.RoomRepository;
 import com.example.backend.repository.UserRepository;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.response.IamportResponse;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Service
@@ -27,6 +30,8 @@ public class PaymentService {
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
 
+    private final RoomRepository roomRepository;
+
     // 생성자를 통한 주입 방식
     @Autowired
     public PaymentService(
@@ -34,12 +39,14 @@ public class PaymentService {
             @Value("${import.secret-key}") String secretKey,
             PaymentRepository paymentRepository,
             ReservationRepository reservationRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            RoomRepository roomRepository) {
 
         this.iamportClient = new IamportClient(serviceKey, secretKey);
         this.paymentRepository = paymentRepository;
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
+        this.roomRepository = roomRepository;
     }
 
     @Transactional
@@ -55,11 +62,15 @@ public class PaymentService {
         BigDecimal amount = iamportResponse.getResponse().getAmount();
         String status = iamportResponse.getResponse().getStatus();
         String paymentMethod = iamportResponse.getResponse().getPgProvider();
-        Date date = new Date();
+        LocalDateTime date= LocalDateTime.now();
         if ("paid".equals(status)) {
 
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. userId: " + userId));
+
+            Room room = roomRepository.findById(reservationDTO.getRoomId())
+                    .orElseThrow(() -> new RuntimeException("해당 방을 찾을 수 없습니다. roomId: " + reservationDTO.getRoomId()));
+
             if (paymentRepository.countByTransactionIdContainsIgnoreCase(imp_uid) == 0) {
                 Payments payments = Payments.builder()
                         .transactionId(imp_uid)
@@ -79,6 +90,10 @@ public class PaymentService {
                         .checkIn(reservationDTO.getCheckIn())
                         .checkOut(reservationDTO.getCheckOut())
                         .guestNum(reservationDTO.getGuestNum())
+                        .createDate(LocalDateTime.now())
+                        .updateDate(LocalDateTime.now())
+                        .request(reservationDTO.getRequest())
+                        .rooms(room)
                         .build();
 
                 reservationRepository.save(reservation);

@@ -34,21 +34,17 @@ public class ReservationController {
             @RequestHeader("Authorization") String token) {
 
         try {
-            // 토큰에서 "Bearer " 부분 제거
+
             String actualToken = token.replace("Bearer ", "");
 
-            // JWT에서 userId 추출
             Long userId = jwtUtil.verifyJwtAndGetUserId(actualToken);
-
-            // userId 출력 (디버그용)
-            System.out.println("Extracted userId: " + userId);
 
             if (userId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
             }
 
             if (imp_uid != null) {
-                paymentService.verifyPayment(userId, imp_uid, reservationDTO);
+                paymentService.verifyPayment(userId,imp_uid, reservationDTO);
                 return ResponseEntity.ok("결제 완료");
             } else {
                 return ResponseEntity.badRequest().body("결제 검증 실패");

@@ -119,7 +119,16 @@ public class UserService {
                 // 비밀번호가 일치하면 JWT 생성
                 try {
                     String token = jwtUtil.createJwt(user.getEmail(), user.getUserId(),user.getName(), user.getRole());
-                    return ResponseEntity.ok(token);
+
+                    // JSON 형태로 응답하기 위해 Map 사용
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("token", token);
+                    response.put("userId", user.getUserId());
+                    response.put("name", user.getName());
+                    response.put("email", user.getEmail());
+                    response.put("phone",user.getPhone());
+
+                    return ResponseEntity.ok(response);
                 } catch (JOSEException e) {
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("JWT 생성 중 오류가 발생했습니다.");
                 }

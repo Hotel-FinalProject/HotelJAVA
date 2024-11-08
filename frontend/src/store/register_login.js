@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { signupUser, loginUser, checkEmail } from '@/api/api'; // API 호출 함수 가져오기
 
+
 /** 로그인/아웃, 회원가입 로직 */
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -46,8 +47,9 @@ export const useAuthStore = defineStore('auth', {
         const response = await loginUser(userData); // 로그인 API 호출
         this.currentUser = userData.email;
         this.LoggedIn = true;
-        this.setAccessToken(response.data);
+        this.setAccessToken(response.data.token);
         this.userId = response.data.userId;
+        this.phone = response.data.phone;
         console.log('로그인 성공:', response.data);
       } catch (error) {
         console.error('로그인 실패:', error);

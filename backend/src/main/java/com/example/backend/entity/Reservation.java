@@ -1,5 +1,6 @@
 package com.example.backend.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -40,15 +41,13 @@ public class Reservation {
     private int guestNum; // 투숙 인원
 
     @CreatedDate
-    private Date createDate;
+    private LocalDateTime createDate;
 
     @LastModifiedDate
-    private Date updateDate;
+    private LocalDateTime updateDate;
 
-    private Date checkIn;
-    private Date checkOut;
-
-    private String paymentStatus; // 결제 상태
+    private LocalDateTime checkIn;
+    private LocalDateTime checkOut;
 
     @ManyToOne
     @JoinColumn(name = "user_id",referencedColumnName = "userId", nullable = false) // 고객 아이디 (외래키)

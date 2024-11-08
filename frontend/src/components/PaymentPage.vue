@@ -13,25 +13,25 @@
     </div>
 
     <div class = "reservation-conatiner">
-        <h2 class = "hotel-name"> 호텔명 </h2>
-        <h2 class = "hotel-roomname"> 객실명 </h2>
+        <h2 class = "hotel-name"> {{ dataObj.hotelName }}</h2>
+        <h2 class = "hotel-roomname"> {{ dataObj.roomName }} </h2>
         <div class="reservation-conatiner-info">
             <div class="check-in-conatiner">
                 <div class="check">체크인</div>
                 <h2>2024.10.26</h2>
-                <div class="check-time">14:00</div>
+                <div class="check-time">{{ dataObj.checkIn }}</div>
             </div>
             <div class="check-out-conatiner">
                 <div class="check">체크아웃</div>
                 <h2>2024.10.26</h2>
-                <div class="check-time">14:00</div>
+                <div class="check-time">{{ dataObj.checkOut }}</div>
             </div>
         </div>
         <div class="avg-person"> 
             <img class="person-icon" src ="https://yaimg.yanolja.com/stay/static/images/v3/icon_my.png">
             <div class="avg-person-text">기준인원 2인</div>
         </div>
-        <h2 class="price">47,000원</h2>
+        <h2 class="price"> {{ dataObj.roomPrice}}원</h2>
         <div class ="reservation-info">
             <div class="reservation-info-conatiner">
                 <h3> 예약자 정보 <span class="asterisk">*</span></h3>
@@ -67,7 +67,7 @@
         </div>
         <div class="payment-info">
             <div class ="payment-text">상품금액</div>
-            <div class ="payment">47,000원</div>
+            <div class ="payment">{{ dataObj.roomPrice ? dataObj.roomPrice.toLocaleString() : '가격 정보 없음' }}원</div>
         </div>
         <div class="payment-info">
             <div class ="payment-text">마일리지</div>
@@ -76,7 +76,7 @@
         <hr class="dot-line"/>
         <div class="payment-total-conatiner">
             <div class="payment-info-text">총 결제 금액</div>
-            <div class ="payment-total">47,000원</div>
+            <div class ="payment-total">{{ dataObj.roomPrice ? dataObj.roomPrice.toLocaleString() : '가격 정보 없음' }}원</div>
         </div>
     </div>
     <div class="payment-method-conatiner">
@@ -123,7 +123,6 @@
                 <input type="checkbox"><span class="check-text">[선택] 이벤트, 혜택 정보 전송을 위한 개인정보 수집 및 이용 동의</span>
             </div>
         </div>
-        <button class="payment-btn"> 47,000원 결제하기</button>
         <div class="info"> (주) OO플랫폼은 통신판매 중개자로서 통신판매의 당사자가 아니며 상품 예약, 이용 및 환불과는 관련한 의무와 책임은 각 판매자에게 있습니다. </div>
     </div>
     
@@ -135,31 +134,46 @@
 <script>
 import axios from 'axios';
 import { useAuthStore } from "@/store/register_login";
-
 export default {
+  name: 'paymentPage',
+
   data() {
     return {
       userName: '',
       userPhone: '',
-      totalPrice: 47000, // 결제 금액
+      dataObj: history.state || {},
+      isLoggedIn: false,
     };
   },
-  created() {
-    // 로그인 상태 확인
+  async created() {
     const authStore = useAuthStore();
-    authStore.checkLoginStatus(); // 로그인 상태 확인 후 저장
-    this.isLoggedIn = authStore.LoggedIn; // 로그인 여부 상태 저장
+
+    try {
+      // 로그인 상태 확인 및 로그인 처리
+      await authStore.checkLoginStatus();  // 로그인 상태 체크
+      if (authStore.LoggedIn) {
+        // 로그인 상태가 True일 경우 사용자 정보 설정
+        this.isLoggedIn = authStore.LoggedIn;
+        this.userName = authStore.currentUser;
+        this.userPhone = authStore.phone;
+        this.userid = authStore.userId;
+        this.userName = authStore.userName;
+        this.phone = authStore.phone;
+        this.token = authStore.accessToken;
+      } else {
+        console.log("로그인되지 않았습니다.");
+      }
+    } catch (error) {
+      console.error('로그인 상태 확인 실패:', error);
+      alert('로그인 상태 확인 중 오류가 발생했습니다.');
+    }
   },
 
   methods: {
     async submitReservation(pg_method) {
-     const authStore = useAuthStore(); // 로그인 상태 가져오기
-     const userId = authStore.currentUser ? authStore.currentUser.id : null; // 로그인한 유저의 index 값
-        
-      if (!userId) {
-        alert("로그인 후 예약을 진행해주세요.");
-        return;
-      }
+      const token = this.token;
+      const userId = this.userid;
+
       const IMP = window.IMP; // 아임포트 객체
       IMP.init('imp45605876'); // 가맹점 식별코드
 
@@ -169,7 +183,7 @@ export default {
           pay_method: 'card',
           merchant_uid: `mid_${new Date().getTime()}`,
           name: '숙소 예약 결제',
-          amount: this.totalPrice,
+          amount: this.dataObj.roomPrice,
           buyer_name: this.userName,
           buyer_tel: this.userPhone,
         },
@@ -177,20 +191,27 @@ export default {
           if (rsp.success) {
             const imp_uid = rsp.imp_uid;
             try {
-              // 예약 정보 저장
-              const reservationResponse = await axios.post(`http://localhost:8081/api/auth/reservation`, {
-                userId: userId, 
-                userName: this.userName,
-                userPhone: this.userPhone,
-                checkIn: '2024-10-26T14:00:00',
-                checkOut: '2024-10-27T14:00:00',
-                totalPrice: this.totalPrice,
+              
+              const reservationResponse = await axios.post(`http://localhost:8081/api/auth/reservation/${imp_uid}`, { 
+                userId: userId,
+                checkIn: '',
+                checkOut: '',
+                totalPrice: this.dataObj.roomPrice,
+                roomId: this.dataObj.roomId,
+                checkInDate: this.dataObj.checkInDate,
+                checkOutDate: this.dataObj.checkOutDate,
                 guestNum: 2,
                 imp_uid: imp_uid,
-              });
+              },
+              {
+                headers:{
+                    Authorization: `Bearer ${token}`
+                }
+              }
+              );
 
-              console.log(reservationResponse.data);
               alert('결제가 완료되었습니다.');
+              console.log(reservationResponse.data);
             } catch (error) {
               console.error('서버 요청 실패:', error);
               alert('결제 정보 저장에 실패하였습니다.');

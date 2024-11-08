@@ -27,8 +27,8 @@ const routes = [
   },
   {
     path: '/room-details/:roomId',
-
-    component: () => import('@/components/HotelRoom.vue')
+    component: () => import('@/components/HotelRoom.vue'),
+    name: 'HotelRoom',
   },
   {
     path: '/oauth2/success', // OAuth 리다이렉트 경로 추가
@@ -40,7 +40,9 @@ const routes = [
   },
   {
     path: '/payment', // OAuth 리다이렉트 경로 추가
-    component: () => import ('@/components/PaymentPage.vue'),
+    component: () => import ('@/components/PaymentPage.vue'),   
+    name: 'paymentPage',
+  
   }
 
 ];

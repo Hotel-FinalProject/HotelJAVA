@@ -58,11 +58,22 @@
           <h2 class="price">{{ room.price ? `${room.price}원` : "가격 정보 없음" }}</h2>
           <div class="reservation-bottom">
             <div class="room-count">{{ room.availableRooms ? `남은 객실 ${room.availableRooms}개` : "남은 객실 정보 없음" }}</div>
-            <router-link to="/payment">
-              <button class="reservation_btn">예약하기</button>
-            </router-link>
+            
+            <button  @click="move"  class="reservation_btn">예약하기</button>
           </div>
         </div>
+      </div>
+    </div>
+
+     <!-- Login Modal -->
+    <div class="modal" v-if="showModal">
+      <div class="modal-content">
+        <span class="close" @click="showModal = false">&times;</span>
+        <h2>로그인 필요</h2>
+        <p>예약을 진행하시려면 로그인이 필요합니다.</p>
+        <router-link to="/login">
+          <button class="modal-btn" @click="onLoginSuccess" >로그인하러 가기</button>
+        </router-link>
       </div>
     </div>
 
@@ -138,6 +149,7 @@ export default {
       isLoggedIn: false,
       showModal: false,
       range: { start: null, end: null },
+      dataObj: history.state || {},
     };
   },
   created() {
@@ -158,16 +170,31 @@ export default {
         console.error("객실 정보를 가져오는 중 오류 발생:", error);
       }
     },
-    handleReservation() {
-          if (this.isLoggedIn) {
-            // 예약 처리 로직
-            this.$router.push("/payment"); // 결제 페이지로 이동
-          } else {
-            this.showModal = true; // 로그인 모달을 표시
+    
+  move() {
+    const { hotelName, checkIn, checkOut, roomName, roomPrice } = this.dataObj;
+    const currentRoomId = this.$route.params.roomId;
 
-          }
-        },
-      
+    if (this.isLoggedIn) {
+      if (hotelName && checkIn && checkOut && roomName && roomPrice) {
+        this.$router.push({
+          name: 'paymentPage',
+          state: {
+            hotelName,
+            checkIn,
+            checkOut,
+            roomName,
+            roomPrice,
+            roomId : currentRoomId,
+          },
+        });
+      } else {
+        console.log("예약에 필요한 정보가 부족합니다.");
+      }
+    } else {
+      this.showModal = true;
+    }
+}
   },
   computed: {
     formattedDescription() {
@@ -344,5 +371,44 @@ hr {
   background: lightgray;
   height: 1px;
   border: 0;
+}
+
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+}
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+.modal-btn {
+  margin-top: 10px;
+  background-color: #00aef0;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
 }
 </style>

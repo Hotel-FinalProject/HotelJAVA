@@ -80,9 +80,9 @@
             <h2 class="price">{{ room.price }}원</h2>
             <div class="reservation-bottom">
               <div class="room-count">남은 객실 {{ room.availableRooms }}개</div>
-              <router-link :to="`/room-details/${room.roomId}`">
-                <button class="reservation_btn">예약 및 상세보기</button>
-              </router-link>
+
+              <button @click="move(room)" class="reservation_btn">예약 및 상세보기</button>
+              
             </div>
           </div>
         </div>
@@ -98,7 +98,6 @@
 import axios from "axios";
 
 export default {
-  name: "HotelDetails",
   data() {
     return {
       hotel: null,
@@ -120,7 +119,22 @@ export default {
         console.error("호텔 상세 정보를 가져오는 중 오류 발생:", error);
       }
     },
+    move(room){
+      this.$router.push({
+        params: { roomId: room.roomId },
+        name: 'HotelRoom',
+        state: {
+          hotelName: this.hotel.name,
+          roomName: room.name,
+          roomPrice: room.price,
+          checkIn : this.hotel.checkIn,
+          checkOut : this.hotel.checkOut,
+          roomId : room.roomId
+        }
+      });
+    }
   },
+  
 };
 </script>
 

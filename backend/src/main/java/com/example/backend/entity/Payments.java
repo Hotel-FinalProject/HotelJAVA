@@ -1,22 +1,18 @@
 package com.example.backend.entity;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
-import com.example.backend.dto.PaymentDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 @Entity
 @Data
@@ -32,7 +28,7 @@ public class Payments {
     private String method; // 결제 방법
     private BigDecimal amount; // 결제 금액
 
-    private Date date; // 결제
+    private LocalDateTime date; // 결제
 
     private String transactionId; // 거래 관리 번호 (고유번호)
     private String status;
