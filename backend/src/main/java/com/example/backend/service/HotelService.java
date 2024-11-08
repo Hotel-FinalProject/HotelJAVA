@@ -4,8 +4,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.example.backend.dto.HotelDTO;
 import com.example.backend.entity.Hotel;
 import com.example.backend.repository.HotelRepository;
 
@@ -153,6 +156,21 @@ public class HotelService {
     public Hotel getHotelById(Long id) {
         return hotelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("호텔을 찾을 수 없습니다. ID: " + id));
+    }
+    
+    public List<HotelDTO> searchHotelsByName(String query) {
+        String queryWithoutSpaces = query.replaceAll("\\s+", ""); // 공백 제거
+        return hotelRepository.searchByNameIgnoringSpaces(queryWithoutSpaces).stream()
+            .map(hotel -> new HotelDTO(hotel.getHotelId(), hotel.getName(), hotel.getAddress(), hotel.getImageUrl(), hotel.getRating()))
+            .collect(Collectors.toList());
+    }
+
+    public List<HotelDTO> getRandomHotels(int count) {
+        List<Hotel> allHotels = hotelRepository.findAll();
+        Collections.shuffle(allHotels);
+        return allHotels.subList(0, Math.min(count, allHotels.size())).stream()
+            .map(hotel -> new HotelDTO(hotel.getHotelId(), hotel.getName(), hotel.getAddress(), hotel.getImageUrl(), hotel.getRating()))
+            .collect(Collectors.toList());
     }
 
 }

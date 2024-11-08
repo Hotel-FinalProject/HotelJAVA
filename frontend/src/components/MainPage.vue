@@ -1,8 +1,39 @@
 <template>
   <div class="main-container">
-    <div class="input-bar">
-      <input class="search-bar" type="text" placeholder="호텔 검색" />
+    <!-- 검색어 입력란 및 돋보기 버튼 -->
+    <div class="search-container">
+      <input
+        v-model="searchQuery"
+        class="search-bar"
+        type="text"
+        placeholder="호텔 검색"
+        @input="fetchAutocompleteResults"
+        @keyup.enter="searchHotel"
+      />
+      <!-- 돋보기 버튼 -->
+      <button @click="searchHotel" class="search-button">
+        🔍
+      </button>
     </div>
+
+    <!-- 자동 완성 목록 -->
+    <ul v-if="searchQuery.length > 0" class="autocomplete-list">
+      <li
+        v-for="result in autocompleteResults"
+        :key="result.hotelId"
+        @click="goToHotelDetail(result.hotelId)"
+        class="autocomplete-item"
+      >
+        <span class="autocomplete-hotel-name">{{ result.name }}</span> <!-- 호텔 이름 표시 -->
+        <span class="hotel-address">{{ result.address || '주소 정보 없음' }}</span> <!-- 주소 표시 -->
+      </li>
+      <li v-if="noResults" class="no-results">연관된 검색어가 없습니다.</li>
+    </ul>
+
+    <!-- 새로고침 버튼 추가 -->
+    <button @click="fetchRandomHotels" class="refresh-button">
+        🔄
+    </button>
     <div class="hotel_list_container">
       <div class="hotel_grid">
         <div v-for="hotel in randomHotels" :key="hotel.hotelId" class="hotel-container">
@@ -55,30 +86,58 @@ export default {
   name: 'MainPage',
   data() {
     return {
-      hotels: [],
+      searchQuery: '',
+      autocompleteResults: [],
       randomHotels: [],
-      defaultImage: 'https://png.pngtree.com/png-vector/20240613/ourlarge/pngtree-modern-hotel-icon-with-palm-trees-black-isolated-on-white-background-vector-png-image_7010310.png'
+      defaultImage: 'https://png.pngtree.com/png-vector/20240613/ourlarge/pngtree-modern-hotel-icon-with-palm-trees-black-isolated-on-white-background-vector-png-image_7010310.png',
+      noResults: false // 연관 검색어가 없는 경우를 표시하기 위한 변수
     };
   },
   created() {
-    this.fetchHotels();
+    this.fetchRandomHotels();
   },
   methods: {
-    async fetchHotels() {
+    async fetchRandomHotels() {
       try {
-        const response = await axios.get('http://localhost:8081/api/hotels');
-        this.hotels = response.data;
-        this.randomHotels = this.shuffleArray(this.hotels).slice(0, 5);
+        const response = await axios.get('http://localhost:8081/api/hotels/random');
+        this.randomHotels = response.data; // 백엔드에서 가져온 랜덤 호텔 목록
       } catch (error) {
-        console.error('호텔 데이터를 가져오는 중 오류 발생:', error);
+        console.error('랜덤 호텔 데이터를 가져오는 중 오류 발생:', error);
       }
     },
-    shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+    async fetchAutocompleteResults() {
+      if (this.searchQuery.length > 0) {
+        const queryWithoutSpaces = this.searchQuery.replace(/\s+/g, ''); // 공백 제거
+        try {
+          const response = await axios.get(`http://localhost:8081/api/hotels/search?query=${queryWithoutSpaces}`);
+          this.autocompleteResults = response.data;
+          this.noResults = this.autocompleteResults.length === 0;
+        } catch (error) {
+          console.error('자동 완성 결과를 가져오는 중 오류 발생:', error);
+          this.autocompleteResults = [];
+          this.noResults = true;
+        }
+      } else {
+        this.autocompleteResults = [];
+        this.noResults = false;
       }
-      return array;
+    },
+    async searchHotel() {
+      const exactMatch = this.autocompleteResults.find(result => result.name === this.searchQuery);
+
+      if (exactMatch) {
+        // 완전히 일치하는 호텔명이 있는 경우 상세 페이지로 이동
+        this.goToHotelDetail(exactMatch.hotelId);
+      } else if (this.autocompleteResults.length > 0) {
+        // 연관 검색어가 있는 경우 경고 메시지 표시
+        alert("연관된 검색어 목록에서 선택해주세요.");
+      } else {
+        // 연관 검색어가 없는 경우 경고 메시지 표시
+        alert("연관된 검색어가 없습니다.");
+      }
+    },
+    goToHotelDetail(hotelId) {
+      this.$router.push(`/hotel-details/${hotelId}`);
     }
   }
 };
@@ -90,23 +149,95 @@ export default {
   margin: auto;
 }
 
+.search-container {
+  position: relative; /* 검색바와 돋보기를 같은 컨테이너 안에 배치 */
+  display: flex;
+  align-items: center;
+  width: 100%; /* 검색창이 상위 요소를 가득 채우도록 설정 */
+  background-color: rgb(233, 233, 233);
+  border-radius: 15px;
+}
+
 .search-bar {
   width: 100%;
   height: 40px;
-  margin-bottom: 20px;
   font-size: 15px;
-  border: 0;
-  border-radius: 15px;
+  border: none;
   outline: none;
+  padding-right: 40px; /* 돋보기 버튼 공간 확보 */
   padding-left: 10px;
-  background-color: rgb(233, 233, 233);
+  background-color: transparent;
 }
+
+.search-button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.refresh-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  font-size: 24px;
+  vertical-align: middle;
+}
+
+.autocomplete-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 5px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+  position: absolute;
+  width: 965px;
+}
+
+.autocomplete-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.autocomplete-hotel-name {
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
+}
+
+.hotel-address {
+  font-size: 14px;
+  color: #777;
+}
+
+.autocomplete-item:hover {
+  background-color: #f0f0f0;
+}
+
+.no-results {
+  padding: 8px;
+  color: gray;
+  text-align: center;
+}
+
 .hotel-container {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 .hotel_grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -132,6 +263,7 @@ export default {
   text-overflow: ellipsis;
   margin-top: 5px;
 }
+
 .hotel-info {
   text-align: center;
 }
@@ -139,4 +271,5 @@ export default {
 .review-title {
   margin-top: 20px;
 }
+
 </style>

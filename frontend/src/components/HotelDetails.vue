@@ -6,7 +6,9 @@
         <img :src="hotel.imageUrl" alt="Hotel Image" />
       </template>
       <template v-else>
-        <p class="no-image-text">업체측에서 제공된 이미지가 없습니다</p>
+        <div class="no-image-container">
+          <p class="no-image-text">업체측에서 제공된 이미지가 없습니다</p>
+        </div>
       </template>
     </div>
 
@@ -18,8 +20,16 @@
         <span>({{ hotel.reviewCount || 0 }} 리뷰)</span>
       </div>
       <div class="hotel-info-details">
-        <p>전화번호 : {{ hotel.hotelnum || "업체측에서 제공된 정보가 없습니다." }}</p>
-        <p>주소 : {{ hotel.address || "업체측에서 제공된 정보가 없습니다." }}</p>
+        <p>
+          <span class="phone-icon">📞</span>
+          전화번호 : {{ hotel.hotelnum || "업체측에서 제공된 정보가 없습니다." }}
+        </p>
+        <p>
+          <span class="location-icon">📍</span> 
+          {{ hotel.address || "업체측에서 제공된 정보가 없습니다." }}
+          <button class="copy-button" @click="copyAddressToClipboard">주소복사</button>
+        </p>
+        <div id="map" style="width:500px;height:400px;"></div>
       </div>
     </div>
 
@@ -62,28 +72,45 @@
 
     <div class="room-list">
       <h3>객실 정보</h3>
-      <div v-for="room in hotel.rooms" :key="room.roomId" class="room-card">
-        <div class="room-image-container">
-          <img :src="(room.images && room.images[0]?.imageUrl) || defaultRoomImage" class="room-img" alt="Room Image" />
-        </div>
-        <div class="room-info">
-          <h4 class="room-name">{{ room.name }}</h4>
-          <div class="avg-person">
-            <img class="person-icon" src="https://yaimg.yanolja.com/stay/static/images/v3/icon_my.png" />
-            <span class="avg-person-text">기준인원 {{ room.occupancy }}인</span>
+      <div v-if="hotel.rooms && hotel.rooms.length > 0">
+        <div v-for="room in hotel.rooms" :key="room.roomId" class="room-card">
+          <div class="room-image-container">
+            <template v-if="room.images && room.images.length > 0 && room.images[0].imageUrl">
+              <img :src="room.images[0].imageUrl" class="room-img" alt="Room Image" />
+            </template>
+            <template v-else>
+              <div class="no-room-image">
+                <p class="no-room-image-text">업체측에서 제공된 이미지가 없습니다</p>
+              </div>
+            </template>
           </div>
-          <div class="reservation-info">
-            <h5 class="reservation-text">숙박</h5>
-            <div class="check-info">
-              체크인 {{ hotel.checkIn }} ~ 체크아웃 {{ hotel.checkOut }}
+
+          <div class="room-info">
+            <h4 class="room-name">{{ room.name }}</h4>
+            <div class="avg-person">
+              <img class="person-icon" src="https://yaimg.yanolja.com/stay/static/images/v3/icon_my.png" />
+              <span class="avg-person-text">기준인원 {{ room.occupancy }}인</span>
             </div>
-            <h2 class="price">{{ room.price }}원</h2>
-            <div class="reservation-bottom">
-              <div class="room-count">남은 객실 {{ room.availableRooms }}개</div>
-              <router-link :to="`/room-details/${room.roomId}`">
-                <button class="reservation_btn">예약 및 상세보기</button>
-              </router-link>
+            <div class="reservation-info">
+              <h5 class="reservation-text">숙박</h5>
+              <div class="check-info">
+                체크인 {{ hotel.checkIn }} ~ 체크아웃 {{ hotel.checkOut }}
+              </div>
+              <h2 class="price">{{ room.price }}원</h2>
+              <div class="reservation-bottom">
+                <div class="room-count">남은 객실 {{ room.availableRooms }}개</div>
+                <router-link :to="`/room-details/${room.roomId}`">
+                  <button class="reservation_btn">예약 및 상세보기</button>
+                </router-link>
+              </div>
             </div>
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        <div class="room-card">
+          <div class="no-room-info-container">
+            <p class="no-room-info-text">업체측에서 제공된 객실 정보가 없습니다.</p>
           </div>
         </div>
       </div>
@@ -95,6 +122,7 @@
 </template>
 
 <script>
+/* global kakao */
 import axios from "axios";
 
 export default {
@@ -102,12 +130,28 @@ export default {
   data() {
     return {
       hotel: null,
-      defaultImage: "https://www.agoda.com/wp-content/uploads/2019/05/Best-hotels-in-Seoul-South-Korea-accommodations-The-Shilla-Seoul.jpg",
-      defaultRoomImage: "https://www.agoda.com/wp-content/uploads/2019/05/Best-hotels-in-Seoul-South-Korea-accommodations-The-Shilla-Seoul.jpg",
     };
   },
-  created() {
-    this.fetchHotelDetails();
+  async created() {
+    await this.fetchHotelDetails();
+    if (this.hotel && this.hotel.mapX && this.hotel.mapY) {
+      this.loadKakaoMap();
+    }
+  },
+  beforeUnmount() {
+    // Kakao Map 스크립트를 제거하여 충돌 방지
+    const kakaoScript = document.querySelector("script[src*='//dapi.kakao.com/v2/maps/sdk.js']");
+    if (kakaoScript) {
+      kakaoScript.remove();
+      delete window.kakao;  // 전역 kakao 객체 삭제
+    }
+  },
+  watch: {
+    hotel(newHotel) {
+      if (newHotel && newHotel.mapX && newHotel.mapY) {
+        this.loadKakaoMap();
+      }
+    }
   },
   methods: {
     async fetchHotelDetails() {
@@ -120,6 +164,46 @@ export default {
         console.error("호텔 상세 정보를 가져오는 중 오류 발생:", error);
       }
     },
+    copyAddressToClipboard() {
+      if (this.hotel && this.hotel.address) {
+        navigator.clipboard.writeText(this.hotel.address)
+          .then(() => {
+            alert("주소가 복사되었습니다.");
+          })
+          .catch(err => {
+            console.error("주소 복사 중 오류가 발생했습니다.", err);
+          });
+      }
+    },
+    loadKakaoMap() {
+      if (typeof kakao === "undefined") {
+        const script = document.createElement("script");
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=d685c63d7eb74d08883cdb9e13b5fb6c&autoload=false`;
+        script.onload = this.initMap;  // 스크립트 로드 후 initMap 호출
+        document.head.appendChild(script);
+      } else {
+        this.initMap();  // kakao 객체가 이미 있으면 바로 지도 초기화
+      }
+    },
+    initMap() {
+      kakao.maps.load(() => {
+        const container = document.getElementById("map");
+        const options = {
+          center: new kakao.maps.LatLng(this.hotel.mapY || "좌표❌", this.hotel.mapX || "좌표❌"), // 지도의 중심 좌표
+          level: 3, // 지도의 확대 레벨
+        };
+
+        // 여기서 map을 지역 변수로 정의
+        const map = new kakao.maps.Map(container, options); // 지도 생성
+
+        // 마커를 생성하고 지도에 표시
+        const markerPosition = new kakao.maps.LatLng(this.hotel.mapY || "좌표❌", this.hotel.mapX || "좌표❌");
+        const marker = new kakao.maps.Marker({
+          position: markerPosition
+        });
+        marker.setMap(map);
+      });
+    },
   },
 };
 </script>
@@ -131,22 +215,37 @@ export default {
 }
 .img-container {
   width: 100%;
-  height: auto;
-  max-height: 500px;
-  object-fit: contain;
+  height: 300px; /* 이미지 틀의 고정 높이 */
+  display: flex;
+  justify-content: center; /* 이미지 중앙 정렬 */
+  align-items: center;
   border-radius: 15px;
   overflow: hidden;
   margin-bottom: 20px;
+  background-color: #f8f8f8;
 }
+
+.img-container img {
+  width: auto;
+  height: 100%;
+  object-fit: contain;
+}
+
+.no-image-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f8f8;
+}
+
 .no-image-text {
   font-size: 16px;
   color: gray;
   text-align: center;
-  padding: 50px 0;
-  border: 1px solid #ddd;
-  border-radius: 15px;
-  background-color: #f8f8f8;
 }
+
 .hotel-info-card {
   background-color: #f9f9f9;
   padding: 20px;
@@ -154,6 +253,28 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
 }
+
+.location-icon {
+  margin-right: 5px;
+  font-size: 18px; /* 이모지 크기 조정 */
+  vertical-align: middle;
+}
+
+.copy-button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  font-size: 14px;
+  background-color: #00aef0;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.copy-button:hover {
+  background-color: #008dc0;
+}
+
 .hotel-name {
   font-size: 24px;
   font-weight: bold;
@@ -199,24 +320,65 @@ export default {
 .room-list {
   margin-top: 30px;
 }
+
 .room-card {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
   border: 1px solid #ddd;
   border-radius: 15px;
   padding: 15px;
   margin-top: 20px;
+  min-height: 280px; /* 카드 높이 고정 */
+  text-align: center;
 }
+
+.no-room-info-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.no-room-info-text {
+  font-size: 18px;
+  color: gray;
+}
+
 .room-image-container {
   width: 40%;
   margin-right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: #f8f8f8;
 }
+
 .room-img {
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: cover;
-  border-radius: 15px;
 }
+
+.no-room-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 280px; /* 이미지 없는 경우에도 높이를 동일하게 설정 */
+  background-color: #f8f8f8;
+}
+
+.no-room-image-text {
+  font-size: 16px;
+  color: gray;
+  text-align: center;
+}
+
+
 .room-info {
   width: 60%;
 }
@@ -273,5 +435,11 @@ export default {
   border: none;
   font-size: 15px;
   cursor: pointer;
+}
+#map {
+  width: auto !important;
+  height: 400px !important;
+  margin-top: 10px;
+  margin-left: 30px;
 }
 </style>

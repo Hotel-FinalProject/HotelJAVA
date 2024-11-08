@@ -5,7 +5,7 @@ import login from '@/components/LoginPage.vue'
 import OAuthRedirectHandler from '@/components/OAuthRedirectHandler.vue';
 import EmailVerificationPage from '@/components/UserPages/EmailVerification.vue';
 import PasswordReset from '@/components/UserPages/PasswordReset.vue'
-
+import HotelAdminPage from '@/components/HotelAdminPage.vue';
 const routes = [
   {
     path: '/',
@@ -47,6 +47,11 @@ const routes = [
   {
     path: '/verify-email', // 이메일 인증 페이지 경로
     component: EmailVerificationPage
+  },
+  {
+    path: '/admin/hotel', // 호텔 관리자 페이지 경로
+    component: HotelAdminPage
+  },
   },
   {
     path: '/reset-password', // 이메일 인증 페이지 경로
