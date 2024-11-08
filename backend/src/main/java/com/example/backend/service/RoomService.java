@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -39,7 +40,10 @@ public class RoomService {
     private final HotelRepository hotelRepository;
     private final RoomCountRepository roomCountRepository;
     private final String API_URL = "http://apis.data.go.kr/B551011/KorService1/detailInfo1";
-    private final String SERVICE_KEY = ""; // API 키 입력
+    //private final String SERVICE_KEY = ""; // API 키 입력
+
+    @Value("${api.key}")
+    private  String SERVICE_KEY;
 
     @Transactional
     public void fetchAndSaveAllRooms() throws URISyntaxException {
@@ -52,7 +56,7 @@ public class RoomService {
             }
         }
     }
-    
+
     @Transactional
     public void fetchAndSaveRooms(Long contentId) throws URISyntaxException {
         Hotel hotel = hotelRepository.findByContentId(contentId)
@@ -73,9 +77,9 @@ public class RoomService {
         JSONObject jsonResponse = XML.toJSONObject(xmlResponse);
 
         JSONArray items = jsonResponse.optJSONObject("response")
-                                      .optJSONObject("body")
-                                      .optJSONObject("items")
-                                      .optJSONArray("item");
+                .optJSONObject("body")
+                .optJSONObject("items")
+                .optJSONArray("item");
 
         if (items == null) {
             items = new JSONArray();
@@ -95,7 +99,7 @@ public class RoomService {
             Room room = new Room();
             room.setHotel(hotel);
             room.setName(item.optString("roomtitle", "Unknown"));
-            room.setTotal(10);
+            room.setTotal(item.optInt("total",10));
             room.setPrice(new BigDecimal(100000)); // 임의 가격 설정
             room.setDescription(item.optString("roomintro", "No description available"));
             room.setOccupancy(item.optLong("roombasecount", 2L));
@@ -110,14 +114,14 @@ public class RoomService {
             room.setSofa(item.optString("roomsofa", "N").equals("Y"));
             room.setTableYn(item.optString("roomtable", "N").equals("Y"));
             room.setHairdryer(item.optString("roomhairdryer", "N").equals("Y"));
-            
+
             roomRepository.save(room);
-            
+
             List<RoomImage> images = saveRoomImages(item, room);
             roomImageRepository.saveAll(images);
-            
+
             room.setImages(images);
-            
+
             rooms.add(room);
         }
         return rooms;
@@ -142,17 +146,17 @@ public class RoomService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid contentId"));
         return roomRepository.findByHotel(hotel);
     }
-    
+
     public List<Room> getAllRooms() {
         return roomRepository.findAll();
     }
-    
+
     public List<RoomDTO> getRoomsByHotelId(Long hotelId) {
-    	Hotel hotel = hotelRepository.findById(hotelId)
+        Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid hotel ID"));
-    	
+
         List<Room> rooms = roomRepository.findByHotel(hotel);
-        
+
         return rooms.stream().map(room -> {
             RoomDTO roomDTO = new RoomDTO();
             roomDTO.setRoomId(room.getRoomId());
@@ -161,10 +165,10 @@ public class RoomService {
             roomDTO.setDescription(room.getDescription());
             roomDTO.setOccupancy(room.getOccupancy());
             roomDTO.setImageUrls(room.getImages().stream()
-                .map(RoomImage::getImageUrl)
-                .collect(Collectors.toList()));
+                    .map(RoomImage::getImageUrl)
+                    .collect(Collectors.toList()));
             roomDTO.setAvailableRooms(getAvailableRooms(room));
-            
+
             roomDTO.setBathFacility(room.isBathFacility());
             roomDTO.setBath(room.isBath());
             roomDTO.setAirCondition(room.isAirCondition());
@@ -176,11 +180,11 @@ public class RoomService {
             roomDTO.setSofa(room.isSofa());
             roomDTO.setTableYn(room.isTableYn());
             roomDTO.setHairdryer(room.isHairdryer());
-            
+
             return roomDTO;
         }).collect(Collectors.toList());
     }
-    
+
     public List<RoomDTO> getAllRoomsAsDTO() {
         List<Room> rooms = roomRepository.findAll();
         return rooms.stream().map(room -> {
@@ -191,24 +195,24 @@ public class RoomService {
             roomDTO.setDescription(room.getDescription());
             roomDTO.setOccupancy(room.getOccupancy());
             roomDTO.setImageUrls(room.getImages().stream()
-                .map(RoomImage::getImageUrl)
-                .collect(Collectors.toList()));
+                    .map(RoomImage::getImageUrl)
+                    .collect(Collectors.toList()));
             roomDTO.setAvailableRooms(getAvailableRooms(room));
             return roomDTO;
         }).collect(Collectors.toList());
     }
-    
+
     // 특정 날짜의 남은 객실 수 계산
     private int getAvailableRooms(Room room) {
         RoomCount roomCount = roomCountRepository.findByRoomAndDate(room, LocalDate.now())
-            .orElse(new RoomCount(null, LocalDate.now(), room.getTotal(), room));
+                .orElse(new RoomCount(null, LocalDate.now(), room.getTotal(), room));
         return roomCount.getRoomCount();
     }
-    
+
     public RoomDTO getRoomById(Long roomId) {
         Room room = roomRepository.findById(roomId)
-            .orElseThrow(() -> new IllegalArgumentException("Room not found with ID: " + roomId));
-        
+                .orElseThrow(() -> new IllegalArgumentException("Room not found with ID: " + roomId));
+
         RoomDTO roomDTO = new RoomDTO();
         roomDTO.setRoomId(room.getRoomId());
         roomDTO.setName(room.getName());
@@ -216,18 +220,18 @@ public class RoomService {
         roomDTO.setDescription(room.getDescription());
         roomDTO.setOccupancy(room.getOccupancy());
         roomDTO.setImageUrls(room.getImages().stream()
-            .map(RoomImage::getImageUrl)
-            .collect(Collectors.toList()));
-        
+                .map(RoomImage::getImageUrl)
+                .collect(Collectors.toList()));
+
         List<String> imageUrls = room.getImages().stream()
-            .map(RoomImage::getImageUrl)
-            .collect(Collectors.toList());
+                .map(RoomImage::getImageUrl)
+                .collect(Collectors.toList());
         roomDTO.setImageUrls(imageUrls);
         roomDTO.setPrimaryImageUrl(!imageUrls.isEmpty() ? imageUrls.get(0) : null);
 
-        
+
         roomDTO.setAvailableRooms(getAvailableRooms(room));
-        
+
         roomDTO.setBathFacility(room.isBathFacility());
         roomDTO.setBath(room.isBath());
         roomDTO.setAirCondition(room.isAirCondition());
@@ -239,13 +243,13 @@ public class RoomService {
         roomDTO.setSofa(room.isSofa());
         roomDTO.setTableYn(room.isTableYn());
         roomDTO.setHairdryer(room.isHairdryer());
-        
+
         Hotel hotel = room.getHotel();
         roomDTO.setHotelPhone(hotel.getHotelnum());
         roomDTO.setHotelAddress(hotel.getAddress());
         roomDTO.setHotelCheckIn(hotel.getCheckIn());
         roomDTO.setHotelCheckOut(hotel.getCheckOut());
-        
+
         return roomDTO;
     }
 }

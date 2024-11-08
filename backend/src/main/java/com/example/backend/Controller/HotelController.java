@@ -1,3 +1,4 @@
+
 package com.example.backend.Controller;
 
 import java.util.List;
@@ -52,4 +53,3 @@ public class HotelController {
         return hotelService.searchHotelsByName(query);
     }
 }
-

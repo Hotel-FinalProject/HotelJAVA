@@ -1,6 +1,5 @@
 package com.example.backend.entity;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -36,16 +35,15 @@ public class Hotel {
     private String imageUrl; // 호텔 이미지 URL (S3 이미지 경로)
 
     private String hotelnum; // 호텔 전화번호
-    
+
     private Long contentId; // API에서 제공하는 호텔 고유 식별자
-    
+
     private Double mapX; // 호텔 위치 X 좌표
     private Double mapY; // 호텔 위치 Y 좌표
-    
+
     private String checkIn; // 호텔 체크인 날짜
     private String checkOut; // 호텔 체크아웃 날짜
-    
-    private double rating;
+    private Double rating;
 
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
@@ -57,4 +55,5 @@ public class Hotel {
     @OneToMany(mappedBy = "hotel")
     private Set<Favorites> favorite;
 }
+
 

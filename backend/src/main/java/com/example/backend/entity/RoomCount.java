@@ -12,19 +12,22 @@ import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoomCount {
+
 	
 	 @Id
 	 @GeneratedValue(strategy = GenerationType.IDENTITY)
 	 private Long roomCountId;
 	 
 	 private LocalDate date;
-	 
+
+	@ColumnDefault("10")
 	 private int roomCount;
 	 
 	 @ManyToOne(fetch = FetchType.LAZY)

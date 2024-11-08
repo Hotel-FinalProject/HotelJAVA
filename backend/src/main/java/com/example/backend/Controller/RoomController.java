@@ -49,14 +49,14 @@ public class RoomController {
         List<Room> rooms = roomService.getAllRooms();
         return ResponseEntity.ok(rooms);
     }
-    
+
     // 특정 호텔 객실 조회 (RoomDTO로 반환)
     @GetMapping("/hotel/{contentId}")
     public ResponseEntity<List<RoomDTO>> getRoomsByContentId(@PathVariable("contentId") Long contentId) {
         List<RoomDTO> rooms = roomService.getRoomsByHotelId(contentId);
         return ResponseEntity.ok(rooms);
     }
-    
+
     // 특정 객실 조회 (RoomDTO로 반환)
     @GetMapping("/{roomId}")
     public ResponseEntity<RoomDTO> getRoomById(@PathVariable("roomId") Long roomId) {

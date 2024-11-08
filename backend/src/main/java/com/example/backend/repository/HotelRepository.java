@@ -14,6 +14,8 @@ import com.example.backend.entity.Hotel;
 public interface HotelRepository extends JpaRepository<Hotel, Long> {
 	
 	Optional<Hotel> findByContentId(Long contentId);
+
 	@Query("SELECT h FROM Hotel h WHERE REPLACE(h.name, ' ', '') LIKE %:query%")
 	List<Hotel> searchByNameIgnoringSpaces(@Param("query") String query);
 }
+

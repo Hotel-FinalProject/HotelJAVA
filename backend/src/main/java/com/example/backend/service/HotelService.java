@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -29,12 +30,13 @@ public class HotelService {
 
     @Autowired
     private HotelRepository hotelRepository;
-
     private final RestTemplate restTemplate = new RestTemplate();
     private final String apiUrl = "https://apis.data.go.kr/B551011/KorService1/searchStay1";
     private final String detailApiUrl = "http://apis.data.go.kr/B551011/KorService1/detailIntro1";
-    private final String apiKey = ""; // API 키 입력
-    
+
+    @Value("${api.key}")
+    private  String apiKey;
+
     public void fetchAndSaveHotels() {
         try {
             String url = apiUrl + "?serviceKey=" + apiKey + "&MobileApp=AppTest&MobileOS=ETC&pageNo=1&numOfRows=175&areaCode=1";
@@ -49,14 +51,14 @@ public class HotelService {
 
             JSONObject jsonObject = XML.toJSONObject(xmlResponse);
 
-            if (jsonObject.has("response") 
-                && jsonObject.getJSONObject("response").has("body")
-                && jsonObject.getJSONObject("response").getJSONObject("body").has("items")) {
-                
+            if (jsonObject.has("response")
+                    && jsonObject.getJSONObject("response").has("body")
+                    && jsonObject.getJSONObject("response").getJSONObject("body").has("items")) {
+
                 JSONArray items = jsonObject.getJSONObject("response")
-                                            .getJSONObject("body")
-                                            .getJSONObject("items")
-                                            .optJSONArray("item");
+                        .getJSONObject("body")
+                        .getJSONObject("items")
+                        .optJSONArray("item");
 
                 if (items != null) {
                     List<Hotel> hotels = parseJsonToHotels(items);
@@ -95,14 +97,14 @@ public class HotelService {
             String xmlResponse = new String(response.getBody(), StandardCharsets.UTF_8);
             JSONObject jsonObject = XML.toJSONObject(xmlResponse);
 
-            if (jsonObject.has("response") 
-                && jsonObject.getJSONObject("response").has("body")
-                && jsonObject.getJSONObject("response").getJSONObject("body").has("items")) {
-                
+            if (jsonObject.has("response")
+                    && jsonObject.getJSONObject("response").has("body")
+                    && jsonObject.getJSONObject("response").getJSONObject("body").has("items")) {
+
                 JSONObject item = jsonObject.getJSONObject("response")
-                                            .getJSONObject("body")
-                                            .getJSONObject("items")
-                                            .optJSONObject("item");
+                        .getJSONObject("body")
+                        .getJSONObject("items")
+                        .optJSONObject("item");
 
                 if (item != null) {
                     String checkInTime = item.optString("checkintime");
@@ -146,14 +148,14 @@ public class HotelService {
     public List<Hotel> getAllHotels() {
         return hotelRepository.findAll();
     }
-    
+
     public Optional<Hotel> findByContentId(Long contentId) {
         return hotelRepository.findByContentId(contentId);
     }
-    
+
     public Hotel getHotelById(Long id) {
         return hotelRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("호텔을 찾을 수 없습니다. ID: " + id));
+                .orElseThrow(() -> new RuntimeException("호텔을 찾을 수 없습니다. ID: " + id));
     }
     
     public List<HotelDTO> searchHotelsByName(String query) {

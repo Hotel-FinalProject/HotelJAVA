@@ -439,7 +439,7 @@ export default {
 #map {
   width: auto !important;
   height: 400px !important;
-  margin-top: 10px; /* 주소와 지도의 간격 */
-  margin-left: 30px; /* 지도만 들여쓰기 */
+  margin-top: 10px;
+  margin-left: 30px;
 }
 </style>

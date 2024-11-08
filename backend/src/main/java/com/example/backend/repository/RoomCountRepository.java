@@ -11,4 +11,5 @@ import com.example.backend.entity.RoomCount;
 public interface RoomCountRepository extends JpaRepository<RoomCount, Long> {
 	
     Optional<RoomCount> findByRoomAndDate(Room room, LocalDate date);
+
 }

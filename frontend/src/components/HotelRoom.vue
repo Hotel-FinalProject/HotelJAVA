@@ -28,7 +28,19 @@
     <!-- 예약 정보 및 가격 -->
     <div class="details-reservation">
       <div class="details-middle">
-        <div class="reservation-cal">캘린더</div>
+        <div class="reservation-cal">캘린더
+             <VDatePicker v-model.range="range" />
+                     <p>선택된 시작 날짜: {{
+               range.start
+                 ? `${range.start.getFullYear()}.${(range.start.getMonth() + 1).toString().padStart(2, '0')}.${range.start.getDate().toString().padStart(2, '0')} (${range.start.toLocaleDateString('ko-KR', { weekday: 'short' })})`
+                 : '선택되지 않음'
+             }}</p>
+                    <p>선택된 시작 날짜: {{
+               range.start
+                 ? `${range.end.getFullYear()}.${(range.end.getMonth() + 1).toString().padEnd(2, '0')}.${range.end.getDate().toString().padEnd(2, '0')} (${range.end.toLocaleDateString('ko-KR', { weekday: 'short' })})`
+                 : '선택되지 않음'
+             }}</p>
+        </div>
         <div class="reservation-person">
           <label for="personSelect">예약 인원:</label>
           <select id="personSelect" v-model="selectedPersonCount">
@@ -46,7 +58,7 @@
           <h2 class="price">{{ room.price ? `${room.price}원` : "가격 정보 없음" }}</h2>
           <div class="reservation-bottom">
             <div class="room-count">{{ room.availableRooms ? `남은 객실 ${room.availableRooms}개` : "남은 객실 정보 없음" }}</div>
-            <router-link to="/rooms">
+            <router-link to="/payment">
               <button class="reservation_btn">예약하기</button>
             </router-link>
           </div>
@@ -115,6 +127,7 @@
 
 <script>
 import axios from "axios";
+import { useAuthStore } from "@/store/register_login";
 
 export default {
   name: "HotelRoom",
@@ -123,11 +136,17 @@ export default {
       room: {},
       hotel: {},
       reviews: [],
-      selectedPersonCount: 1
+      selectedPersonCount: 1,
+      isLoggedIn: false,
+      showModal: false,
+      range: { start: null, end: null },
     };
   },
   created() {
     this.fetchRoomDetails();
+    const authStore = useAuthStore();
+    authStore.checkLoginStatus();
+    this.isLoggedIn = authStore.LoggedIn;
   },
   methods: {
     async fetchRoomDetails() {
@@ -141,6 +160,16 @@ export default {
         console.error("객실 정보를 가져오는 중 오류 발생:", error);
       }
     },
+    handleReservation() {
+          if (this.isLoggedIn) {
+            // 예약 처리 로직
+            this.$router.push("/payment"); // 결제 페이지로 이동
+          } else {
+            this.showModal = true; // 로그인 모달을 표시
+
+          }
+        },
+      
   },
   computed: {
     formattedDescription() {

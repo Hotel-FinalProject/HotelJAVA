@@ -1,47 +1,48 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import DefaultLayout from '@/layout/DefaultLayout.vue';
+import MainPage from "@/components/MainPage.vue";
 import register from '@/components/registerPage.vue';
-import login from '@/components/loginPage.vue';
+import login from '@/components/loginPage.vue'
+import OAuthRedirectHandler from '@/components/OAuthRedirectHandler.vue';
 
 const routes = [
   {
     path: '/',
-    component: DefaultLayout, 
-    children: [
-      {
-        path: '',
-        component: () => import('@/components/MainPage.vue'),
-      },
-      {
-        path: 'my_page',
-        component: () => import('@/components/myPage.vue')
-      },
-      {
-        path: 'test2',
-        component: () => import('@/components/testVue2.vue')
-      },
-      {
-        path: 'test3',
-        component: () => import('@/components/testVue3.vue')
-      },
-      {
-        path: 'hotel-details/:id',
-        component: () => import('@/components/HotelDetails.vue')
-      },
-      {
-        path: 'room-details/:roomId',
-        component: () => import('@/components/HotelRoom.vue')
-      },
-      {
-        path: '/register',
-        component: register,
-      },
-      {
-        path: '/login',
-        component: login,
-      }
-    ]
+    component: MainPage,
   },
+  {
+    path: '/my_page',
+    component: () => import('@/components/UserPages/UserMypage.vue')
+  },
+  {
+    path: '/register',
+    component: register,
+  },
+  {
+    path: '/login',
+    component: login,
+  },
+  {
+    path: '/hotel-details/:id',
+    component: () => import('@/components/HotelDetails.vue')
+  },
+  {
+    path: '/room-details/:roomId',
+
+    component: () => import('@/components/HotelRoom.vue')
+  },
+  {
+    path: '/oauth2/success', // OAuth 리다이렉트 경로 추가
+    component: OAuthRedirectHandler,
+  },
+  {
+    path: '/find-my-id', // OAuth 리다이렉트 경로 추가
+    component: () => import ('@/components/UserPages/FindId.vue'),
+  },
+  {
+    path: '/payment', // OAuth 리다이렉트 경로 추가
+    component: () => import ('@/components/PaymentPage.vue'),
+  }
+
 ];
 
 const router = createRouter({

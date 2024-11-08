@@ -14,11 +14,15 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EnableJpaAuditing
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +30,9 @@ public class Review {
 
     private String content; // 후기 내용
     private Long rating; // 평점
+    @CreatedDate
     private Date writeDate; // 후기 작성 날짜
+    @LastModifiedDate
     private Date updateDate; // 후기 수정 날짜
 
     @Column(nullable = true)
