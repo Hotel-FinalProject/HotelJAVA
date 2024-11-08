@@ -3,6 +3,7 @@ package com.example.backend.Controller;
 import com.example.backend.dto.LoginRequest;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
+import com.example.backend.service.PasswordResetService;
 import com.example.backend.service.UserService;
 import com.example.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
+    private final PasswordResetService passwordResetService;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
@@ -42,9 +44,7 @@ public class UserController {
         }
     }
 
-    /**
-     * 회원가입 요청
-     */
+    /** 회원가입 요청 */
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody User user, @RequestHeader("verificationToken") String authorizationHeader) {
         String verificationToken = null;
@@ -62,9 +62,7 @@ public class UserController {
     }
 
 
-    /**
-     * 사이트 로그인
-     */
+    /** 사이트 로그인 */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
@@ -76,9 +74,7 @@ public class UserController {
         }
     }
 
-    /**
-     * 이메일 중복 확인
-     */
+    /** 이메일 중복 확인 */
     @GetMapping("/check-email")
     public ResponseEntity<String> checkEmail(@RequestParam String email) {
         boolean exists = userRepository.existsByEmail(email);
@@ -89,9 +85,7 @@ public class UserController {
         }
     }
 
-    /**
-     * 아이디 찾기
-     */
+    /** 아이디 찾기 */
     @PostMapping("/find-id")
     public ResponseEntity<Object> findId(@RequestBody Map<String, String> requestBody) {
         String name = requestBody.get("name");
@@ -140,9 +134,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("일반 계정을 찾을 수 없습니다.");
     }
 
-    /**
-     * 아이디 찾기 이메일 마스킹 로직
-     */
+    /** 아이디 찾기 이메일 마스킹 로직 */
     private String maskEmail(String email) {
         int atIdx = email.indexOf("@");
         if (atIdx > 1) {
@@ -168,10 +160,29 @@ public class UserController {
         return userService.sendVerificationEmail(email, mode);
     }
 
-
     /** 이메일 인증 요청 */
     @GetMapping("/verify-email")
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
         return userService.verifyEmail(token);
+    }
+
+    /** 비밀번호 변경 */
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+        String token = requestBody.get("token");
+
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일이 필요합니다.");
+        }
+        if (token == null || token.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("토큰이 필요합니다.");
+        }
+
+        try {
+            return passwordResetService.resetPasswordWithGeneratedPassword(email, token);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("비밀번호 재설정 중 오류가 발생했습니다.");
+        }
     }
 }

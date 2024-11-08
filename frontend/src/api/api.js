@@ -41,7 +41,7 @@ function findIdUser(name) {
 function sendVerificationEmailAPI(email, mode) {
   return config.post('/users/send-verification-email', {
     email: email,
-    mode: mode,  // 모드를 함께 전송
+    mode: mode,
   });
 }
 
@@ -63,6 +63,14 @@ export function getUserInfo(token) {
     }
   });
 }
+
+/** 유저 비밀번호 재설정 */
+export const sendResetPasswordRequest = (email, token) => {
+  return config.post('/users/reset-password', {
+    email,
+    token,
+  });
+};
 
 export {
   signupUser,

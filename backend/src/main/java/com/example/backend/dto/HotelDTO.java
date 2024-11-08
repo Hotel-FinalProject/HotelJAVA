@@ -11,5 +11,5 @@ public class HotelDTO {
     private String name;
     private String address;
     private String imageUrl;
-    private double rating;
+    private Double rating;
 }

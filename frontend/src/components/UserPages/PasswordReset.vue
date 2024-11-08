@@ -1,36 +1,36 @@
 <template>
   <div class="password-reset-container">
-    <h2>비밀번호 찾기</h2>
-    <div v-if="!isVerified">
-      <input v-model="email" placeholder="이메일을 입력하세요" />
-      <input v-model="name" placeholder="이름을 입력하세요" />
-      <button @click="sendResetPasswordEmail">이메일 인증 요청</button>
+      <h2>비밀번호 재설정</h2>
+      <div v-if="!isEmailSent">
+        <p>임시 비밀번호를 발급하기 위해 이메일 인증을 완료하세요.</p>
+        <button @click="sendResetPasswordEmail">비밀번호 재설정 요청</button>
     </div>
     <div v-else>
-      <p>인증이 완료되었습니다. 임시 비밀번호를 이메일로 발송합니다.</p>
+        <p>임시 비밀번호가 이메일로 발송되었습니다. 이메일을 확인하세요.</p>
     </div>
   </div>
 </template>
 
 <script>
-import { useAuthStore } from "@/store/register_login";
-import { useRouter } from "vue-router";
 import { ref, onMounted } from "vue";
+  import { useResetPasswordStore } from "@/store/reset_password";
+  import { useAuthStore } from "@/store/register_login"; // useAuthStore 추가
+  import { useRouter } from "vue-router";
+  import { sendResetPasswordRequest } from "@/api/api";
 
 export default {
   name: "PasswordResetPage",
   setup() {
-    const authStore = useAuthStore();
+      const resetPasswordStore = useResetPasswordStore();
+      const authStore = useAuthStore(); // 이메일 인증 토큰을 가져오기 위해 authStore 사용
     const router = useRouter();
 
-    const email = ref("");
-    const name = ref("");
-    const isVerified = ref(false);
+      const isEmailSent = ref(false);
 
-    // 컴포넌트 마운트 시 동작
+      // 페이지가 마운트될 때 토큰과 이메일이 있는지 확인하고, 없으면 이메일 인증 페이지로 리다이렉트
     onMounted(() => {
-      if (!authStore.verificationToken) {
-        // 인증 토큰이 없을 경우 이메일 인증 페이지로 리다이렉트
+        if (!authStore.verificationToken || !authStore.email) {
+          alert("이메일 인증 정보가 없습니다. 이메일 인증 페이지로 이동합니다.");
         router.push({
           path: "/verify-email",
           query: {
@@ -38,33 +38,38 @@ export default {
           },
         });
       } else {
-        // 인증 토큰이 있는 경우, 이메일 값을 설정
-        email.value = authStore.email;
-        isVerified.value = true; // 인증이 완료된 상태로 설정
+          // 이메일과 토큰을 resetPasswordStore에 저장
+          resetPasswordStore.email = authStore.email;
+          resetPasswordStore.token = authStore.verificationToken;
       }
     });
 
     const sendResetPasswordEmail = async () => {
-      try {
-        // 이메일 인증 요청을 보낼 때 'resetPassword' 모드로 전송
-        await authStore.sendVerificationEmail(email.value, "resetPassword");
-        alert("이메일로 인증 요청이 전송되었습니다. 인증을 완료하세요.");
-        router.push({
-          path: "/verify-email",
-          query: {
-            mode: "resetPassword",
-          },
-        });
+        if (!resetPasswordStore.email || !resetPasswordStore.token) {
+          alert("이메일 인증 정보가 없습니다. 이메일 인증을 먼저 해주세요.");
+          return;
+        }
+  
+        try {
+          const response = await sendResetPasswordRequest(
+            resetPasswordStore.email,
+            resetPasswordStore.token
+          );
+  
+          if (response.status === 200) {
+            isEmailSent.value = true;
+            alert("임시 비밀번호가 이메일로 발송되었습니다.");
+          } else {
+            alert("비밀번호 재설정 요청 중 오류가 발생했습니다.");
+          }
       } catch (error) {
-        console.error("비밀번호 찾기 이메일 발송 실패:", error);
-        alert("이메일 발송 중 오류가 발생했습니다.");
+          console.error("비밀번호 재설정 요청 실패:", error);
+          alert("비밀번호 재설정 중 오류가 발생했습니다. 다시 시도해주세요.");
       }
     };
 
     return {
-      email,
-      name,
-      isVerified,
+        isEmailSent,
       sendResetPasswordEmail,
     };
   },
@@ -99,13 +104,5 @@ button {
 
 button:hover {
   background-color: #5948c5;
-}
-
-input {
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  width: 80%;
-  border-radius: 4px;
-  border: 1px solid #ddd;
 }
 </style>

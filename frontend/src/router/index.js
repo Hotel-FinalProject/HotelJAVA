@@ -1,11 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import MainPage from "@/components/MainPage.vue";
-import register from '@/components/RegisterPage.vue';
-import login from '@/components/LoginPage.vue'
+import register from '@/components/registerPage.vue';
+import login from '@/components/loginPage.vue'
 import OAuthRedirectHandler from '@/components/OAuthRedirectHandler.vue';
 import EmailVerificationPage from '@/components/UserPages/EmailVerification.vue';
 import PasswordReset from '@/components/UserPages/PasswordReset.vue'
 import HotelAdminPage from '@/components/HotelAdminPage.vue';
+
 const routes = [
   {
     path: '/',
@@ -51,7 +52,6 @@ const routes = [
   {
     path: '/admin/hotel', // 호텔 관리자 페이지 경로
     component: HotelAdminPage
-  },
   },
   {
     path: '/reset-password', // 이메일 인증 페이지 경로
