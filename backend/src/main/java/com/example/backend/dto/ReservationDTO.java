@@ -5,9 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -15,8 +14,8 @@ import java.util.List;
 public class ReservationDTO {
     private Long reservationId;
     private int guestNum; // 투숙 인원
-    private LocalDateTime checkIn; // 체크인 날짜
-    private LocalDateTime checkOut; // 체크아웃 날짜
+    private LocalDate checkIn; // 체크인 날짜
+    private LocalDate checkOut; // 체크아웃 날짜
     private String request;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;

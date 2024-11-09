@@ -1,37 +1,61 @@
 <template>
   <div class="main-container">
     <div class="input-bar">
-      <input class="search-bar" type="text" placeholder="호텔 검색" />
-      <div class = "search-conatiner">
-        <div class="reservation-cal">
-          <div v-if="showCalendar" class="calendar-modal">
-            <div class="modal-content">
-              <VDatePicker v-model.range="range" />
-              <button @click="onDateSelect">확인</button>
-            </div>
-          </div>
-
-          <div @click="showCalendar = !showCalendar"> 
-            <div> 
-              {{ range.start ? `${range.start.getFullYear()}.${(range.start.getMonth() + 1).toString().padStart(2, '0')}.${range.start.getDate().toString().padStart(2, '0')} (${range.start.toLocaleDateString('ko-KR', { weekday: 'short' })})`
-              : `${new Date().getFullYear()}.${(new Date().getMonth() + 1).toString().padStart(2, '0')}.${new Date().getDate().toString().padStart(2, '0')} (${new Date().toLocaleDateString('ko-KR', { weekday: 'short' })})`
-              }} -
-              {{
-                range.end
-                  ? `${range.end.getFullYear()}.${(range.end.getMonth() + 1).toString().padStart(2, '0')}.${range.end.getDate().toString().padStart(2, '0')} (${range.end.toLocaleDateString('ko-KR', { weekday: 'short' })})`
-                  : `${new Date().getFullYear()}.${(new Date().getMonth() + 1).toString().padStart(2, '0')}.${new Date().getDate().toString().padStart(2, '0')} (${new Date().toLocaleDateString('ko-KR', { weekday: 'short' })})`
-              }}
-            </div>
+      <div class = "search-container">
+        <input
+          v-model="searchQuery"
+          class="search-bar"
+          type="text"
+          placeholder="호텔 검색"
+          @input="fetchAutocompleteResults"
+          @keyup.enter="searchHotel"
+        />
+        <!-- 돋보기 버튼 -->
+        <button @click="searchHotel" class="search-button">
+          🔍
+        </button>
+      </div>
+      <div class="reservation-cal">
+        <div v-if="showCalendar" class="calendar-modal">
+          <div class="modal-content">
+            <VDatePicker v-model.range="range" />
+            <button @click="onDateSelect">확인</button>
           </div>
         </div>
 
-        <div class="reservation-person">
-          <label for="personSelect">예약 인원:</label>
-          <select id="personSelect" v-model="selectedPersonCount">
-            <option v-for="n in 5" :key="n" :value="n">{{ n }}명</option>
-          </select>
+        <div @click="showCalendar = !showCalendar"> 
+          <div> 
+            {{ range.start ? `${range.start.getFullYear()}.${(range.start.getMonth() + 1).toString().padStart(2, '0')}.${range.start.getDate().toString().padStart(2, '0')} (${range.start.toLocaleDateString('ko-KR', { weekday: 'short' })})`
+            : `${new Date().getFullYear()}.${(new Date().getMonth() + 1).toString().padStart(2, '0')}.${new Date().getDate().toString().padStart(2, '0')} (${new Date().toLocaleDateString('ko-KR', { weekday: 'short' })})`
+            }} -
+            {{
+              range.end
+                ? `${range.end.getFullYear()}.${(range.end.getMonth() + 1).toString().padStart(2, '0')}.${range.end.getDate().toString().padStart(2, '0')} (${range.end.toLocaleDateString('ko-KR', { weekday: 'short' })})`
+                : `${new Date().getFullYear()}.${(new Date().getMonth() + 1).toString().padStart(2, '0')}.${new Date().getDate().toString().padStart(2, '0')} (${new Date().toLocaleDateString('ko-KR', { weekday: 'short' })})`
+            }}
+          </div>
         </div>
       </div>
+
+      <div class="reservation-person">
+        <label for="personSelect">예약 인원:</label>
+        <select id="personSelect" v-model="selectedPersonCount">
+          <option v-for="n in 5" :key="n" :value="n">{{ n }}명</option>
+        </select>
+      </div>
+      <!-- 자동 완성 목록 -->
+    <ul v-if="searchQuery.length > 0" class="autocomplete-list">
+      <li
+        v-for="result in autocompleteResults"
+        :key="result.hotelId"
+        @click="goToHotelDetail(result.hotelId)"
+        class="autocomplete-item"
+      >
+        <span class="autocomplete-hotel-name">{{ result.name }}</span> <!-- 호텔 이름 표시 -->
+        <span class="hotel-address">{{ result.address || '주소 정보 없음' }}</span> <!-- 주소 표시 -->
+      </li>
+      <li v-if="noResults" class="no-results">연관된 검색어가 없습니다.</li>
+    </ul> 
     </div>
     <!-- 호텔 리스트 -->
     <div class="hotel_list_container">
@@ -69,7 +93,6 @@
                 </div>
             </div>  
         </div>
-
   </div>
 </template>
 
@@ -80,39 +103,68 @@ export default {
   name: 'MainPage',
   data() {
     return {
-      hotels: [],
+      searchQuery: '',
+      autocompleteResults: [],
       randomHotels: [],
       defaultImage: 'https://png.pngtree.com/png-vector/20240613/ourlarge/pngtree-modern-hotel-icon-with-palm-trees-black-isolated-on-white-background-vector-png-image_7010310.png',
-      range: { start: null, end: null },
-      showCalendar: false, // 모달 상태
+      noResults: false, // 연관 검색어가 없는 경우를 표시하기 위한 변수
       selectedPersonCount: 1,
+      showCalendar: false,
+      range: { start: null, end: null },
+
     };
   },
   created() {
-    this.fetchHotels();
+    this.fetchRandomHotels();
   },
   methods: {
-    async fetchHotels() {
+    async fetchRandomHotels() {
       try {
-        const response = await axios.get('http://localhost:8081/api/hotels');
-        this.hotels = response.data;
-        this.randomHotels = this.shuffleArray(this.hotels).slice(0, 5);
+        const response = await axios.get('http://localhost:8081/api/hotels/random');
+        this.randomHotels = response.data; // 백엔드에서 가져온 랜덤 호텔 목록
       } catch (error) {
-        console.error('호텔 데이터를 가져오는 중 오류 발생:', error);
+        console.error('랜덤 호텔 데이터를 가져오는 중 오류 발생:', error);
       }
     },
-    shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+    async fetchAutocompleteResults() {
+      if (this.searchQuery.length > 0) {
+        const queryWithoutSpaces = this.searchQuery.replace(/\s+/g, ''); // 공백 제거
+        try {
+          const response = await axios.get(`http://localhost:8081/api/hotels/search?query=${queryWithoutSpaces}`);
+          this.autocompleteResults = response.data;
+          this.noResults = this.autocompleteResults.length === 0;
+        } catch (error) {
+          console.error('자동 완성 결과를 가져오는 중 오류 발생:', error);
+          this.autocompleteResults = [];
+          this.noResults = true;
+        }
+      } else {
+        this.autocompleteResults = [];
+        this.noResults = false;
       }
-      return array;
+    },
+    async searchHotel() {
+      const exactMatch = this.autocompleteResults.find(result => result.name === this.searchQuery);
+
+      if (exactMatch) {
+        // 완전히 일치하는 호텔명이 있는 경우 상세 페이지로 이동
+        this.goToHotelDetail(exactMatch.hotelId);
+      } else if (this.autocompleteResults.length > 0) {
+        // 연관 검색어가 있는 경우 경고 메시지 표시
+        alert("연관된 검색어 목록에서 선택해주세요.");
+      } else {
+        // 연관 검색어가 없는 경우 경고 메시지 표시
+        alert("연관된 검색어가 없습니다.");
+      }
+    },
+    goToHotelDetail(hotelId) {
+      this.$router.push(`/hotel-details/${hotelId}`);
     },
     onDateSelect() {
       // 날짜가 선택되면 캘린더를 숨깁니다.
       this.showCalendar = false;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -125,20 +177,87 @@ export default {
   margin-bottom: 10px;
 }
 
+
+.search-container{
+  position: relative; /* 검색바와 돋보기를 같은 컨테이너 안에 배치 */
+  display: flex;
+  align-items: center;
+  width: 100%; /* 검색창이 상위 요소를 가득 채우도록 설정 */
+  background-color: rgb(233, 233, 233);
+  border-radius: 15px;
+}
+
 .search-bar {
   width: 100%;
   height: 40px;
-  margin-bottom: 20px;
   font-size: 15px;
-  border: 0;
-  border-radius: 15px;
+  border: none;
   outline: none;
+  padding-right: 40px; /* 돋보기 버튼 공간 확보 */
   padding-left: 10px;
-  background-color: rgb(233, 233, 233);
+  background-color: transparent;
 }
-.search-conatiner{
-  display:flex;
 
+.search-button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.refresh-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  font-size: 24px;
+  vertical-align: middle;
+}
+
+.autocomplete-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 5px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+  position: absolute;
+  width: 1100px;
+}
+
+.autocomplete-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.autocomplete-hotel-name {
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
+}
+
+.hotel-address {
+  font-size: 14px;
+  color: #777;
+}
+
+.autocomplete-item:hover {
+  background-color: #f0f0f0;
+}
+
+.no-results {
+  padding: 8px;
+  color: gray;
+  text-align: center;
 }
 
 
@@ -217,3 +336,14 @@ export default {
   margin-top: 20px;
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+

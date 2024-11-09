@@ -1,14 +1,9 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.ReservationDTO;
-import com.example.backend.entity.Reservation;
-import com.example.backend.entity.Room;
-import com.example.backend.entity.User;
-import com.example.backend.entity.Payments;
-import com.example.backend.repository.PaymentRepository;
-import com.example.backend.repository.ReservationRepository;
-import com.example.backend.repository.RoomRepository;
-import com.example.backend.repository.UserRepository;
+import com.example.backend.dto.RoomCountDTO;
+import com.example.backend.entity.*;
+import com.example.backend.repository.*;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
@@ -19,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -32,6 +28,10 @@ public class PaymentService {
 
     private final RoomRepository roomRepository;
 
+    private final  RoomCountRepository roomCountRepository;
+
+
+
     // 생성자를 통한 주입 방식
     @Autowired
     public PaymentService(
@@ -40,17 +40,19 @@ public class PaymentService {
             PaymentRepository paymentRepository,
             ReservationRepository reservationRepository,
             UserRepository userRepository,
-            RoomRepository roomRepository) {
+            RoomRepository roomRepository,
+            RoomCountRepository roomCountRepository) {
 
         this.iamportClient = new IamportClient(serviceKey, secretKey);
         this.paymentRepository = paymentRepository;
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
         this.roomRepository = roomRepository;
+        this.roomCountRepository = roomCountRepository;
     }
 
     @Transactional
-    public void verifyPayment(Long userId, String imp_uid, ReservationDTO reservationDTO) throws IOException {
+    public void verifyPayment(Long userId, String imp_uid, ReservationDTO reservationDTO, RoomCountDTO roomCountDTO) throws IOException {
 
 
         IamportResponse<Payment> iamportResponse = iamportClient.paymentByImpUid(imp_uid);
@@ -82,6 +84,9 @@ public class PaymentService {
 
                 payments = paymentRepository.save(payments);
 
+                updateRoomCountForReservation(reservationDTO.getCheckIn(), reservationDTO.getCheckOut(), room);
+
+
 
                 Reservation reservation = Reservation.builder()
                         .user(user)
@@ -96,6 +101,8 @@ public class PaymentService {
                         .rooms(room)
                         .build();
 
+
+
                 reservationRepository.save(reservation);
 
             } else {
@@ -104,6 +111,37 @@ public class PaymentService {
         } else {
             throw new RuntimeException("결제 오류: 결제 상태가 " + status + "입니다.");
         }
+    }
+
+    // 예약 결제 시 남은 객실 감소 시키는 메소드
+    private void updateRoomCountForReservation(LocalDate checkIn, LocalDate checkOut, Room room) {
+
+        // 체크인 날짜부터 체크아웃 전날까지 처리
+        LocalDate checkInDate = checkIn;
+        LocalDate checkOutDate = checkOut.minusDays(1);
+
+        while (!checkInDate.isAfter(checkOutDate)) {
+
+            final LocalDate currentCheckInDate = checkInDate;
+
+            // 해당 날짜에 카운트 찾아서 -1 없으면 새로 생생해서 -1 해줌
+            RoomCount roomCount = roomCountRepository.findRoomCountByRoomRoomIdAndDate(room.getRoomId(), checkInDate)
+                    .orElseGet(() -> createNewRoomCount(room, currentCheckInDate));
+
+            roomCount.setRoomCount(roomCount.getRoomCount() - 1);
+            roomCountRepository.save(roomCount);
+
+            checkInDate = checkInDate.plusDays(1);
+        }
+    }
+
+    // 결제 후 해당 날짜가 없는 경우 새로 생성 후 roomcount 감소시킴
+    private RoomCount createNewRoomCount(Room room, LocalDate date) {
+        return RoomCount.builder()
+                .room(room)
+                .date(date)
+                .roomCount(10)
+                .build();
     }
 
 }

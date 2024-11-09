@@ -3,17 +3,16 @@ package com.example.backend.service;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.util.JwtUtil;
-//import com.example.backend.util.SmsService;
 import com.nimbusds.jose.JOSEException;
-//import jakarta.mail.MessagingException;
-//import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.mail.javamail.JavaMailSender;
-//import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,20 +31,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UserService {
 
     private final UserRepository userRepository;
-    //    private final JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
     private final JwtUtil jwtUtil;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final Map<String, String> verificationTokens = new ConcurrentHashMap<>();
-//    private final SmsService smsService;
 
 
-//    @Value("${spring.mail.username}")
-//    private String fromEmail;
+    @Value("${spring.mail.username}")
+    private String fromEmail;
 
     /** 회원가입 서비스 부분 */
-    public ResponseEntity<?> signup(User user, String verificationToken, String verificationCode) {
+    public ResponseEntity<?> signup(User user, String verificationToken) {
         // JWT 검증
-        String verifiedEmail;
+        String verifiedEmail = verificationToken;
+
         try {
             verifiedEmail = jwtUtil.verifyJwt(verificationToken);
         } catch (Exception e) {
@@ -69,13 +68,6 @@ public class UserService {
         if (!user.getPhone().matches(phonePattern)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 전화번호 형식입니다.");
         }
-
-        // 전화번호 인증 여부 확인
-//        boolean isVerified = smsService.verifyCode(user.getPhone(), verificationCode);
-//        if (!isVerified) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("전화번호 인증이 필요합니다.");
-//        }
-
 
         // 사용자의 정보 저장
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -138,46 +130,46 @@ public class UserService {
     }
 
     /** 이메일 인증 메일 전송 */
-//    public ResponseEntity<?> sendVerificationEmail(String email) {
-//        Optional<User> userOptional = userRepository.findByEmail(email);
-//        if (userOptional.isPresent()) {
-//            return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 사용 중인 이메일입니다.");
-//        }
-//
-//        // JWT 발급
-//        String verificationToken;
-//        try {
-//            verificationToken = jwtUtil.createEmailVerificationJwt(email);  // 이메일을 기반으로 JWT 생성
-//        } catch (JOSEException e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("JWT 생성 중 오류가 발생했습니다.");
-//        }
-//
-//        // 이메일 발송
-//        sendVerificationEmailInternal(email, verificationToken);  // 이메일 발송 추가
-//
-//        return ResponseEntity.ok("인증 이메일이 발송되었습니다.");
-//    }
+    public ResponseEntity<?> sendVerificationEmail(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 사용 중인 이메일입니다.");
+        }
+
+        // JWT 발급
+        String verificationToken;
+        try {
+            verificationToken = jwtUtil.createEmailVerificationJwt(email);  // 이메일을 기반으로 JWT 생성
+        } catch (JOSEException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("JWT 생성 중 오류가 발생했습니다.");
+        }
+
+        // 이메일 발송
+        sendVerificationEmailInternal(email, verificationToken);  // 이메일 발송 추가
+
+        return ResponseEntity.ok("인증 이메일이 발송되었습니다.");
+    }
 
 
 
     /** 내부용 이메일 인증 메일 전송 */
-//    private void sendVerificationEmailInternal(String toEmail, String token) {
-//        try {
-//            MimeMessage message = mailSender.createMimeMessage();
-//            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-//
-//            helper.setFrom(fromEmail);
-//            helper.setTo(toEmail);
-//            helper.setSubject("[수동태] 이메일 인증 요청");
-//            String link = "http://localhost:8082/verify-email?token=" + token;  // JWT를 링크에 포함
-//            helper.setText("아래 링크를 클릭하여 이메일 인증을 완료해주세요: \n" + link, true);
-//
-//            mailSender.send(message);
-//        } catch (MessagingException e) {
-//            e.printStackTrace();
-//            throw new IllegalStateException("이메일 전송 중 오류가 발생했습니다.");
-//        }
-//    }
+    private void sendVerificationEmailInternal(String toEmail, String token) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject("[수동태] 이메일 인증 요청");
+            String link = "http://localhost:8082/verify-email?token=" + token;  // JWT를 링크에 포함
+            helper.setText("아래 링크를 클릭하여 이메일 인증을 완료해주세요: \n" + link, true);
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("이메일 전송 중 오류가 발생했습니다.");
+        }
+    }
 
     /** 이메일 인증 처리 */
     public ResponseEntity<?> verifyEmail(String token) {

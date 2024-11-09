@@ -17,16 +17,7 @@
       <div class="form-group email-group">
         <div>
           <label for="email">이메일</label>
-          <input type="text" id="email" v-model="email" @blur="checkEmail" />
-          <div
-            v-if="authStore.emailMessage"
-            :class="{
-              error: !authStore.isEmailAvailable,
-              success: authStore.isEmailAvailable,
-            }"
-          >
-            {{ authStore.emailMessage }}
-          </div>
+          <input type="text" id="email" v-model="authStore.email" disabled />
         </div>
       </div>
       <div class="form-group">
@@ -35,20 +26,15 @@
       </div>
       <button type="submit" class="signup-button">회원가입</button>
     </form>
-    <div class="divider">
-        <span>SNS SIGNUP</span>
-      </div>
-      <div class="social-login">
-        <button @click="googleLogin" class="social-button google">G</button>
-        <button @click="naverLogin" class="social-button naver">N</button>
-      </div>
   </div>
 </template>
 
 <script>
 import { useAuthStore } from "@/store/register_login"; // Pinia 스토어 가져오기
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router"; // Vue Router 사용
+// import { decode as jwtDecode } from "jwt-decode";
+
 
 export default {
   name: "SignupForm",
@@ -63,48 +49,31 @@ export default {
     const password = ref("");
     const passwordConfirm = ref("");
 
-    // 이메일 정규식 패턴
-    const emailPattern = /^[a-zA-Z0-9+\-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
-
-    // 이메일 중복 확인
-    const checkEmail = async () => {
-      if (email.value === "") {
-        authStore.emailMessage = "이메일을 입력해주세요.";
-        authStore.isEmailAvailable = false;
-        return;
+    // 컴포넌트가 마운트될 때 JWT 토큰에서 이메일을 가져옴
+    onMounted(() => {
+      if (authStore.verificationToken) {
+        email.value = authStore.email;
+      } else {
+        alert("인증되지 않은 이메일입니다. 다시 이메일 인증을 진행해주세요.");
+        router.push("/verify-email");
       }
+    });
 
-      // 이메일 형식 검증
-      if (!emailPattern.test(email.value)) {
-        authStore.emailMessage = "올바른 이메일 형식이 아닙니다.";
-        authStore.isEmailAvailable = false;
-        return;
-      }
-
-      try {
-        await authStore.checkEmailAvailability(email.value);
-      } catch (error) {
-        if (error.response && error.response.status === 409) {
-          authStore.emailMessage = "이미 사용 중인 이메일입니다.";
-          alert("이미 사용 중인 이메일입니다.");
-        } else {
-          alert("이메일 확인 중 오류가 발생했습니다.");
-        }
-      }
-    };
-
-    // 폼 제출 처리
+    /** 폼 제출 처리 */ 
     const submitForm = async () => {
+      // 폼 유효성 검사
       if (password.value !== passwordConfirm.value) {
         alert("비밀번호가 일치하지 않습니다.");
         return;
       }
 
-      if (!authStore.isEmailAvailable) {
-        alert("이메일 중복 확인을 해주세요.");
-        return;
+      if (!authStore.verificationToken) {
+        alert("이메일 인증 토큰이 없습니다. 이메일 인증을 다시 진행해주세요.");
+        // return;
+        router.push("/verify-email");
       }
 
+      // 사용자 정보 
       const payload = {
         email: email.value,
         name: name.value,
@@ -112,23 +81,21 @@ export default {
         password: password.value,
       };
 
+      // 서버에 회원가입 요청
       try {
-        console.log(payload);
-        const response = await authStore.signup(payload); // Pinia의 signup 액션 호출
-
-        // 서버로부터 성공 상태 코드 확인 후 로그인 페이지로 이동
+        // verificationToken을 URL 쿼리 파라미터로 추가하여 요청
+        const response = await authStore.signup(payload);
         if (response && response.status === 201) {
           alert("회원가입이 완료되었습니다!");
-          router.push("/login"); // 회원가입 성공 시 로그인 페이지로 이동
+          router.push("/login");
         } else {
-          // 성공 상태가 아니면 에러 처리
           alert(`회원가입 중 오류 발생: ${response.data}`);
         }
       } catch (error) {
         if (error.response && error.response.data) {
-          alert(`회원가입 중 오류 발생: ${error.response.data}`); // 서버에서 보내온 오류 메시지 출력
+          alert(`회원가입 중 오류 발생: ${error.response.data}`);
         } else {
-          alert("회원가입 중 알 수 없는 오류가 발생했습니다."); // 알 수 없는 오류 처리
+          alert("회원가입 중 알 수 없는 오류가 발생했습니다.");
         }
         console.error(`회원가입 중 오류 발생: ${error}`);
       }
@@ -141,14 +108,11 @@ export default {
       password,
       passwordConfirm,
       submitForm,
-      checkEmail,
       authStore,
     };
   },
 };
 </script>
-
-
 
 <style scoped>
 .container {
@@ -199,21 +163,6 @@ input[type="password"]:focus {
   flex: 1;
 }
 
-.check-button {
-  margin-left: 0.5rem;
-  height: 2.4rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 0 1rem;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.check-button:hover {
-  background-color: #0056b3;
-}
-
 .signup-button {
   width: 100%;
   background-color: #6c5ce7;
@@ -228,71 +177,5 @@ input[type="password"]:focus {
 
 .signup-button:hover {
   background-color: #5948c5;
-}
-
-.error {
-  color: red;
-  margin-top: 0.5rem;
-}
-
-.success {
-  color: green;
-  margin-top: 0.5rem;
-}
-
-.divider {
-  text-align: center;
-  margin: 20px 0;
-  position: relative;
-}
-
-.divider span {
-  background-color: #fff;
-  padding: 0 10px;
-  font-weight: bold;
-  color: #666;
-}
-
-.divider::before, .divider::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 40%;
-  height: 1px;
-  background-color: #ddd;
-}
-
-.divider::before {
-  left: 0;
-}
-
-.divider::after {
-  right: 0;
-}
-
-.social-login {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.social-button {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  font-weight: bold;
-  font-size: 16px;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-}
-
-.google {
-  background-color: #db4437;
-}
-
-.naver {
-  background-color: #2db400;
 }
 </style>

@@ -18,26 +18,26 @@
         <div class="reservation-conatiner-info">
             <div class="check-in-conatiner">
                 <div class="check">체크인</div>
-                <h2>2024.10.26</h2>
-                <div class="check-time">{{ dataObj.checkIn }}</div>
+                <h2>{{ formatDate(dataObj.userCheckIn) }}</h2>
+                <div class="check-time">{{ dataObj.checkIn }} </div>
             </div>
             <div class="check-out-conatiner">
                 <div class="check">체크아웃</div>
-                <h2>2024.10.26</h2>
+                <h2>{{ formatDate(dataObj.userCheckOut) }}</h2>
                 <div class="check-time">{{ dataObj.checkOut }}</div>
             </div>
         </div>
         <div class="avg-person"> 
             <img class="person-icon" src ="https://yaimg.yanolja.com/stay/static/images/v3/icon_my.png">
-            <div class="avg-person-text">기준인원 2인</div>
+            <div class="avg-person-text">예약인원 {{ dataObj.guestNum }}인</div>
         </div>
-        <h2 class="price"> {{ dataObj.roomPrice}}원</h2>
+        <h2 class="price"> {{ Number(dataObj.roomPrice). toLocaleString() }}원</h2>
         <div class ="reservation-info">
             <div class="reservation-info-conatiner">
                 <h3> 예약자 정보 <span class="asterisk">*</span></h3>
                 <div class="info-container">
                     <div class="user-conatiner">
-                        <span class="user-info"> 성명</span><span class="asterisk">*</span><br>
+                        <span class="user-info"> 예약자 이름</span><span class="asterisk">*</span><br>
                         <div>
                             <input class="user-input" type="text">
                         </div>
@@ -52,7 +52,7 @@
                         <span class="user-info"> 요청사항</span><br>
                         
                         <div>
-                            <input class="request"  type="text">
+                            <input class="request"  type="text" v-model="request">
                         </div>
                     </div>
                 </div>         
@@ -143,10 +143,13 @@ export default {
       userPhone: '',
       dataObj: history.state || {},
       isLoggedIn: false,
+      request: '',
+      range: { start: null, end: null },
     };
   },
   async created() {
     const authStore = useAuthStore();
+    
 
     try {
       // 로그인 상태 확인 및 로그인 처리
@@ -190,19 +193,34 @@ export default {
         async (rsp) => {
           if (rsp.success) {
             const imp_uid = rsp.imp_uid;
+
+            // 프론트 백엔드 로컬 타입 안 맞아서 하루씩 추가해줌
+            const addOneDay = (date) => {
+                const newDate = new Date(date);
+                newDate.setDate(newDate.getDate() + 1); 
+                return newDate.toISOString(); 
+            };
+
+            const userCheckIn = this.dataObj.userCheckIn
+                ? addOneDay(this.dataObj.userCheckIn) // userCheckIn에 하루 더하기
+                : addOneDay(new Date()); // 현재 날짜에 하루 더하기
+
+            const userCheckOut = this.dataObj.userCheckOut
+                ? addOneDay(this.dataObj.userCheckOut) // userCheckOut에 하루 더하기
+                : addOneDay(new Date()); 
+
+                 
             try {
-              
-              const reservationResponse = await axios.post(`http://localhost:8081/api/auth/reservation/${imp_uid}`, { 
-                userId: userId,
-                checkIn: '',
-                checkOut: '',
-                totalPrice: this.dataObj.roomPrice,
-                roomId: this.dataObj.roomId,
-                checkInDate: this.dataObj.checkInDate,
-                checkOutDate: this.dataObj.checkOutDate,
-                guestNum: 2,
-                imp_uid: imp_uid,
-              },
+                    const reservationResponse = await axios.post(`http://localhost:8081/api/auth/reservation/${imp_uid}`, { 
+                        userId: userId,
+                        checkIn: userCheckIn,
+                        checkOut: userCheckOut,
+                        totalPrice: this.dataObj.roomPrice,
+                        roomId: this.dataObj.roomId,
+                        request: this.request,
+                        guestNum: 2,
+                        imp_uid: imp_uid,
+                    },
               {
                 headers:{
                     Authorization: `Bearer ${token}`
@@ -219,8 +237,15 @@ export default {
           } else {
             alert(`결제에 실패하였습니다: ${rsp.error_msg}`);
           }
-        }
+        },
       );
+    },
+    formatDate(date) {
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' };
+        const formattedDate = new Date(date).toLocaleDateString('ko-KR', options);
+        return formattedDate.replace(/\.$/, '').replace(' ', '');
+
+
     },
   },
 };

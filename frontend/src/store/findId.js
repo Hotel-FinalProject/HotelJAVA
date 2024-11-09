@@ -6,9 +6,9 @@ export const useFindIdStore = defineStore('findId', {
     foundEmail: "",
   }),
   actions: {
-    async findId(payload) {
+    async findId(name) {
       try {
-        const response = await findIdUser(payload);
+        const response = await findIdUser(name);
         this.foundEmail = response.data;
       } catch (error) {
         console.error("아이디 찾기 오류: ", error);

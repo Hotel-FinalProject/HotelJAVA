@@ -1,5 +1,6 @@
 server:
   port: 8081
+
 spring:
   application:
     name: backend
@@ -16,14 +17,25 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
-
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: sudongtaemsa6th@gmail.com
+    password: mtdemkdtofobosyo
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
   security:
     oauth2:
       client:
         registration:
           naver:
-            clientId: 9EWyUF5g73oX_Rw5ouos
-            clientSecret: QG3wQOti25
+            clientId: ${NAVER_CLIENT_ID}
+            clientSecret: ${NAVER_CLIENT_SECRET}
             scope:
               - email
               - response
@@ -66,3 +78,8 @@ hotel:
 
 api:
   key: ${API_KEY}
+
+
+import:
+  api-key: 8574783258275564
+  secret-key: JsGOComCLXxULGSVO4eHqPMjS5X1N4YzBiLrYSVbBQtf58RxmT0Wq71qyhj3ulWjvvtuHlJII7b6FTST

@@ -1,6 +1,7 @@
 package com.example.backend.Controller;
 
 import com.example.backend.dto.ReservationDTO;
+import com.example.backend.dto.RoomCountDTO;
 import com.example.backend.entity.User;
 import com.example.backend.service.PaymentService;
 import com.example.backend.service.UserService;
@@ -31,6 +32,7 @@ public class ReservationController {
     public ResponseEntity<?> verifyPayment(
             @PathVariable("imp_uid") String imp_uid,
             @RequestBody ReservationDTO reservationDTO,
+            RoomCountDTO roomCountDTO,
             @RequestHeader("Authorization") String token) {
 
         try {
@@ -44,7 +46,7 @@ public class ReservationController {
             }
 
             if (imp_uid != null) {
-                paymentService.verifyPayment(userId,imp_uid, reservationDTO);
+                paymentService.verifyPayment(userId,imp_uid, reservationDTO,roomCountDTO);
                 return ResponseEntity.ok("결제 완료");
             } else {
                 return ResponseEntity.badRequest().body("결제 검증 실패");

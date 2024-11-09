@@ -1,3 +1,4 @@
+// api.js
 import axios from 'axios';
 
 /** axios 기본 url 및 헤더 설정 */
@@ -9,8 +10,12 @@ const config = axios.create({
 });
 
 /** 회원가입 */
-function signupUser(payload) {
-  return config.post('/users/signup', payload);
+function signupUser(userData, verificationToken) {
+  return config.post('/users/signup', userData, {
+    headers: {
+      'verificationToken': `Bearer ${verificationToken}`,
+    }, 
+  });
 }
 
 /** 로그인 */
@@ -28,13 +33,40 @@ function checkEmail(email) {
 }
 
 /** 유저 ID찾기 */
-function findIdUser(payload) {
-  return config.post('/users/find-id', payload);
+function findIdUser(name) {
+  return config.post('/users/find-id', { name });
 }
 
-export{
-    signupUser,
-    loginUser,
-    checkEmail,
-    findIdUser
+/** 이메일 인증 */
+function sendVerificationEmailAPI(email) {
+  return config.post('/users/send-verification-email', {
+    email: email
+  });
 }
+
+/** 이메일 인증 확인 */
+function verifyEmailToken(token) {
+  return config.get('/users/verify-email', {
+    params: {
+      token: token
+    }
+  });
+}
+
+/** 유저 정보 가져오기 */
+export function getUserInfo(token) {
+  return config.get('/users/me', {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+}
+
+export {
+  signupUser,
+  loginUser,
+  checkEmail,
+  findIdUser,
+  sendVerificationEmailAPI,
+  verifyEmailToken
+};

@@ -5,17 +5,17 @@
       <form @submit.prevent="submitForm">
         <div class="input-group">
           <label for="email">Email</label>
-          <input type="text" id="email" v-model="email" @keydown.enter="submitForm" />
+          <input type="text" id="email" v-model="email" />
         </div>
         <div class="input-group">
           <label for="password">비밀번호</label>
-          <input type="password" id="passwd" v-model="passwd" @keydown.enter="submitForm" />
+          <input type="password" id="passwd" v-model="passwd" />
         </div>
         <div class="top-actions">
-          <router-link to="/register">
-            <span class="register-btn">가입하기</span>
+          <router-link to="/find-my-id">
+            <span class="find-id-btn">아이디 찾기</span>
           </router-link>
-          <button type="submit" class="login-button" @click="submitForm">로그인</button>
+          <button type="submit" class="login-button">로그인</button>
         </div>
       </form>
       <div class="divider">
@@ -52,10 +52,7 @@ export default {
       const payload = {
         email: this.email,
         passwd: this.passwd,
-        userId: this.userId,
-
       };
-      console.log("userId:", this.userId);
 
       try {
         const authStore = useAuthStore();
@@ -123,7 +120,7 @@ export default {
   text-decoration-line: none;
 }
 
-.register-btn {
+.find-id-btn {
   color: #007bff;
   text-decoration: none;
   font-weight: bold;

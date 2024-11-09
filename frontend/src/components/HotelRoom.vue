@@ -28,19 +28,27 @@
     <!-- 예약 정보 및 가격 -->
     <div class="details-reservation">
       <div class="details-middle">
-        <div class="reservation-cal">캘린더
-             <VDatePicker v-model.range="range" />
-                     <p>선택된 시작 날짜: {{
-               range.start
-                 ? `${range.start.getFullYear()}.${(range.start.getMonth() + 1).toString().padStart(2, '0')}.${range.start.getDate().toString().padStart(2, '0')} (${range.start.toLocaleDateString('ko-KR', { weekday: 'short' })})`
-                 : '선택되지 않음'
-             }}</p>
-                    <p>선택된 시작 날짜: {{
-               range.start
-                 ? `${range.end.getFullYear()}.${(range.end.getMonth() + 1).toString().padEnd(2, '0')}.${range.end.getDate().toString().padEnd(2, '0')} (${range.end.toLocaleDateString('ko-KR', { weekday: 'short' })})`
-                 : '선택되지 않음'
-             }}</p>
+        <div class="reservation-cal">
+        <div v-if="showCalendar" class="calendar-modal">
+          <div class="modal-content">
+            <VDatePicker v-model.range="range" />
+            <button @click="onDateSelect">확인</button>
+          </div>
         </div>
+
+        <div @click="showCalendar = !showCalendar"> 
+          <div> 
+            {{ range.start ? `${range.start.getFullYear()}.${(range.start.getMonth() + 1).toString().padStart(2, '0')}.${range.start.getDate().toString().padStart(2, '0')} (${range.start.toLocaleDateString('ko-KR', { weekday: 'short' })})`
+            : `${new Date().getFullYear()}.${(new Date().getMonth() + 1).toString().padStart(2, '0')}.${new Date().getDate().toString().padStart(2, '0')} (${new Date().toLocaleDateString('ko-KR', { weekday: 'short' })})`
+            }} - 
+            {{
+              range.end
+                ? `${range.end.getFullYear()}.${(range.end.getMonth() + 1).toString().padStart(2, '0')}.${range.end.getDate().toString().padStart(2, '0')} (${range.end.toLocaleDateString('ko-KR', { weekday: 'short' })})`
+                : `${new Date().getFullYear()}.${(new Date().getMonth() + 1).toString().padStart(2, '0')}.${new Date().getDate().toString().padStart(2, '0')} (${new Date().toLocaleDateString('ko-KR', { weekday: 'short' })})`
+            }}
+          </div>
+        </div>
+      </div>
         <div class="reservation-person">
           <label for="personSelect">예약 인원:</label>
           <select id="personSelect" v-model="selectedPersonCount">
@@ -55,7 +63,7 @@
           <p class="check-info">
             체크인: {{ room.hotelCheckIn || "정보없음" }} ~ 체크아웃: {{ room.hotelCheckOut || "정보없음" }}
           </p>
-          <h2 class="price">{{ room.price ? `${room.price}원` : "가격 정보 없음" }}</h2>
+          <h2 class="price">{{ Number(room.price). toLocaleString() ? `${Number(room.price). toLocaleString()}원` : "가격 정보 없음"}}</h2>
           <div class="reservation-bottom">
             <div class="room-count">{{ room.availableRooms ? `남은 객실 ${room.availableRooms}개` : "남은 객실 정보 없음" }}</div>
             
@@ -119,17 +127,19 @@
     <!-- 편의시설 정보 -->
     <div class="amenities-container">
       <h2 class="section-title">편의시설</h2>
-      <p>목욕시설: <span>{{ room.bathFacility ? '✅' : '❌' }}</span></p>
-      <p>욕조: <span>{{ room.bath ? '✅' : '❌' }}</span></p>
-      <p>에어컨: <span>{{ room.airCondition ? '✅' : '❌' }}</span></p>
-      <p>TV: <span>{{ room.tv ? '✅' : '❌' }}</span></p>
-      <p>케이블: <span>{{ room.cable ? '✅' : '❌' }}</span></p>
-      <p>인터넷: <span>{{ room.internet ? '✅' : '❌' }}</span></p>
-      <p>냉장고: <span>{{ room.refrigerator ? '✅' : '❌' }}</span></p>
-      <p>세면도구: <span>{{ room.toiletries ? '✅' : '❌' }}</span></p>
-      <p>소파: <span>{{ room.sofa ? '✅' : '❌' }}</span></p>
-      <p>테이블: <span>{{ room.tableYn ? '✅' : '❌' }}</span></p>
-      <p>드라이기: <span>{{ room.hairdryer ? '✅' : '❌' }}</span></p>
+      <div class="amenities-grid">
+        <p>목욕시설: <span>{{ room.bathFacility ? '✅' : '❌' }}</span></p>
+        <p>욕조: <span>{{ room.bath ? '✅' : '❌' }}</span></p>
+        <p>에어컨: <span>{{ room.airCondition ? '✅' : '❌' }}</span></p>
+        <p>TV: <span>{{ room.tv ? '✅' : '❌' }}</span></p>
+        <p>케이블: <span>{{ room.cable ? '✅' : '❌' }}</span></p>
+        <p>인터넷: <span>{{ room.internet ? '✅' : '❌' }}</span></p>
+        <p>냉장고: <span>{{ room.refrigerator ? '✅' : '❌' }}</span></p>
+        <p>세면도구: <span>{{ room.toiletries ? '✅' : '❌' }}</span></p>
+        <p>소파: <span>{{ room.sofa ? '✅' : '❌' }}</span></p>
+        <p>테이블: <span>{{ room.tableYn ? '✅' : '❌' }}</span></p>
+        <p>드라이기: <span>{{ room.hairdryer ? '✅' : '❌' }}</span></p>
+      </div>
     </div>
   </div>
 </template>
@@ -149,6 +159,7 @@ export default {
       isLoggedIn: false,
       showModal: false,
       range: { start: null, end: null },
+      showCalendar: false,
       dataObj: history.state || {},
     };
   },
@@ -174,6 +185,10 @@ export default {
   move() {
     const { hotelName, checkIn, checkOut, roomName, roomPrice } = this.dataObj;
     const currentRoomId = this.$route.params.roomId;
+    const userCheckIn = this.range.start;
+    const userCheckOut = this.range.end;
+    
+    const guestNum = this.selectedPersonCount;
 
     if (this.isLoggedIn) {
       if (hotelName && checkIn && checkOut && roomName && roomPrice) {
@@ -186,6 +201,9 @@ export default {
             roomName,
             roomPrice,
             roomId : currentRoomId,
+            userCheckIn,
+            userCheckOut,
+            guestNum,
           },
         });
       } else {
@@ -194,7 +212,11 @@ export default {
     } else {
       this.showModal = true;
     }
-}
+  },
+  onDateSelect() {
+      // 날짜가 선택되면 캘린더를 숨깁니다.
+      this.showCalendar = false;
+    },
   },
   computed: {
     formattedDescription() {
@@ -256,6 +278,7 @@ export default {
   font-weight: bold;
   color: #333;
   margin-top: 15px;
+  text-align: right;
 }
 .details-reservation {
   margin-top: 20px;
@@ -363,6 +386,11 @@ export default {
 .amenities-container {
   margin-top: 20px;
 }
+.amenities-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
 .section-title {
   font-size: 20px;
   font-weight: bold;
@@ -410,5 +438,39 @@ hr {
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
+}
+
+.reservation-cal,
+.reservation-person {
+  width: 100%;
+  height: 40px;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  gap: 8px;
+}
+
+.calendar-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* 배경 반투명 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>
