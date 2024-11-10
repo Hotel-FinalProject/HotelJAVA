@@ -83,7 +83,7 @@ public class UserService {
      * @param email  사용자의 이메일 주소.
      * @param name  사용자의 이름.
      * @param phone  사용자의 전화번호.
-     * @param provider  OAuth 로그인 제공자 (예: Google, Facebook).*/
+     * @param provider  OAuth 로그인 제공자 (예: Google, Naver). */
     public User OAuthPostLogin(String email, String name, String phone, String provider) {
         Optional<User> existUser = userRepository.findByEmail(email);
 
@@ -124,6 +124,7 @@ public class UserService {
                     response.put("userId", user.getUserId());
                     response.put("name", user.getName());
                     response.put("email", user.getEmail());
+                    response.put("phone", user.getPhone());
 
                     return ResponseEntity.ok(response);
                 } catch (JOSEException e) {
