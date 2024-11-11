@@ -25,7 +25,7 @@
           </router-link>
         </li>
         <li>
-          <router-link to="/my_page">
+          <router-link to="/my-page">
             <span class="my_page_btn">마이페이지</span>
           </router-link>
         </li>
