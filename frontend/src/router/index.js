@@ -17,7 +17,7 @@ const routes = [
     component: MainPage,
   },
   {
-    path: '/my_page',
+    path: '/my-page',
     component: UserMypage,
     children: [
       {
