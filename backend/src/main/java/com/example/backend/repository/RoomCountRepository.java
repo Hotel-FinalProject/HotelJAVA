@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RoomCountRepository extends JpaRepository<RoomCount, Long> {
-	
-    Optional<RoomCount> findByRoomAndDate(Room room, LocalDate date);
+    
+    Optional<RoomCount> findByRoomAndDate(Room room, LocalDate now);
 
     Optional<RoomCount> findRoomCountByRoomRoomIdAndDate(Long roomId, LocalDate checkInDate);
 }

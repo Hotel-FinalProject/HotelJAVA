@@ -185,8 +185,9 @@ export default {
   move() {
     const { hotelName, checkIn, checkOut, roomName, roomPrice } = this.dataObj;
     const currentRoomId = this.$route.params.roomId;
-    const userCheckIn = this.range.start;
-    const userCheckOut = this.range.end;
+    const userCheckIn = this.range.start ? this.range.start : new Date();
+
+    const userCheckOut = this.range.end ? this.range.end : new Date();
     
     const guestNum = this.selectedPersonCount;
 

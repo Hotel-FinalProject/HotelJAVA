@@ -21,15 +21,5 @@ public class ReservationDTO {
     private LocalDateTime updateDate;
     private Long roomId;
 
-    public ReservationDTO (Reservation reservation){
-        this.reservationId = reservation.getReservationId();
-        this.guestNum = reservation.getGuestNum();
-        this.checkIn = reservation.getCheckIn();
-        this.checkOut = reservation.getCheckOut();
-        this.request= reservation.getRequest();
-        this.createDate = reservation.getCreateDate();
-        this.updateDate = reservation.getCreateDate();
-        this.roomId = reservation.getRooms().getRoomId();
-    }
 }
 

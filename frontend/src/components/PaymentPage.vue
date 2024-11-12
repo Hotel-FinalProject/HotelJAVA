@@ -79,6 +79,16 @@
             <div class ="payment-total">{{ dataObj.roomPrice ? dataObj.roomPrice.toLocaleString() : '가격 정보 없음' }}원</div>
         </div>
     </div>
+
+    <!-- 결제 완료 모달 -->
+    <div v-if="isPaymentModalVisible" class="payment-modal-overlay">
+      <div class="payment-modal">
+        <h2>결제 완료되었습니다!</h2>
+        <p>예약이 성공적으로 완료되었습니다.</p>
+        <button @click="closePaymentModal">확인</button>
+      </div>
+    </div>
+
     <div class="payment-method-conatiner">
         <h3>결제 수단</h3>
         <div> <button @click="submitReservation('html5_inicis')" class="submit-button">카드 결제</button></div>
@@ -145,6 +155,7 @@ export default {
       isLoggedIn: false,
       request: '',
       range: { start: null, end: null },
+      isPaymentModalVisible: false,
     };
   },
   async created() {
@@ -227,9 +238,13 @@ export default {
                 }
               }
               );
+              
+              
+               this.showPaymentModal(); // 결제 완료 후 모달창 표시
+              
 
               alert('결제가 완료되었습니다.');
-              console.log(reservationResponse.data);
+ 
             } catch (error) {
               console.error('서버 요청 실패:', error);
               alert('결제 정보 저장에 실패하였습니다.');
@@ -240,6 +255,15 @@ export default {
         },
       );
     },
+    showPaymentModal() {
+      this.isPaymentModalVisible = true; // 모달 보이게 설정
+    },
+
+    closePaymentModal() {
+      this.isPaymentModalVisible = false; // 모달 닫기
+      window.location.href = "/user/myreservation"; // 예약 완료 후 이동
+    },
+
     formatDate(date) {
         const options = { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' };
         const formattedDate = new Date(date).toLocaleDateString('ko-KR', options);
