@@ -39,13 +39,13 @@
                     <div class="user-conatiner">
                         <span class="user-info"> 예약자 이름</span><span class="asterisk">*</span><br>
                         <div>
-                            <input class="user-input" type="text">
+                            <input class="user-input" type="text" v-model="userName">
                         </div>
                     </div>
                     <div class="user-conatiner">
                         <span class="user-info"> 휴대폰 번호</span><span class="asterisk">*</span><br>
                         <div>
-                            <input class="user-input"  type="tel">
+                            <input class="user-input" type="tel" v-model="userPhone">
                         </div>
                     </div>
                     <div class="user-conatiner">

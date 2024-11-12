@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { signupUser, loginUser, checkEmail, sendVerificationEmailAPI, verifyEmailToken } from '@/api/api'; // API 호출 함수 가져오기
 
-
 /** 로그인/아웃, 회원가입 로직 */
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -12,10 +11,9 @@ export const useAuthStore = defineStore('auth', {
     isEmailAvailable: false, // 이메일 사용 가능 여부
     isVerified: false, // 이메일 인증 여부
     verificationToken: null, // 이메일 인증 토큰 저장
-    email: null,
     userId: null,
-    username:null,
-    phone:null,
+    userName: null,
+    phone: null,
   }),
 
   actions: {
@@ -85,21 +83,26 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await loginUser(userData);
         
-        // 수정된 부분
+        // 로그인 성공 시 사용자 정보 저장
         this.currentUser = response.data.email;  // 서버 응답에서 가져오기
         this.LoggedIn = true;
         this.setAccessToken(response.data.token);
         this.phone = response.data.phone;
-        this.username = response.data.name;
+        this.userName = response.data.userName;
+        this.userId = response.data.userId;
+
         console.log('로그인 성공:', response.data);
 
-        // 응답에서 token과 userId를 추출하여 상태에 저장
-        this.userId = response.data.userId;
-        this.setAccessToken(response.data.token);
-        
-        // 세션에 필요한 데이터 저장
-        sessionStorage.setItem('userId', response.data.userId);
-        sessionStorage.setItem('currentUser', response.data.email);       
+        // 사용자 정보를 LocalStorage에 저장 (필요시 계속 유지됨)
+        localStorage.setItem('userInfo', JSON.stringify({
+          userName: response.data.userName,
+          userId: response.data.userId,
+          email: response.data.email,
+          phone: response.data.phone,
+        }));
+
+        // 토큰을 세션에 저장
+        sessionStorage.setItem('token', response.data.token);
 
       } catch (error) {
         console.error('로그인 실패:', error);
@@ -120,24 +123,31 @@ export const useAuthStore = defineStore('auth', {
       this.accessToken = null;
       this.LoggedIn = false;
       this.userId = null;
-      
-      // 세션에서 데이터 제거
+      this.userName = null;
+      this.phone = null;
+
+      // 세션과 로컬 스토리지에서 데이터 제거
       sessionStorage.removeItem('token');
-      sessionStorage.removeItem('userId');
-      sessionStorage.removeItem('currentUser');
+      localStorage.removeItem('userInfo');
+      console.log('로그아웃 성공');
     },
 
     /** 로그인 상태 확인 */
     checkLoginStatus() {
       const token = sessionStorage.getItem('token');
-      const userId = sessionStorage.getItem('userId');
-      const currentUser = sessionStorage.getItem('currentUser');
-      
+      const userInfo = localStorage.getItem('userInfo');
+
       if (token) {
         this.accessToken = token;
-        this.userId = userId;
-        this.currentUser = currentUser;
         this.LoggedIn = true;
+
+        if (userInfo) {
+          const parsedUserInfo = JSON.parse(userInfo);
+          this.userName = parsedUserInfo.userName;
+          this.userId = parsedUserInfo.userId;
+          this.currentUser = parsedUserInfo.email;
+          this.phone = parsedUserInfo.phone;
+        }
       } else {
         this.LoggedIn = false;
       }
