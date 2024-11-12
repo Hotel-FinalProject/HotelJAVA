@@ -1,5 +1,6 @@
 package com.example.backend.entity;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +47,14 @@ public class User  {
     private String loginType;
 
     private String oauthProvider;
+
+    // 리뷰 내용 보존을 위해 계정 활성화/비활성화 컬럼 추가
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
+    // 마지막 로그인 시간 기록
+    @Column(name = "last_login_time")
+    private LocalDateTime lastLoginTime;
 
     @OneToMany(mappedBy = "user")
     private List<Reservation> reservations;

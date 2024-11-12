@@ -130,5 +130,18 @@ public class AuthUserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 토큰입니다.");
         }
     }
+
+    /** 회원 탈퇴 */
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            String token = authorizationHeader.replace("Bearer ", "");
+            String email = jwtUtil.verifyJwt(token);
+
+            return userService.deleteUser(email);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 토큰입니다.");
+        }
+    }
 }
 

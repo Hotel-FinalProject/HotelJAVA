@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -123,10 +124,19 @@ public class UserService {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
+
+            if (!user.getIsActive()){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("계정이 비활성화되었습니다. 계정을 다시 활성화하려면 고객 지원에 문의하십시오.");
+            }
+
             if (passwordEncoder.matches(rawPassword, user.getPassword())) {
                 // 비밀번호가 일치하면 JWT 생성
                 try {
                     String token = jwtUtil.createJwt(user.getEmail(), user.getUserId(),user.getName(), user.getRole());
+
+                    // 마지막 로그인 시간 업데이트
+                    user.setLastLoginTime(LocalDateTime.now());
+                    userRepository.save(user);
 
                     // JSON 형태로 응답하기 위해 Map 사용
                     Map<String, Object> response = new HashMap<>();
@@ -361,6 +371,26 @@ public class UserService {
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
             }
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
+        }
+    }
+
+    /** 회원 탈퇴 처리
+     * @param email 탈퇴하려는 사용자의 이메일 주소
+     * @return 회원 탈퇴 결과에 대한 HTTP 응답 */
+    @Transactional
+    public ResponseEntity<?> deleteUser(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            // Soft Delete: is_active 플래그를 false로 설정
+            user.setIsActive(false);
+            userRepository.save(user);
+
+            return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
         }
