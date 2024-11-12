@@ -139,7 +139,6 @@
     
           </div>
         
-        <button @click="closePaymentModal" class="payment-modal-btn">확인</button>
       </div>
     </div>
 
@@ -262,7 +261,7 @@ export default {
             // 프론트 백엔드 로컬 타입 안 맞아서 하루씩 추가해줌
             const addOneDay = (date) => {
                 const newDate = new Date(date);
-                newDate.setDate(newDate.getDate() + 1); 
+                newDate.setDate(newDate.getDate()); 
                 return newDate.toISOString(); 
             };
 
@@ -313,11 +312,6 @@ export default {
         this.$nextTick(() => {
         document.querySelector('.payment-modal-overlay').classList.add('active');
         });
-    },
-
-    closePaymentModal() {
-        this.isPaymentModalVisible = false;
-        document.querySelector('.payment-modal-overlay').classList.remove('active');
     },
 
     formatDate(date) {
@@ -498,21 +492,6 @@ hr{
   border-radius: 10px;
   width: 300px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.payment-modal-btn {
-  background-color: #00aef0;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-.payment-modal-btn:hover {
-  background-color: #007bb5;
 }
 
 .user-info-container{
