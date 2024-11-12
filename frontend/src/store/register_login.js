@@ -47,8 +47,7 @@ export const useAuthStore = defineStore('auth', {
         this.isVerified = false;
         throw error;
       }
-    }
-    ,
+    },
 
     /** 이메일 인증 토큰 확인 및 저장 */
     async verifyEmailToken(token) {

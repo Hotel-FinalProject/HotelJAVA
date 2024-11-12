@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -20,6 +21,6 @@ public class PaymentDTO {
     private String status;
     private BigDecimal amount; // 결제 금액
     private String transactionId; // 거래 ID
-    private Date date; // 결제 날짜
+    private LocalDateTime date; // 결제 날짜
 
 }

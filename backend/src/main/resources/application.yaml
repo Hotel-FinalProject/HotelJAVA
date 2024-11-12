@@ -77,8 +77,8 @@ hotel:
   key:
 
 api:
-  key: CYJBOGwIQxPrPCXYckpw8Y1TSh95hf06DbqCionckIINZdwaK3L1RvFTl2mxFbGEVRyji%2F4AhD4mtRa91Kz9vg%3D%3D
-  secret : ${SECRET-KEY}
+  key: ${API_KEY}
+
 
 import:
   api-key: 8574783258275564

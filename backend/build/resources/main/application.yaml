@@ -1,12 +1,13 @@
 server:
   port: 8081
+
 spring:
   application:
     name: backend
   datasource:
-    url: jdbc:mysql://localhost:3306/MSAFinal?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: root
-    password: root
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -19,8 +20,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USER}
-    password: ${MAIL_PASSWORD}
+    username: sudongtaemsa6th@gmail.com
+    password: mtdemkdtofobosyo
     properties:
       mail:
         smtp:
@@ -77,7 +78,7 @@ hotel:
 
 api:
   key: ${API_KEY}
-  secret : ${SECRET-KEY}
+
 
 import:
   api-key: 8574783258275564

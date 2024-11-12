@@ -48,10 +48,11 @@ const routes = [
   },
   {
     path: '/room-details/:roomId',
-    component: () => import('@/components/HotelRoom.vue')
+    component: () => import('@/components/HotelRoom.vue'),
+    name: 'HotelRoom',
   },
   {
-    path: '/oauth2/success', 
+    path: '/oauth2/success',
     component: OAuthRedirectHandler,
   },
   {
@@ -61,6 +62,7 @@ const routes = [
   {
     path: '/payment',
     component: () => import ('@/components/PaymentPage.vue'),
+    name: 'paymentPage',
   },
   {
     path: '/verify-email',
