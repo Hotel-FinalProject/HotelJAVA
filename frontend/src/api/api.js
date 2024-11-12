@@ -105,7 +105,7 @@ function deactivateUserAPI(token) {
 
 /** 예약 정보 가져오기 */
 function getReservationInfo(token) {
-  return config.get('/reservationInfo', {
+  return config.get('/auth/reservationInfo', {
     headers: {
       'Authorization': `Bearer ${token}`
     }

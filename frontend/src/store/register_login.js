@@ -132,6 +132,8 @@ export const useAuthStore = defineStore('auth', {
       // 세션과 로컬 스토리지에서 데이터 제거
       sessionStorage.removeItem('token');
       localStorage.removeItem('userInfo');
+      localStorage.removeItem('verificationToken');
+      localStorage.removeItem('verifiedEmail');
       console.log('로그아웃 성공');
     },
 
