@@ -105,36 +105,33 @@ export default {
         console.error('랜덤 호텔 데이터를 가져오는 중 오류 발생:', error);
       }
     },
-    async fetchAutocompleteResults() {
-      if (this.searchQuery.length > 0) {
-        const queryWithoutSpaces = this.searchQuery.replace(/\s+/g, ''); // 공백 제거
-        try {
-          const response = await axios.get(`http://localhost:8081/api/hotels/search?query=${queryWithoutSpaces}`);
-          this.autocompleteResults = response.data;
-          this.noResults = this.autocompleteResults.length === 0;
-        } catch (error) {
-          console.error('자동 완성 결과를 가져오는 중 오류 발생:', error);
-          this.autocompleteResults = [];
-          this.noResults = true;
-        }
-      } else {
-        this.autocompleteResults = [];
-        this.noResults = false;
-      }
-    },
-    async searchHotel() {
-      const exactMatch = this.autocompleteResults.find(result => result.name === this.searchQuery);
+    fetchAutocompleteResults() {
+  this.autocompleteResults = []; // 입력 시 기존 결과 초기화
 
-      if (exactMatch) {
-        // 완전히 일치하는 호텔명이 있는 경우 상세 페이지로 이동
-        this.goToHotelDetail(exactMatch.hotelId);
-      } else if (this.autocompleteResults.length > 0) {
-        // 연관 검색어가 있는 경우 경고 메시지 표시
-        alert("연관된 검색어 목록에서 선택해주세요.");
-      } else {
-        // 연관 검색어가 없는 경우 경고 메시지 표시
-        alert("연관된 검색어가 없습니다.");
-      }
+  if (this.searchQuery.length > 0) {
+    const queryWithoutSpaces = this.searchQuery.replace(/\s+/g, ''); // 공백 제거
+    axios.get(`http://localhost:8081/api/hotels/search?query=${queryWithoutSpaces}`)
+      .then(response => {
+        this.autocompleteResults = response.data;
+        this.noResults = this.autocompleteResults.length === 0;
+      })
+      .catch(error => {
+        console.error('자동 완성 결과를 가져오는 중 오류 발생:', error);
+        this.autocompleteResults = [];
+        this.noResults = true;
+      });
+  } else {
+    this.autocompleteResults = []; // 검색어가 없을 때 결과를 비우기
+    this.noResults = false;
+  }
+}
+,
+    searchHotel() {
+      // 검색어가 입력된 상태에서 검색 페이지로 이동하며, 검색어를 쿼리 파라미터로 전달
+      this.$router.push({
+        path: '/search-results',
+        query: { query: this.searchQuery }
+      });
     },
     goToHotelDetail(hotelId) {
       this.$router.push(`/hotel-details/${hotelId}`);

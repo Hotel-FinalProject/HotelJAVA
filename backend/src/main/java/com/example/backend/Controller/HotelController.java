@@ -2,6 +2,7 @@
 package com.example.backend.Controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.dto.HotelDTO;
+import com.example.backend.dto.HotelRoomDTO;
 import com.example.backend.entity.Hotel;
 import com.example.backend.service.HotelService;
 
@@ -36,10 +38,10 @@ public class HotelController {
     }
     
     // 특정 호텔 조회
-    @GetMapping("/hotels/{id}")
-    public Hotel getHotelById(@PathVariable("id") Long id) {
-        return hotelService.getHotelById(id);
-    }
+//    @GetMapping("/hotels/{id}")
+//    public Hotel getHotelById(@PathVariable("id") Long id) {
+//        return hotelService.getHotelById(id);
+//    }
     
  // 10개 랜덤 호텔 조회
     @GetMapping("/hotels/random")
@@ -48,8 +50,79 @@ public class HotelController {
     }
 
     // 검색 엔드포인트 추가
+//    @GetMapping("/hotels/search")
+//    public List<HotelDTO> searchHotels(@RequestParam("query") String query) {
+//        return hotelService.searchHotelsByName(query);
+//    }
+//    @GetMapping("/hotels/search")
+//    public List<HotelDTO> searchHotels(@RequestParam(value = "query", required = false) String query) {
+//        if (query == null || query.isEmpty()) {
+//            // 검색어가 없으면 전체 호텔 목록 반환
+//            return hotelService.searchHotelsByLocation(null);
+//        }
+//        // 검색어가 있으면 해당 구에 맞는 호텔 목록 반환
+//        return hotelService.searchHotelsByLocation(query);
+//    }
+    
+    
+    
+    
+    
+    
+//    @GetMapping("/hotels/search")
+//    public List<HotelDTO> searchHotels(@RequestParam(value = "query", required = false) String query) {
+//        if (query == null || query.isEmpty()) {
+//            // 검색어가 없으면 전체 호텔 목록 반환 (지도 표시용)
+//            return hotelService.getAllHotels().stream()
+//                .map(hotel -> new HotelDTO(
+//                    hotel.getHotelId(),
+//                    hotel.getName(),
+//                    hotel.getAddress(),
+//                    hotel.getImageUrl(),
+//                    hotel.getRating(),
+//                    hotel.getMapX(),
+//                    hotel.getMapY()
+//                ))
+//                .collect(Collectors.toList());
+//        }
+//        // 검색어가 있으면 해당 구에 맞는 호텔 목록 반환
+//        return hotelService.searchHotelsByName(query);
+//    }
+    
     @GetMapping("/hotels/search")
-    public List<HotelDTO> searchHotels(@RequestParam("query") String query) {
-        return hotelService.searchHotelsByName(query);
+    public List<HotelDTO> searchHotels(@RequestParam(value = "query", required = false) String query) {
+        if (query == null || query.isEmpty()) {
+            return hotelService.getAllHotels().stream()
+                .map(hotel -> new HotelDTO(
+                    hotel.getHotelId(),
+                    hotel.getName(),
+                    hotel.getAddress(),
+                    hotel.getImageUrl(),
+                    hotel.getRating(),
+                    hotel.getMapX(),
+                    hotel.getMapY()
+                ))
+                .collect(Collectors.toList());
+        }
+        return hotelService.searchHotelsByNameOrAddress(query);
     }
+
+
+//    // 특정 호텔 조회 (HotelDetailDTO로 반환)
+//    @GetMapping("/hotels/{id}")
+//    public HotelRoomDTO getHotelDetailById(@PathVariable("id") Long id) {
+//        return hotelService.getHotelDetailById(id);
+//    }
+    
+    // 특정 호텔 상세 정보 조회 (HotelRoomDTO로 반환)
+//    @GetMapping("/hotels/{id}")
+//    public HotelRoomDTO getHotelDetailById(@PathVariable("id") Long id) {
+//        return hotelService.getHotelDetailById(id);
+//    }
+    
+    @GetMapping("/hotels/{id}")
+    public HotelRoomDTO getHotelDetailById(@PathVariable("id") Long id) {
+        return hotelService.getHotelDetailById(id);
+    }
+
 }
