@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.UpdateUserRequest;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.util.JwtUtil;
@@ -39,9 +40,12 @@ public class UserService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    /** 회원가입 서비스 부분
+    /**
+     * 회원가입 처리 로직
      * @param user 가입하려는 사용자의 정보 (이메일, 비밀번호, 이름, 전화번호 등).
-     * @param verificationToken  이메일 인증을 통해 생성된 JWT 토큰. 사용자의 이메일이 유효한지 확인하는 데 사용됩니다. */
+     * @param verificationToken 이메일 인증을 통해 생성된 JWT 토큰으로, 사용자의 이메일이 유효한지 확인하는 데 사용됩니다.
+     * @return 회원가입 성공 여부에 대한 HTTP 응답.
+     */
     public ResponseEntity<?> signup(User user, String verificationToken) {
         // JWT 검증
         String verifiedEmail = verificationToken;
@@ -79,11 +83,14 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
     }
 
-    /** oauth 회원가입 및 로그인
-     * @param email  사용자의 이메일 주소.
-     * @param name  사용자의 이름.
-     * @param phone  사용자의 전화번호.
-     * @param provider  OAuth 로그인 제공자 (예: Google, Naver). */
+    /**
+     * OAuth 회원가입 및 로그인 처리 로직
+     * @param email 사용자 이메일 주소.
+     * @param name 사용자 이름.
+     * @param phone 사용자 전화번호.
+     * @param provider OAuth 제공자 (예: Google, Naver).
+     * @return 신규 사용자가 생성되었거나 이미 존재하는 사용자를 반환합니다.
+     */
     public User OAuthPostLogin(String email, String name, String phone, String provider) {
         Optional<User> existUser = userRepository.findByEmail(email);
 
@@ -106,9 +113,12 @@ public class UserService {
         return user;
     }
 
-    /** 로그인 처리 및 JWT 발급
-     * @param email  사용자가 입력한 이메일 주소.
-     * @param rawPassword  사용자가 입력한 비밀번호. */
+    /**
+     * 로그인 처리 및 JWT 발급
+     * @param email 사용자가 입력한 이메일 주소.
+     * @param rawPassword 사용자가 입력한 비밀번호.
+     * @return 로그인 성공 시 JWT와 사용자 정보를 포함한 응답.
+     */
     public ResponseEntity<?> login(String email, String rawPassword) {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
@@ -135,9 +145,12 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 올바르지 않습니다.");
     }
 
-    /** 이메일 인증 메일 전송
-     * @param email  인증 메일을 보내려는 사용자의 이메일 주소.
-     * @param mode  동작 모드 (예: 'signup' 모드일 경우 가입용 인증 메일을 전송).*/
+    /**
+     * 이메일 인증 메일 전송
+     * @param email 인증 메일을 보낼 사용자의 이메일 주소.
+     * @param mode 이메일 전송 모드 (예: 회원가입, 비밀번호 재설정).
+     * @return 이메일 발송 성공 여부에 대한 응답.
+     */
     public ResponseEntity<?> sendVerificationEmail(String email, String mode) {
         log.info("이메일 인증 메일 전송 시작 - 이메일: {}, 모드: {}", email, mode);
 
@@ -165,10 +178,12 @@ public class UserService {
         return ResponseEntity.ok("인증 이메일이 발송되었습니다.");
     }
 
-    /** 내부용 이메일 인증 메일 전송
-     * @param toEmail 인증 메일을 받을 이메일 주소.
+    /**
+     * 내부용 이메일 인증 메일 전송
+     * @param toEmail 이메일을 보낼 대상.
      * @param token 이메일 인증을 위한 JWT 토큰.
-     * @param mode 이메일 인증 목적을 구분하는 모드 (예: 회원가입, 비밀번호 변경 등).*/
+     * @param mode 이메일 전송 목적 (회원가입, 비밀번호 변경).
+     */
     private void sendVerificationEmailInternal(String toEmail, String token, String mode) {
         try {
             log.info("이메일 발송 준비 중 - 이메일: {}, 모드: {}", toEmail, mode);
@@ -197,8 +212,11 @@ public class UserService {
         }
     }
 
-    /** 이메일 인증 처리
-     * @param token 이메일 인증을 위해 사용되는 JWT 토큰. */
+    /**
+     * 이메일 인증 처리
+     * @param token 인증을 위해 사용되는 JWT 토큰.
+     * @return 인증 성공 여부에 대한 응답.
+     */
     public ResponseEntity<?> verifyEmail(String token) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -235,6 +253,82 @@ public class UserService {
         } catch (MessagingException e) {
             e.printStackTrace();
             throw new IllegalStateException("이메일 전송 중 오류가 발생했습니다.");
+        }
+    }
+
+    /**
+     * 사용자 정보 수정 로직
+     * @param email 수정하려는 사용자의 이메일.
+     * @param updateUserRequest 수정할 정보 (이름, 전화번호 등).
+     * @return 회원 정보 수정 결과.
+     */
+    @Transactional
+    public ResponseEntity<?> updateUser(String email, UpdateUserRequest updateUserRequest) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            // 사용자 정보 업데이트
+            if (updateUserRequest.getUserName() != null && !updateUserRequest.getUserName().isEmpty()) {
+                user.setName(updateUserRequest.getUserName());
+            }
+            if (updateUserRequest.getPhone() != null && !updateUserRequest.getPhone().isEmpty()) {
+                user.setPhone(updateUserRequest.getPhone());
+            }
+
+            // 업데이트된 사용자 정보 저장
+            userRepository.save(user);
+            return ResponseEntity.ok("회원 정보가 성공적으로 수정되었습니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
+        }
+    }
+
+    /**
+     * 비밀번호 변경 로직
+     * @param email 비밀번호를 변경하려는 사용자의 이메일.
+     * @param token 이메일 인증을 위해 발송된 JWT 토큰.
+     * @param newPassword 새로운 비밀번호.
+     * @return 비밀번호 변경 상태에 대한 응답.
+     */
+    @Transactional
+    public ResponseEntity<?> resetPassword(String email, String token, String newPassword) {
+        try {
+            log.info("비밀번호 변경 요청 - 이메일: {}, 토큰: {}", email, token);
+
+            // JWT 토큰 검증
+            String verifiedEmail = jwtUtil.verifyJwt(token);
+
+            log.info("검증된 이메일: {}", verifiedEmail);
+
+            // 토큰의 이메일과 입력된 이메일이 같은지 확인
+            if (!verifiedEmail.equals(email)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효하지 않은 인증 토큰입니다.");
+            }
+
+            // 이메일로 사용자 조회
+            Optional<User> userOptional = userRepository.findByEmail(email);
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+
+                // 비밀번호 유효성 검사
+                String passwordPattern = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{4,12}$";
+                if (!newPassword.matches(passwordPattern)) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호는 4~12자, 영어 대/소문자 및 특수문자를 포함해야 합니다.");
+                }
+
+                // 비밀번호 변경
+                user.setPassword(passwordEncoder.encode(newPassword));
+                userRepository.save(user);
+
+                return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
+            }
+        } catch (Exception e) {
+            log.error("비밀번호 변경 중 오류 발생: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("비밀번호 변경 중 오류가 발생했습니다.");
         }
     }
 }

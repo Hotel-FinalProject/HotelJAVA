@@ -1,6 +1,7 @@
 package com.example.backend.Controller;
 
 import com.example.backend.dto.LoginRequest;
+import com.example.backend.dto.UpdateUserRequest;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.service.PasswordResetService;
@@ -183,34 +184,16 @@ public class UserController {
         }
     }
 
-    /** 유저 정보 조회 */
-    @GetMapping("/me")
-    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String authorizationHeader){
-        try {
-            // Bearer 토큰에서 실제 토큰 부분만 추출
-            String token = authorizationHeader.replace("Bearer ", "");
+    /** 비밀번호 재설정을 위한 이메일 인증 코드 발송 요청 */
+    @PostMapping("/send-password-reset-code")
+    public ResponseEntity<?> sendPasswordResetCode(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
 
-            // JWT 토큰 검증 및 이메일 추출
-            String email = jwtUtil.verifyJwt(token);
-
-            // 이메일을 통해 사용자 정보 조회
-            Optional<User> userOptional = userRepository.findByEmail(email);
-            if (userOptional.isPresent()) {
-                User user = userOptional.get();
-
-                // 사용자 정보를 JSON 형태로 응답
-                Map<String, Object> userInfo = new HashMap<>();
-                userInfo.put("userId", user.getUserId());
-                userInfo.put("name", user.getName());
-                userInfo.put("email", user.getEmail());
-                userInfo.put("phone", user.getPhone());
-
-                return ResponseEntity.ok(userInfo);
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 토큰입니다.");
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일이 필요합니다.");
         }
+
+        return userService.sendVerificationEmail(email, "resetPassword");
     }
+
 }
