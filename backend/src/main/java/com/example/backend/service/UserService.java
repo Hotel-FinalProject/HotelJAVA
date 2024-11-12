@@ -148,7 +148,7 @@ public class UserService {
     /**
      * 이메일 인증 메일 전송
      * @param email 인증 메일을 보낼 사용자의 이메일 주소.
-     * @param mode 이메일 전송 모드 (예: 회원가입, 비밀번호 재설정).
+     * @param mode 이메일 전송 모드 (예: 회원가입, 비밀번호 초기화, 비밀번호 재설정).
      * @return 이메일 발송 성공 여부에 대한 응답.
      */
     public ResponseEntity<?> sendVerificationEmail(String email, String mode) {
@@ -156,15 +156,23 @@ public class UserService {
 
         Optional<User> userOptional = userRepository.findByEmail(email);
 
+        // 가입 시 이미 존재하는 이메일이면 충돌 오류 반환
         if ("signup".equals(mode) && userOptional.isPresent()) {
             log.warn("이미 사용 중인 이메일입니다. 이메일: {}", email);
             return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 사용 중인 이메일입니다.");
+        }
+
+        // 비밀번호 변경(수정) 시 이메일이 존재하지 않으면 오류 반환
+        if ("editPassword".equals(mode) && userOptional.isEmpty()) {
+            log.warn("해당 이메일로 등록된 사용자가 없습니다. 이메일: {}", email);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("등록되지 않은 이메일입니다.");
         }
 
         try {
             String verificationToken = jwtUtil.createEmailVerificationJwt(email);
             log.info("JWT 토큰 생성 성공 - 토큰: {}", verificationToken);
 
+            // 이메일 전송 내부 메서드 호출
             sendVerificationEmailInternal(email, verificationToken, mode);
             log.info("이메일 발송 성공 - 이메일: {}", email);
         } catch (JOSEException e) {
@@ -177,6 +185,7 @@ public class UserService {
 
         return ResponseEntity.ok("인증 이메일이 발송되었습니다.");
     }
+
 
     /**
      * 내부용 이메일 인증 메일 전송

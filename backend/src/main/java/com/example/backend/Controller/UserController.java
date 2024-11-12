@@ -184,16 +184,4 @@ public class UserController {
         }
     }
 
-    /** 비밀번호 재설정을 위한 이메일 인증 코드 발송 요청 */
-    @PostMapping("/send-password-reset-code")
-    public ResponseEntity<?> sendPasswordResetCode(@RequestBody Map<String, String> requestBody) {
-        String email = requestBody.get("email");
-
-        if (email == null || email.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일이 필요합니다.");
-        }
-
-        return userService.sendVerificationEmail(email, "resetPassword");
-    }
-
 }
