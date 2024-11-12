@@ -80,12 +80,66 @@
         </div>
     </div>
 
-    <!-- 결제 완료 모달 -->
     <div v-if="isPaymentModalVisible" class="payment-modal-overlay">
-      <div class="payment-modal">
-        <h2>결제 완료되었습니다!</h2>
-        <p>예약이 성공적으로 완료되었습니다.</p>
-        <button @click="closePaymentModal">확인</button>
+        <!-- 결제 완료 모달 -->
+        <div class="payment-modal">
+          <h2>결제 완료되었습니다!</h2> <hr>
+          <h3>결제자 정보</h3>
+          <div class = "re-user-info-container">
+            <div class="user-info-container">
+                <div class="user-name-container">
+                    <div class="label">예약자</div>
+                    <div > {{userName}} </div>
+                </div>
+                <div class="user-name-container">
+                    <div class="label">전화번호</div>
+                    <div > {{phone}} </div>
+                </div>
+                <div class="user-name-container">
+                    <div class="label">호텔명</div>
+                    <div >{{ dataObj.hotelName }} </div>
+                </div>
+                <div class="user-name-container">
+                    <div class="label">객실명</div>
+                    <div >{{ dataObj.roomName }} </div>
+                </div>
+                <div class="user-name-container">
+                    <div class="label">체크인</div>
+                    <div >{{ formatDate(dataObj.userCheckIn) }} </div>
+                </div>
+                <div class="user-name-container">
+                    <div class="label">체크아웃</div>
+                    <div >{{ formatDate(dataObj.userCheckOut) }} </div>
+                </div>
+                <div class="user-name-container">
+                    <div class="label">예약인원</div>
+                    <div >{{ dataObj.guestNum }}명 </div>
+                </div>
+                <div class="user-name-container">
+                    <div class="label">요청사항</div>
+                    <div >{{ request }} </div>
+                </div>
+                <div class="user-name-container">
+                    <div class="label">결제 금액</div>
+                    <div >{{ Number(dataObj.roomPrice). toLocaleString() }}</div>
+                </div>
+            </div>
+            <div class="move-container">
+                <div class="btn-container">
+                    <router-link to ="/">
+                        <button class="move-btn">HOME</button>
+                    </router-link>
+                </div>
+                <div class="btn-container">
+                    <router-link to ="/my_page">
+                        <button class="move-btn">MYPAGE</button>
+                    </router-link>
+                </div>
+            </div>
+    
+          </div>
+        
+        <button @click="closePaymentModal" class="payment-modal-btn">확인</button>
       </div>
     </div>
 
@@ -240,10 +294,9 @@ export default {
               );
               
               
-               this.showPaymentModal(); // 결제 완료 후 모달창 표시
-              
+               this.showPaymentModal(); 
+              console.log(reservationResponse);
 
-              alert('결제가 완료되었습니다.');
  
             } catch (error) {
               console.error('서버 요청 실패:', error);
@@ -256,12 +309,15 @@ export default {
       );
     },
     showPaymentModal() {
-      this.isPaymentModalVisible = true; // 모달 보이게 설정
+        this.isPaymentModalVisible = true; 
+        this.$nextTick(() => {
+        document.querySelector('.payment-modal-overlay').classList.add('active');
+        });
     },
 
     closePaymentModal() {
-      this.isPaymentModalVisible = false; // 모달 닫기
-      window.location.href = "/user/myreservation"; // 예약 완료 후 이동
+        this.isPaymentModalVisible = false;
+        document.querySelector('.payment-modal-overlay').classList.remove('active');
     },
 
     formatDate(date) {
@@ -414,5 +470,78 @@ hr{
 }
 .check-conatiner{
     margin-top:20px;
+}
+.payment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; 
+  visibility: hidden; 
+  opacity: 0;
+  transition: visibility 0s, opacity 0.3s linear;
+}
+
+.payment-modal-overlay.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.payment-modal {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.payment-modal-btn {
+  background-color: #00aef0;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.payment-modal-btn:hover {
+  background-color: #007bb5;
+}
+
+.user-info-container{
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    padding: 10px;
+}
+.user-name-container{
+    display: flex;
+    margin-bottom:15px;
+}
+.label{
+    width: 100px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.move-container{
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+.btn-container{
+    margin-left: 20px;
+    margin-right: 20px;
+}
+.move-btn{
+    width: 100px;
+    height: 30px;
+    background-color: #00aef0;
+    border: none;
 }
 </style>
