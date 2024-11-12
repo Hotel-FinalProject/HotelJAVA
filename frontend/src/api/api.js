@@ -14,7 +14,7 @@ function signupUser(userData, verificationToken) {
   return config.post('/users/signup', userData, {
     headers: {
       'verificationToken': `Bearer ${verificationToken}`,
-    }, 
+    },
   });
 }
 
@@ -38,11 +38,13 @@ function findIdUser(name) {
 }
 
 /** 이메일 인증 */
-function sendVerificationEmailAPI(email) {
+function sendVerificationEmailAPI(email, mode) {
   return config.post('/users/send-verification-email', {
-    email: email
+    email: email,
+    mode: mode,
   });
 }
+
 
 /** 이메일 인증 확인 */
 function verifyEmailToken(token) {
@@ -61,6 +63,14 @@ export function getUserInfo(token) {
     }
   });
 }
+
+/** 유저 비밀번호 재설정 */
+export const sendResetPasswordRequest = (email, token) => {
+  return config.post('/users/reset-password', {
+    email,
+    token,
+  });
+};
 
 export {
   signupUser,
