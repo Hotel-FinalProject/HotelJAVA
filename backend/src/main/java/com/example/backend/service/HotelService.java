@@ -246,7 +246,7 @@ public class HotelService {
         List<RoomDetailDTO> roomDetails = hotel.getRooms().stream()
                 .map(room -> new RoomDetailDTO(
                         room.getRoomId(),
-                        room.getType(), // roomType
+                        room.getName(), // roomType
                         room.getOccupancy(),
                         room.getPrice(),
                         room.getImages().isEmpty() ? null : room.getImages().get(0).getImageId(),

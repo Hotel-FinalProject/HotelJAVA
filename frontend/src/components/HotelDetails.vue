@@ -329,7 +329,7 @@ export default {
   border-radius: 15px;
   padding: 15px;
   margin-top: 20px;
-  min-height: 280px; /* 카드 높이 고정 */
+  min-height: 280px;
   text-align: center;
 }
 
@@ -368,7 +368,7 @@ export default {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 280px; /* 이미지 없는 경우에도 높이를 동일하게 설정 */
+  height: 280px;
   background-color: #f8f8f8;
 }
 
@@ -383,7 +383,7 @@ export default {
   width: 60%;
 }
 .room-name {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: bold;
   margin-bottom: 5px;
 }
@@ -407,6 +407,7 @@ export default {
 .reservation-text,
 .check-info {
   color: rgb(109, 109, 109);
+  font-size: 20px;
 }
 .price {
   font-size: 24px;
