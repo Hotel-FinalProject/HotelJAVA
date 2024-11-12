@@ -1,3 +1,4 @@
+<!-- HotelAdminPage.vue -->
 <template>
   <div class="hotel-admin-page">
     <nav class="navbar">

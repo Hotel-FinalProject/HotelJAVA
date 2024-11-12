@@ -1,5 +1,6 @@
 package com.example.backend.Controller;
 
+import com.example.backend.dto.LoginRequest;
 import com.example.backend.entity.User;
 import com.example.backend.service.AdminService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,21 @@ public class AdminController {
         }
     }
 
-//    @PostMapping("/auth/create")
+    //로그인
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            return adminService.login(loginRequest.getEmail(), loginRequest.getPasswd());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401).body("이메일 또는 비밀번호가 올바르지 않습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("로그인 처리 중 오류가 발생했습니다.");
+        }
+    }
+
+    // 호텔 관리자 생성
+    
 
 
 }

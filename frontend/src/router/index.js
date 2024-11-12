@@ -6,7 +6,6 @@ import OAuthRedirectHandler from '@/components/OAuthRedirectHandler.vue';
 import EmailVerificationPage from '@/components/UserPages/EmailVerification.vue';
 import PasswordReset from '@/components/UserPages/PasswordReset.vue'
 import HotelAdminPage from '@/components/HotelAdminPage.vue';
-import AdminLogin from '@/components/SystemAdminPages/AdminLogin.vue'
 
 const routes = [
   {
@@ -59,10 +58,7 @@ const routes = [
     path: '/reset-password', // 이메일 인증 페이지 경로
     component: PasswordReset
   },
-  {
-    path: '/admin',
-    component: AdminLogin
-  },
+
 ];
 
 const router = createRouter({
