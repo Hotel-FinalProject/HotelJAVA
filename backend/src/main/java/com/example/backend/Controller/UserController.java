@@ -151,7 +151,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일이 필요합니다.");
         }
 
-        if (mode == null || (!mode.equals("signup") && !mode.equals("resetPassword"))) {
+        if (mode == null || (!mode.equals("signup") && !mode.equals("resetPassword") && !mode.equals("editPassword"))) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효하지 않은 모드입니다.");
         }
 

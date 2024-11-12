@@ -142,7 +142,7 @@ public class UserService {
                     Map<String, Object> response = new HashMap<>();
                     response.put("token", token);
                     response.put("userId", user.getUserId());
-                    response.put("name", user.getName());
+                    response.put("userName", user.getName());
                     response.put("email", user.getEmail());
                     response.put("phone", user.getPhone());
 

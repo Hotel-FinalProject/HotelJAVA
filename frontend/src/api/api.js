@@ -1,4 +1,3 @@
-// api.js
 import axios from 'axios';
 
 /** axios 기본 url 및 헤더 설정 */
@@ -56,8 +55,8 @@ function verifyEmailToken(token) {
 }
 
 /** 유저 정보 가져오기 */
-export function getUserInfo(token) {
-  return config.get('/users/me', {
+function getUserInfo(token) {
+  return config.get('/auth/users/me', {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -72,11 +71,48 @@ export const sendResetPasswordRequest = (email, token) => {
   });
 };
 
+/** 회원 정보 수정 */
+function updateUserInfoAPI(userInfo, token) {
+  return config.put('/auth/users/update', userInfo, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+}
+
+/** 비밀번호 확인 */
+function verifyPasswordAPI(password, token) {
+  return config.post('/auth/users/verify-password', { password }, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+}
+
+/** 비밀번호 변경 */
+function changePasswordAPI(email, newPassword, token) {
+  return config.post('/auth/users/reset-password', { email, newPassword, token });
+}
+
+/** 계정 탈퇴 */
+function deactivateUserAPI(token) {
+  return config.delete('/auth/users/delete', {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+}
+
 export {
   signupUser,
   loginUser,
   checkEmail,
   findIdUser,
   sendVerificationEmailAPI,
-  verifyEmailToken
+  getUserInfo,
+  verifyEmailToken,
+  updateUserInfoAPI,
+  verifyPasswordAPI,
+  changePasswordAPI,
+  deactivateUserAPI
 };
