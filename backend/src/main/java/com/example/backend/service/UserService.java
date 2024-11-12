@@ -331,4 +331,29 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("비밀번호 변경 중 오류가 발생했습니다.");
         }
     }
+
+    /**
+     * 비밀번호 확인 로직
+     * @param email 비밀번호 확인 대상 사용자의 이메일 주소
+     * @param rawPassword 사용자가 입력한 비밀번호 (평문)
+     * @return 비밀번호 검증 결과에 대한 HTTP 응답
+     */
+    @Transactional
+    public ResponseEntity<?> verifyPassword(String email, String rawPassword) {
+        log.info("비밀번호 확인 요청 - 이메일: {}, 비밀번호: {}", email, rawPassword);
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            // 비밀번호 검증
+            if (passwordEncoder.matches(rawPassword, user.getPassword())) {
+                return ResponseEntity.ok("비밀번호가 일치합니다.");
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
+        }
+    }
 }

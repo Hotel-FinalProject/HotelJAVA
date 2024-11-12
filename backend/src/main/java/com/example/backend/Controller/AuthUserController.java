@@ -102,5 +102,33 @@ public class AuthUserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("비밀번호 변경 중 오류가 발생했습니다.");
         }
     }
+
+    /**
+     * 비밀번호 확인 기능
+     * <p>회원 정보 수정을 위한 비밀번호 확인 기능. 사용자로부터 입력받은 비밀번호가 현재 비밀번호와 일치하는지 검증합니다.<p/>
+     */
+    @PostMapping("/verify-password")
+    public ResponseEntity<?> verifyPassword(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody Map<String, String> requestBody) {
+        try {
+            // Bearer 토큰에서 실제 토큰 부분만 추출
+            String token = authorizationHeader.replace("Bearer ", "");
+            // JWT 토큰 검증 및 이메일 추출
+            String email = jwtUtil.verifyJwt(token);
+
+            // 요청 본문에서 입력받은 비밀번호 추출
+            String rawPassword = requestBody.get("password");
+
+            if (rawPassword == null || rawPassword.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호가 필요합니다.");
+            }
+
+            // 사용자 서비스에서 비밀번호 검증 로직 실행
+            return userService.verifyPassword(email, rawPassword);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 토큰입니다.");
+        }
+    }
 }
 
