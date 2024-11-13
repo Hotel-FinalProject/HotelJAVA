@@ -96,7 +96,7 @@
               <div class="check-info">
                 체크인 {{ hotel.checkIn }} ~ 체크아웃 {{ hotel.checkOut }}
               </div>
-              <h2 class="price">{{ Number(room.price). toLocaleString() }}원</h2>
+              <h2 class="price">{{ Number(room.roomPrice). toLocaleString() }}원</h2>
               <div class="reservation-bottom">
                 <div class="room-count">남은 객실 {{ room.availableRooms }}개</div>
                   <button @click="move(room)" class="reservation_btn">예약 및 상세보기</button>
@@ -168,8 +168,8 @@ export default {
         name: 'HotelRoom',
         state: {
           hotelName: this.hotel.name,
-          roomName: room.name,
-          roomPrice: room.price,
+          roomName: room.roomType,
+          roomPrice: room.roomPrice,
           checkIn : this.hotel.checkIn,
           checkOut : this.hotel.checkOut,
           roomId : room.roomId
