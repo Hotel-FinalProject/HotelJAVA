@@ -29,11 +29,6 @@
           <!-- 객실 현황 내용을 추가 -->
         </section>
 
-        <section class="section calendar">
-          <h3>캘린더</h3>
-          <!-- 캘린더 내용을 추가 -->
-        </section>
-
         <section class="section memo">
           <h3>메모</h3>
           <!-- 메모 내용을 추가 -->

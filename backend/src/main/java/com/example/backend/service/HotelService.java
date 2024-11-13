@@ -1,10 +1,12 @@
 package com.example.backend.service;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,6 +27,7 @@ import com.example.backend.dto.HotelDTO;
 import com.example.backend.dto.HotelRoomDTO;
 import com.example.backend.dto.RoomDetailDTO;
 import com.example.backend.entity.Hotel;
+import com.example.backend.entity.Room;
 import com.example.backend.repository.HotelRepository;
 
 @Service
@@ -185,7 +188,8 @@ public class HotelService {
                 hotel.getImageUrl(), 
                 hotel.getRating(), 
                 hotel.getMapX(),
-                hotel.getMapY()
+                hotel.getMapY(),
+                null
             ))
             .collect(Collectors.toList());
     }
@@ -202,7 +206,8 @@ public class HotelService {
                     hotel.getImageUrl(), 
                     hotel.getRating(),
                     hotel.getMapX(),  // mapX 추가
-                    hotel.getMapY()   // mapY 추가
+                    hotel.getMapY(),   // mapY 추가
+                    null
                 ))
             .collect(Collectors.toList());
     }
@@ -218,7 +223,8 @@ public class HotelService {
                     hotel.getImageUrl(),
                     hotel.getRating(),
                     hotel.getMapX(),
-                    hotel.getMapY()
+                    hotel.getMapY(),
+                    null
                 ))
                 .collect(Collectors.toList());
         } else {
@@ -231,11 +237,13 @@ public class HotelService {
                     hotel.getImageUrl(),
                     hotel.getRating(),
                     hotel.getMapX(),
-                    hotel.getMapY()
+                    hotel.getMapY(),
+                    null
                 ))
                 .collect(Collectors.toList());
         }
     }
+
     
     // 특정 호텔과 관련된 객실 상세 정보 조회
     public HotelRoomDTO getHotelDetailById(Long id) {

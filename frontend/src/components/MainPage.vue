@@ -7,8 +7,7 @@
         class="search-bar"
         type="text"
         placeholder="호텔 검색"
-        @input="fetchAutocompleteResults"
-        @keyup.enter="searchHotel"
+        @click="searchHotel"
       />
       <!-- 돋보기 버튼 -->
       <button @click="searchHotel" class="search-button">
@@ -133,8 +132,8 @@ export default {
         query: { query: this.searchQuery }
       });
     },
-    goToHotelDetail(hotelId) {
-      this.$router.push(`/hotel-details/${hotelId}`);
+    goToSearchPage() {
+      this.$router.push({ path: '/search-page', query: { query: this.searchQuery } });
     }
   }
 };

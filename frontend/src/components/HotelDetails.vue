@@ -96,7 +96,7 @@
               <div class="check-info">
                 체크인 {{ hotel.checkIn }} ~ 체크아웃 {{ hotel.checkOut }}
               </div>
-              <h2 class="price">{{ room.roomPrice }}원</h2>
+              <h2 class="price">{{ room.roomPrice ? `${room.roomPrice.toLocaleString()}원` : "가격 정보 없음" }}</h2>
               <div class="reservation-bottom">
                 <div class="room-count">남은 객실 {{ room.roomCount }}개</div>
                 <router-link :to="`/room-details/${room.roomId}`">
