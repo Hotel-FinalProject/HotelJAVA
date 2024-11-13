@@ -35,7 +35,7 @@ public class Room {
 
     private String type; // 객실 유형
     private Long occupancy; // 기준 인원
-    
+
     // 편의시설 관련 필드
     private boolean bathFacility; // 목욕 시설
     private boolean bath; // 욕조
@@ -62,4 +62,3 @@ public class Room {
 //    @JsonManagedReference
     private List<RoomImage> images;
 }
-

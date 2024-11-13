@@ -1,5 +1,8 @@
 package com.example.backend.entity;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -19,6 +22,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Data
@@ -40,15 +44,14 @@ public class Reservation {
     private int guestNum; // 투숙 인원
 
     @CreatedDate
-    private Date createDate;
+    private LocalDateTime createDate;
 
     @LastModifiedDate
-    private Date updateDate;
+    private LocalDateTime updateDate;
 
-    private Date checkIn;
-    private Date checkOut;
+    private LocalDate checkIn;
 
-    private String paymentStatus; // 결제 상태
+    private LocalDate checkOut;
 
     @ManyToOne
     @JoinColumn(name = "user_id",referencedColumnName = "userId", nullable = false) // 고객 아이디 (외래키)

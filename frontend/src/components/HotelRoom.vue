@@ -28,19 +28,27 @@
     <!-- 예약 정보 및 가격 -->
     <div class="details-reservation">
       <div class="details-middle">
-        <div class="reservation-cal">캘린더
-             <VDatePicker v-model.range="range" />
-                     <p>선택된 시작 날짜: {{
-               range.start
-                 ? `${range.start.getFullYear()}.${(range.start.getMonth() + 1).toString().padStart(2, '0')}.${range.start.getDate().toString().padStart(2, '0')} (${range.start.toLocaleDateString('ko-KR', { weekday: 'short' })})`
-                 : '선택되지 않음'
-             }}</p>
-                    <p>선택된 시작 날짜: {{
-               range.start
-                 ? `${range.end.getFullYear()}.${(range.end.getMonth() + 1).toString().padEnd(2, '0')}.${range.end.getDate().toString().padEnd(2, '0')} (${range.end.toLocaleDateString('ko-KR', { weekday: 'short' })})`
-                 : '선택되지 않음'
-             }}</p>
+        <div class="reservation-cal">
+        <div v-if="showCalendar" class="calendar-modal">
+          <div class="modal-content">
+            <VDatePicker v-model.range="range" />
+            <button @click="onDateSelect">확인</button>
+          </div>
         </div>
+
+        <div @click="showCalendar = !showCalendar">
+          <div>
+            {{ range.start ? `${range.start.getFullYear()}.${(range.start.getMonth() + 1).toString().padStart(2, '0')}.${range.start.getDate().toString().padStart(2, '0')} (${range.start.toLocaleDateString('ko-KR', { weekday: 'short' })})`
+            : `${new Date().getFullYear()}.${(new Date().getMonth() + 1).toString().padStart(2, '0')}.${new Date().getDate().toString().padStart(2, '0')} (${new Date().toLocaleDateString('ko-KR', { weekday: 'short' })})`
+            }} -
+            {{
+              range.end
+                ? `${range.end.getFullYear()}.${(range.end.getMonth() + 1).toString().padStart(2, '0')}.${range.end.getDate().toString().padStart(2, '0')} (${range.end.toLocaleDateString('ko-KR', { weekday: 'short' })})`
+                : `${new Date().getFullYear()}.${(new Date().getMonth() + 1).toString().padStart(2, '0')}.${new Date().getDate().toString().padStart(2, '0')} (${new Date().toLocaleDateString('ko-KR', { weekday: 'short' })})`
+            }}
+          </div>
+        </div>
+      </div>
         <div class="reservation-person">
           <label for="personSelect">예약 인원:</label>
           <select id="personSelect" v-model="selectedPersonCount">
@@ -55,14 +63,25 @@
           <p class="check-info">
             체크인: {{ room.hotelCheckIn || "정보없음" }} ~ 체크아웃: {{ room.hotelCheckOut || "정보없음" }}
           </p>
-          <h2 class="price">{{ room.price ? `${room.price.toLocaleString()}원` : "가격 정보 없음" }}</h2>
+          <h2 class="price">{{ Number(room.price). toLocaleString() ? `${Number(room.price). toLocaleString()}원` : "가격 정보 없음"}}</h2>
           <div class="reservation-bottom">
             <div class="room-count">{{ room.availableRooms ? `남은 객실 ${room.availableRooms}개` : "남은 객실 정보 없음" }}</div>
-            <router-link to="/payment">
-              <button class="reservation_btn">예약하기</button>
-            </router-link>
+
+            <button  @click="move"  class="reservation_btn">예약하기</button>
           </div>
         </div>
+      </div>
+    </div>
+
+     <!-- Login Modal -->
+    <div class="modal" v-if="showModal">
+      <div class="modal-content">
+        <span class="close" @click="showModal = false">&times;</span>
+        <h2>로그인 필요</h2>
+        <p>예약을 진행하시려면 로그인이 필요합니다.</p>
+        <router-link to="/login">
+          <button class="modal-btn" @click="onLoginSuccess" >로그인하러 가기</button>
+        </router-link>
       </div>
     </div>
 
@@ -140,6 +159,8 @@ export default {
       isLoggedIn: false,
       showModal: false,
       range: { start: null, end: null },
+      showCalendar: false,
+      dataObj: history.state || {},
     };
   },
   created() {
@@ -160,16 +181,43 @@ export default {
         console.error("객실 정보를 가져오는 중 오류 발생:", error);
       }
     },
-    handleReservation() {
-          if (this.isLoggedIn) {
-            // 예약 처리 로직
-            this.$router.push("/payment"); // 결제 페이지로 이동
-          } else {
-            this.showModal = true; // 로그인 모달을 표시
 
-          }
-        },
-      
+  move() {
+    const { hotelName, checkIn, checkOut, roomName, roomPrice } = this.dataObj;
+    const currentRoomId = this.$route.params.roomId;
+    const userCheckIn = this.range.start ? this.range.start : new Date();
+
+    const userCheckOut = this.range.end ? this.range.end : new Date();
+
+    const guestNum = this.selectedPersonCount;
+
+    if (this.isLoggedIn) {
+      if (hotelName && checkIn && checkOut && roomName && roomPrice) {
+        this.$router.push({
+          name: 'paymentPage',
+          state: {
+            hotelName,
+            checkIn,
+            checkOut,
+            roomName,
+            roomPrice,
+            roomId : currentRoomId,
+            userCheckIn,
+            userCheckOut,
+            guestNum,
+          },
+        });
+      } else {
+        console.log("예약에 필요한 정보가 부족합니다.");
+      }
+    } else {
+      this.showModal = true;
+    }
+  },
+  onDateSelect() {
+      // 날짜가 선택되면 캘린더를 숨깁니다.
+      this.showCalendar = false;
+    },
   },
   computed: {
     formattedDescription() {
@@ -231,6 +279,7 @@ export default {
   font-weight: bold;
   color: #333;
   margin-top: 15px;
+  text-align: right;
 }
 .details-reservation {
   margin-top: 20px;
@@ -269,7 +318,6 @@ export default {
   position: absolute;
   bottom: 10px;
   left: 10px;
-  margin-left: 10px;
 }
 .reservation-bottom {
   display: flex;
@@ -352,5 +400,78 @@ hr {
   background: lightgray;
   height: 1px;
   border: 0;
+}
+
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+}
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+.modal-btn {
+  margin-top: 10px;
+  background-color: #00aef0;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
+.reservation-cal,
+.reservation-person {
+  width: 100%;
+  height: 40px;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  gap: 8px;
+}
+
+.calendar-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* 배경 반투명 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>

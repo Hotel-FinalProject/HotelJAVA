@@ -5,9 +5,9 @@ spring:
   application:
     name: backend
   datasource:
-    url: 
-    username: 
-    password: 
+    url:
+    username:
+    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -21,7 +21,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: sudongtaemsa6th@gmail.com
-    password: mtdemkdtofobosyo
+    password: ${MAIL_SECRET}
     properties:
       mail:
         smtp:
@@ -77,8 +77,8 @@ hotel:
   key:
 
 api:
-  key: 
-  secret : ${SECRET-KEY}
+  key: ${API_KEY}
+
 
 import:
   api-key: 8574783258275564

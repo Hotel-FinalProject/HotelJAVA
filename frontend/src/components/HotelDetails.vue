@@ -96,12 +96,10 @@
               <div class="check-info">
                 체크인 {{ hotel.checkIn }} ~ 체크아웃 {{ hotel.checkOut }}
               </div>
-              <h2 class="price">{{ room.roomPrice ? `${room.roomPrice.toLocaleString()}원` : "가격 정보 없음" }}</h2>
+              <h2 class="price">{{ Number(room.price). toLocaleString() }}원</h2>
               <div class="reservation-bottom">
-                <div class="room-count">남은 객실 {{ room.roomCount }}개</div>
-                <router-link :to="`/room-details/${room.roomId}`">
-                  <button class="reservation_btn">예약 및 상세보기</button>
-                </router-link>
+                <div class="room-count">남은 객실 {{ room.availableRooms }}개</div>
+                  <button @click="move(room)" class="reservation_btn">예약 및 상세보기</button>
               </div>
             </div>
           </div>
@@ -126,7 +124,6 @@
 import axios from "axios";
 
 export default {
-  name: "HotelDetails",
   data() {
     return {
       hotel: null,
@@ -158,12 +155,28 @@ export default {
       const hotelId = this.$route.params.id;
       try {
         const response = await axios.get(`http://localhost:8081/api/hotels/${hotelId}`);
-        this.hotel = response.data; // HotelDetailDTO 형태로 데이터 수신
+        this.hotel = response.data;
         console.log(this.hotel);
       } catch (error) {
         console.error("호텔 상세 정보를 가져오는 중 오류 발생:", error);
       }
     },
+
+    move(room){
+      this.$router.push({
+        params: { roomId: room.roomId },
+        name: 'HotelRoom',
+        state: {
+          hotelName: this.hotel.name,
+          roomName: room.name,
+          roomPrice: room.price,
+          checkIn : this.hotel.checkIn,
+          checkOut : this.hotel.checkOut,
+          roomId : room.roomId
+        }
+      });
+    },
+
     copyAddressToClipboard() {
       if (this.hotel && this.hotel.address) {
         navigator.clipboard.writeText(this.hotel.address)
@@ -178,7 +191,7 @@ export default {
     loadKakaoMap() {
       if (typeof kakao === "undefined") {
         const script = document.createElement("script");
-        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=&autoload=false`;
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=d685c63d7eb74d08883cdb9e13b5fb6c&autoload=false`;
         script.onload = this.initMap;  // 스크립트 로드 후 initMap 호출
         document.head.appendChild(script);
       } else {
@@ -383,7 +396,7 @@ export default {
   width: 60%;
 }
 .room-name {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
   margin-bottom: 5px;
 }
@@ -407,7 +420,6 @@ export default {
 .reservation-text,
 .check-info {
   color: rgb(109, 109, 109);
-  font-size: 20px;
 }
 .price {
   font-size: 24px;

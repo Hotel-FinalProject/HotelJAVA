@@ -3,7 +3,7 @@
   <nav class="navbar">
     <div class="navbar_logo">
       <!-- <img src="" alt="팀 Logo" class="logo" /> -->
-      <span class="brand_name" @click="to_home()">2팀</span>
+      <span class="brand_name" @click="to_home()">호텔자바</span>
     </div>
     <div class="navbar_items">
       <ul class="navbar_item" v-if="!isLoggedIn">
@@ -13,8 +13,7 @@
           </router-link>
         </li>
         <li>
-          <!-- <router-link to="/register"> -->
-          <router-link to="/verify-email">
+          <router-link to="/register">
             <span class="signup_btn">회원가입</span>
           </router-link>
         </li>
@@ -26,7 +25,7 @@
           </router-link>
         </li>
         <li>
-          <router-link to="/my_page">
+          <router-link to="/my-page">
             <span class="my_page_btn">마이페이지</span>
           </router-link>
         </li>

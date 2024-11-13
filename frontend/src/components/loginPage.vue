@@ -15,6 +15,9 @@
           <router-link to="/find-my-id">
             <span class="find-id-btn">아이디 찾기</span>
           </router-link>
+          <router-link to="/reset-password">
+            <span class="find-id-btn">비밀번호 찾기</span>
+          </router-link>
           <button type="submit" class="login-button">로그인</button>
         </div>
       </form>
@@ -30,7 +33,7 @@
 </template>
 
 <script>
-// import router from "@/router";
+import router from "@/router";
 import { useAuthStore } from "@/store/register_login"; // Pinia 스토어 import
 
 export default {
@@ -58,7 +61,7 @@ export default {
         const authStore = useAuthStore();
         await authStore.login(payload);
         alert("로그인 성공!");
-        // router.push({ path: "/" });
+        router.push({ path: "/" });
       } catch (error) {
         console.error("로그인 중 오류 발생: ", error);
         alert("로그인 실패. 이메일과 비밀번호를 확인하세요.");

@@ -5,10 +5,10 @@
       <input
         v-model="email"
         placeholder="이메일을 입력하세요"
-        @blur="checkEmailAvailability"
+        @blur="mode === 'signup' ? checkEmailAvailability() : null"
       />
       <div
-        v-if="emailMessage"
+        v-if="mode === 'signup' && emailMessage"
         :class="{
           error: !isEmailAvailable,
           success: isEmailAvailable,
@@ -16,16 +16,21 @@
       >
         {{ emailMessage }}
       </div>
-      <button @click="sendVerificationEmail" :disabled="!isEmailAvailable">
+      <button
+        @click="sendVerificationEmail"
+        :disabled="mode === 'signup' && !isEmailAvailable"
+      >
         인증 요청
       </button>
     </div>
     <div v-else-if="isVerified">
-      <p>
-        이메일 인증이 완료되었습니다. 아래 버튼을 클릭하여 회원가입을
-        완료하세요.
-      </p>
-      <button @click="proceedToSignup">회원가입 페이지로 이동</button>
+      <p>이메일 인증이 완료되었습니다.</p>
+      <button v-if="mode === 'signup'" @click="proceedToSignup">
+        회원가입 페이지로 이동
+      </button>
+      <button v-else-if="mode === 'resetPassword'" @click="proceedToResetPassword">
+        비밀번호 재설정 페이지로 이동
+      </button>
     </div>
     <div v-else>
       <p>이메일 인증 중입니다...</p>
@@ -45,6 +50,8 @@ export default {
     const router = useRouter();
     const authStore = useAuthStore();
 
+    // 모드 확인 (signup, resetPassword, editPassword)
+    const mode = ref(route.query.mode);
     const verificationToken = ref(route.query.token);
     const email = ref("");
     const isVerified = ref(false);
@@ -53,6 +60,7 @@ export default {
 
     // URL에서 가져온 verificationToken 확인을 위해 콘솔 로그 추가
     console.log("초기 verificationToken:", verificationToken.value);
+    console.log("초기 mode:", mode.value);
 
     /** 이메일 중복 확인 */
     const checkEmailAvailability = async () => {
@@ -80,13 +88,14 @@ export default {
         return;
       }
 
-      if (!isEmailAvailable.value) {
+      // 회원가입 모드인 경우만 이메일 사용 가능 여부 확인
+      if (mode.value === "signup" && !isEmailAvailable.value) {
         alert("사용할 수 없는 이메일입니다. 다른 이메일을 사용해주세요.");
         return;
       }
 
       try {
-        await authStore.sendVerificationEmail(email.value);
+        await authStore.sendVerificationEmail(email.value, mode.value);
         alert("인증 이메일이 발송되었습니다. 메일을 확인해주세요.");
       } catch (error) {
         console.error("이메일 발송 실패:", error);
@@ -103,42 +112,68 @@ export default {
         }
 
         try {
-          console.log("인증 요청을 보낼 토큰:", newToken); // 토큰 값 확인
+          console.log("인증 요청을 보낼 토큰:", newToken);
           const response = await authStore.verifyEmailToken(newToken);
-          console.log("스프링에서 받은 이메일 인증 결과:", response.data); // 응답 결과 확인
+          console.log("스프링에서 받은 이메일 인증 결과:", response.data);
 
-          // 응답 객체의 success 여부 확인
           if (response.data && response.data.success) {
-            // 인증 성공 시, 인증 상태와 이메일을 저장하고 회원가입 페이지로 이동
             isVerified.value = true;
             authStore.verificationToken = newToken;
-            email.value = response.data.email; // 이메일도 상태에 저장 가능
-            authStore.email = response.data.email; // state에 이메일 저장
-            router.push({
-              path: "/register", // 경로 이름을 'register'로 수정
-            });
+            email.value = response.data.email;
+            authStore.email = response.data.email;
+
+            // 인증이 성공한 경우 모드에 따라 처리
+            if (mode.value === "signup") {
+              router.push({ path: "/register" });
+            } else if (mode.value === "resetPassword") {
+              router.push({ path: "/reset-password" });
+            } else if (mode.value === "editPassword") {
+              // editPassword 모드의 경우 이메일과 토큰을 로컬 스토리지에 저장
+              localStorage.setItem("verifiedEmail", email.value);
+              localStorage.setItem("verificationToken", newToken);
+              alert("이메일 인증이 완료되었습니다. 비밀번호 변경을 진행해주세요.");
+              window.close();
+            }
           } else {
-            console.error(
-              "응답 데이터에서 success 값을 찾을 수 없습니다.",
-              response
-            );
-            alert("이메일 인증에 실패했습니다. 다시 시도해 주세요.");
+            console.error("응답 데이터에서 success 값을 찾을 수 없습니다.", response);
+            alert("이메일 인증에 실패했습니다. 토큰이 만료되었거나 유효하지 않습니다. 다시 인증을 요청하세요.");
+
+            // 이메일 인증 페이지로 다시 이동
+            router.push({
+              path: "/verify-email",
+              query: {
+                mode: mode.value,
+              },
+            });
           }
         } catch (error) {
           console.error("이메일 인증 중 오류 발생: ", error);
           alert("유효하지 않은 인증 토큰입니다.");
         }
       },
-      { immediate: true } // 컴포넌트가 처음 로드될 때도 실행
+      { immediate: true }
     );
+
+    // 회원가입 페이지로 이동
+    const proceedToSignup = () => {
+      router.push({ path: "/register" });
+    };
+
+    // 비밀번호 재설정 페이지로 이동
+    const proceedToResetPassword = () => {
+      router.push({ path: "/reset-password" });
+    };
 
     return {
       email,
       emailMessage,
       isEmailAvailable,
       isVerified,
+      mode, // mode 추가하여 템플릿에서 사용할 수 있도록 함
       checkEmailAvailability,
       sendVerificationEmail,
+      proceedToSignup,
+      proceedToResetPassword,
     };
   },
 };
