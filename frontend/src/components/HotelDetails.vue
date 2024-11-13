@@ -1,3 +1,4 @@
+
 <template>
   <div v-if="hotel" class="details-container">
     <!-- 호텔 이미지 -->
@@ -75,8 +76,8 @@
       <div v-if="hotel.rooms && hotel.rooms.length > 0">
         <div v-for="room in hotel.rooms" :key="room.roomId" class="room-card">
           <div class="room-image-container">
-            <template v-if="room.images && room.images.length > 0 && room.images[0].imageUrl">
-              <img :src="room.images[0].imageUrl" class="room-img" alt="Room Image" />
+            <template v-if="room.roomImageUrl">
+              <img :src="room.roomImageUrl" class="room-img" alt="Room Image" />
             </template>
             <template v-else>
               <div class="no-room-image">
@@ -86,19 +87,19 @@
           </div>
 
           <div class="room-info">
-            <h4 class="room-name">{{ room.name }}</h4>
+            <h4 class="room-name">{{ room.roomType }}</h4>
             <div class="avg-person">
               <img class="person-icon" src="https://yaimg.yanolja.com/stay/static/images/v3/icon_my.png" />
-              <span class="avg-person-text">기준인원 {{ room.occupancy }}인</span>
+              <span class="avg-person-text">기준인원 {{ room.roomOccupancy }}인</span>
             </div>
             <div class="reservation-info">
               <h5 class="reservation-text">숙박</h5>
               <div class="check-info">
                 체크인 {{ hotel.checkIn }} ~ 체크아웃 {{ hotel.checkOut }}
               </div>
-              <h2 class="price">{{ Number(room.price). toLocaleString() }}원</h2>
+              <h2 class="price">{{ room.roomPrice ? `${room.roomPrice.toLocaleString()}원` : "가격 정보 없음" }}</h2>
               <div class="reservation-bottom">
-                <div class="room-count">남은 객실 {{ room.availableRooms }}개</div>
+                <div class="room-count">남은 객실 {{ room.roomCount }}개</div>
                   <button @click="move(room)" class="reservation_btn">예약 및 상세보기</button>
               </div>
             </div>
@@ -124,6 +125,7 @@
 import axios from "axios";
 
 export default {
+  name: "HotelDetails",
   data() {
     return {
       hotel: null,
@@ -155,28 +157,26 @@ export default {
       const hotelId = this.$route.params.id;
       try {
         const response = await axios.get(`http://localhost:8081/api/hotels/${hotelId}`);
-        this.hotel = response.data;
+        this.hotel = response.data; // HotelDetailDTO 형태로 데이터 수신
         console.log(this.hotel);
       } catch (error) {
         console.error("호텔 상세 정보를 가져오는 중 오류 발생:", error);
       }
     },
-
-    move(room){
+     move(room){
       this.$router.push({
         params: { roomId: room.roomId },
         name: 'HotelRoom',
         state: {
           hotelName: this.hotel.name,
-          roomName: room.name,
-          roomPrice: room.price,
+          roomName: room.roomType,
+          roomPrice: room.roomPrice,
           checkIn : this.hotel.checkIn,
           checkOut : this.hotel.checkOut,
           roomId : room.roomId
         }
       });
     },
-
     copyAddressToClipboard() {
       if (this.hotel && this.hotel.address) {
         navigator.clipboard.writeText(this.hotel.address)
@@ -218,7 +218,6 @@ export default {
       });
     },
   },
-  
 };
 </script>
 
@@ -343,7 +342,7 @@ export default {
   border-radius: 15px;
   padding: 15px;
   margin-top: 20px;
-  min-height: 280px; /* 카드 높이 고정 */
+  min-height: 280px;
   text-align: center;
 }
 
@@ -382,7 +381,7 @@ export default {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 280px; /* 이미지 없는 경우에도 높이를 동일하게 설정 */
+  height: 280px;
   background-color: #f8f8f8;
 }
 
@@ -397,7 +396,7 @@ export default {
   width: 60%;
 }
 .room-name {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: bold;
   margin-bottom: 5px;
 }
@@ -421,6 +420,7 @@ export default {
 .reservation-text,
 .check-info {
   color: rgb(109, 109, 109);
+  font-size: 20px;
 }
 .price {
   font-size: 24px;

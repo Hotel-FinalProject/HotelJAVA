@@ -15,7 +15,14 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
 	
 	Optional<Hotel> findByContentId(Long contentId);
 
-	@Query("SELECT h FROM Hotel h WHERE REPLACE(h.name, ' ', '') LIKE %:query%")
-	List<Hotel> searchByNameIgnoringSpaces(@Param("query") String query);
+//	@Query("SELECT h FROM Hotel h WHERE REPLACE(h.name, ' ', '') LIKE %:query%")
+//	List<Hotel> searchByNameIgnoringSpaces(@Param("query") String query);
+	
+	@Query("SELECT h FROM Hotel h WHERE REPLACE(h.name, ' ', '') LIKE %:query% OR REPLACE(h.address, ' ', '') LIKE %:query%")
+	List<Hotel> searchByNameAndAddressIgnoringSpaces(@Param("query") String query);
+	
+	List<Hotel> findByLocation(String location);
+	
+	
 }
 

@@ -1,10 +1,12 @@
 package com.example.backend.service;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,7 +24,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.backend.dto.HotelDTO;
+import com.example.backend.dto.HotelRoomDTO;
+import com.example.backend.dto.RoomDetailDTO;
 import com.example.backend.entity.Hotel;
+import com.example.backend.entity.Room;
 import com.example.backend.repository.HotelRepository;
 
 @Service
@@ -158,19 +163,119 @@ public class HotelService {
                 .orElseThrow(() -> new RuntimeException("호텔을 찾을 수 없습니다. ID: " + id));
     }
     
-    public List<HotelDTO> searchHotelsByName(String query) {
+//    public List<HotelDTO> searchHotelsByName(String query) {
+//        String queryWithoutSpaces = query.replaceAll("\\s+", ""); // 공백 제거
+//        return hotelRepository.searchByNameIgnoringSpaces(queryWithoutSpaces).stream()
+//            .map(hotel -> new HotelDTO(
+//                    hotel.getHotelId(), 
+//                    hotel.getName(), 
+//                    hotel.getAddress(), 
+//                    hotel.getImageUrl(), 
+//                    hotel.getRating(), 
+//                    hotel.getMapX(),  // mapX 추가
+//                    hotel.getMapY()   // mapY 추가
+//                ))
+//            .collect(Collectors.toList());
+//    }
+    
+    public List<HotelDTO> searchHotelsByNameOrAddress(String query) {
         String queryWithoutSpaces = query.replaceAll("\\s+", ""); // 공백 제거
-        return hotelRepository.searchByNameIgnoringSpaces(queryWithoutSpaces).stream()
-            .map(hotel -> new HotelDTO(hotel.getHotelId(), hotel.getName(), hotel.getAddress(), hotel.getImageUrl(), hotel.getRating()))
+        return hotelRepository.searchByNameAndAddressIgnoringSpaces(queryWithoutSpaces).stream()
+            .map(hotel -> new HotelDTO(
+                hotel.getHotelId(), 
+                hotel.getName(), 
+                hotel.getAddress(), 
+                hotel.getImageUrl(), 
+                hotel.getRating(), 
+                hotel.getMapX(),
+                hotel.getMapY(),
+                null
+            ))
             .collect(Collectors.toList());
     }
+
 
     public List<HotelDTO> getRandomHotels(int count) {
         List<Hotel> allHotels = hotelRepository.findAll();
         Collections.shuffle(allHotels);
         return allHotels.subList(0, Math.min(count, allHotels.size())).stream()
-            .map(hotel -> new HotelDTO(hotel.getHotelId(), hotel.getName(), hotel.getAddress(), hotel.getImageUrl(), hotel.getRating()))
+            .map(hotel -> new HotelDTO(
+                    hotel.getHotelId(), 
+                    hotel.getName(), 
+                    hotel.getAddress(), 
+                    hotel.getImageUrl(), 
+                    hotel.getRating(),
+                    hotel.getMapX(),  // mapX 추가
+                    hotel.getMapY(),   // mapY 추가
+                    null
+                ))
             .collect(Collectors.toList());
     }
+    
+    public List<HotelDTO> searchHotelsByLocation(String location) {
+        if (location == null) {
+            // 검색어가 없으면 전체 호텔 목록 조회
+            return hotelRepository.findAll().stream()
+                .map(hotel -> new HotelDTO(
+                    hotel.getHotelId(),
+                    hotel.getName(),
+                    hotel.getAddress(),
+                    hotel.getImageUrl(),
+                    hotel.getRating(),
+                    hotel.getMapX(),
+                    hotel.getMapY(),
+                    null
+                ))
+                .collect(Collectors.toList());
+        } else {
+            // 특정 구(location)에 해당하는 호텔 목록 조회
+            return hotelRepository.findByLocation(location).stream()
+                .map(hotel -> new HotelDTO(
+                    hotel.getHotelId(),
+                    hotel.getName(),
+                    hotel.getAddress(),
+                    hotel.getImageUrl(),
+                    hotel.getRating(),
+                    hotel.getMapX(),
+                    hotel.getMapY(),
+                    null
+                ))
+                .collect(Collectors.toList());
+        }
+    }
 
+    
+    // 특정 호텔과 관련된 객실 상세 정보 조회
+    public HotelRoomDTO getHotelDetailById(Long id) {
+        Hotel hotel = hotelRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("호텔을 찾을 수 없습니다. ID: " + id));
+
+        // RoomDetailDTO 리스트 생성
+        List<RoomDetailDTO> roomDetails = hotel.getRooms().stream()
+                .map(room -> new RoomDetailDTO(
+                        room.getRoomId(),
+                        room.getName(), // roomType
+                        room.getOccupancy(),
+                        room.getPrice(),
+                        room.getImages().isEmpty() ? null : room.getImages().get(0).getImageId(),
+                        room.getImages().isEmpty() ? null : room.getImages().get(0).getImageUrl(),
+                        null, // roomCountId
+                        room.getTotal() // roomCount
+                ))
+                .collect(Collectors.toList());
+
+        return new HotelRoomDTO(
+                hotel.getHotelId(),
+                hotel.getName(),
+                hotel.getAddress(),
+                hotel.getImageUrl(),
+                hotel.getRating(),
+                hotel.getMapX(),
+                hotel.getMapY(),
+                hotel.getHotelnum(),
+                hotel.getCheckIn(),
+                hotel.getCheckOut(),
+                roomDetails // 간소화된 객실 리스트 추가
+        );
+    }
 }
