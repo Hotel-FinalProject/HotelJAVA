@@ -112,6 +112,15 @@ function getReservationInfo(token) {
   });
 }
 
+/** 결제 취소 */
+function cancelReservationPay(imp_uid, roomId, token){
+  return config.post(`/auth/paymentCancel/${imp_uid}`, {roomId}, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+}
+
 export {
   signupUser,
   loginUser,
@@ -124,5 +133,6 @@ export {
   verifyPasswordAPI,
   changePasswordAPI,
   deactivateUserAPI,
-  getReservationInfo
+  getReservationInfo,
+  cancelReservationPay,
 };

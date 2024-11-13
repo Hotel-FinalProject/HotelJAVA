@@ -33,24 +33,30 @@ export const useReservationStore = defineStore('reservations', {
                 console.log("사용자 토큰:", token); // 토큰 확인을 위한 콘솔 로그 추가
 
                 // Axios 요청을 보내 예약 정보를 가져옴
-                  const response = await getReservationInfo(token);
+                const response = await getReservationInfo(token);
 
-                  console.log("예약 목록 응답:", response.data); // 응답 데이터 확인
+                console.log("예약 목록 응답:", response.data); // 응답 데이터 확인
 
-                  this.reservations = response.data;
-                
+                // 결제 상태가 "결제 취소"인 예약 제거
+                this.reservations = response.data.filter(
+                    (reservation) => reservation.paymentStatus !== '결제 취소'
+                );
+
+                // 예약 목록을 날짜 순으로 정렬 (최근 예약이 먼저)
                 this.reservations = this.reservations.sort(
                     (a, b) => new Date(b.checkIn) - new Date(a.checkIn)
                 );
 
+                // 현재 예약 및 지난 예약 분리
                 const today = dayjs();
                 this.upcomingReservations = this.reservations.filter(reservation => dayjs(reservation.checkIn).isAfter(today));
                 this.pastReservations = this.reservations.filter(reservation => dayjs(reservation.checkIn).isBefore(today));
 
-                // 보여줄 예약 초기화
+                // 보여줄 예약 초기화 (페이지 번호 초기화)
                 this.pageUpcoming = 1;
                 this.pagePast = 1;
 
+                // 초기화된 페이지에 따라 보여줄 예약 설정
                 this.visibleUpcomingReservations = this.upcomingReservations.slice(0, this.itemsPerPageUpcoming);
                 this.visiblePastReservations = this.pastReservations.slice(0, this.itemsPerPagePast);
 

@@ -25,13 +25,20 @@
           <p>투숙 인원: {{ reservation.guestNum }}</p>
           <p>요청 사항: {{ reservation.request }}</p>
           <p>예약 상태: {{ reservation.status }}</p>
+
+          <!-- 결제 취소 버튼 (체크인 이틀 전까지 가능) -->
+          <button
+            v-if="canCancel(reservation.checkIn)"
+            @click="cancelReservation(reservation)"
+            class="cancel-button"
+          >
+            결제 취소
+          </button>
         </div>
       </div>
 
       <!-- 더 보기 버튼 (현재 예약) -->
-      <div
-        v-if="upcomingReservations > visibleUpcomingReservations"
-      >
+      <div v-if="upcomingReservations > visibleUpcomingReservations">
         <button @click="loadMoreUpcomingReservations">더 보기</button>
       </div>
     </div>
@@ -72,6 +79,8 @@
 <script>
 import { useReservationStore } from "@/store/mypage_reservations";
 import { onMounted, computed } from "vue";
+import { cancelReservationPay } from "@/api/api";
+import dayjs from "dayjs";
 
 export default {
   setup() {
@@ -91,12 +100,45 @@ export default {
     );
     const loading = computed(() => reservationStore.loading);
 
+    const canCancel = (checkIn) => {
+      const today = dayjs();
+      const checkInDate = dayjs(checkIn);
+      return checkInDate.diff(today, "day") >= 2;
+    }
+
+    const cancelReservation = async (reservation) => {
+      try {
+        const token = sessionStorage.getItem("token");
+        if(!token) {
+          alert("로그인이 필요합니다.");
+          return;
+        }
+
+        const imp_uid = reservation.imp_uid;
+        const roomId = reservation.roomId;
+
+        const response = await cancelReservationPay(imp_uid, roomId, token);
+
+        if (response.status === 200){
+          console.log("결제 취소 결과 : ", response.data);
+          reservationStore.fetchReservations();
+        } else{
+          console.log("결제 취소 결과 : ", response.data);
+        }
+      } catch (error) {
+        console.error("결제 취소 오류 : ", error);
+        alert("결제 취소 중 오류가 발생했습니다.");
+      }
+    }
+
     return {
       visibleUpcomingReservations,
       visiblePastReservations,
       loading,
       loadMoreUpcomingReservations: reservationStore.loadMoreUpcomingReservations,
       loadMorePastReservations: reservationStore.loadMorePastReservations,
+      canCancel,
+      cancelReservation,
     };
   },
 };

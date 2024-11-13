@@ -3,7 +3,7 @@
   <nav class="navbar">
     <div class="navbar_logo">
       <!-- <img src="" alt="팀 Logo" class="logo" /> -->
-      <span class="brand_name" @click="to_home()">2팀</span>
+      <span class="brand_name" @click="to_home()">호텔자바</span>
     </div>
     <div class="navbar_items">
       <ul class="navbar_item" v-if="!isLoggedIn">
