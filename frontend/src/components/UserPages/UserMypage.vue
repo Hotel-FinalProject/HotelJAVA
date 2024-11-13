@@ -41,20 +41,7 @@ export default {
       userName: '',
       email: '',
       phone: '',
-      reviews: [
-        {
-          date: "2024.10.25",
-          content: "숙소 전반적으로 깔끔했고, 서비스도 매우 만족스러웠습니다.",
-        },
-        {
-          date: "2024.10.26",
-          content: "방의 크기가 조금 작았지만, 위치가 매우 좋았습니다.",
-        },
-        {
-          date: "2024.10.27",
-          content: "직원들이 친절했고, 가격 대비 만족스러웠습니다.",
-        },
-      ],
+      reviews: [],
       favoriteHotels: [],
     };
   },

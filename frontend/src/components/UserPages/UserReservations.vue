@@ -1,31 +1,69 @@
 <template>
   <div class="reservation-container">
-    <h2>내 예약 목록</h2>
+    <!-- 현재 예약 섹션 -->
+    <h2>현재 예약</h2>
     <div class="reservation-list">
-      <!-- 예약 목록이 없는 경우 -->
-      <div v-if="reservations.length === 0 && !loading">
+      <!-- 현재 예약이 없는 경우 -->
+      <div v-if="!loading && visibleUpcomingReservations === 0">
         예약 내역이 없습니다.
       </div>
 
       <!-- 예약 목록을 불러오는 중 -->
       <div v-if="loading">예약 목록을 불러오는 중입니다...</div>
 
-      <!-- 예약 목록을 보여줌 -->
+      <!-- 현재 예약 목록을 보여줌 -->
       <div
-        v-for="(reservation, index) in visibleReservations"
+        v-for="(reservation, index) in visibleUpcomingReservations"
         :key="index"
         class="reservation"
       >
         <div class="reservation-info">
-          <p>예약 번호: {{ reservation.id }}</p>
-          <p>예약 일자: {{ reservation.date }}</p>
+          <p>호텔 이름: {{ reservation.hotelName }}</p>
+          <p>객실 이름: {{ reservation.roomName }}</p>
+          <p>체크인: {{ reservation.checkIn }}</p>
+          <p>체크아웃: {{ reservation.checkOut }}</p>
+          <p>투숙 인원: {{ reservation.guestNum }}</p>
+          <p>요청 사항: {{ reservation.request }}</p>
           <p>예약 상태: {{ reservation.status }}</p>
         </div>
       </div>
 
-      <!-- 더 보기 버튼 -->
-      <div v-if="reservations.length > visibleReservations.length">
-        <button @click="loadMoreReservations">더 보기</button>
+      <!-- 더 보기 버튼 (현재 예약) -->
+      <div
+        v-if="upcomingReservations > visibleUpcomingReservations"
+      >
+        <button @click="loadMoreUpcomingReservations">더 보기</button>
+      </div>
+    </div>
+
+    <!-- 지난 예약 섹션 -->
+    <h2>예약 기록</h2>
+    <div class="past-reservation-list">
+      <!-- 지난 예약이 없는 경우 -->
+      <div v-if="!loading && visiblePastReservations === 0">
+        지난 예약 내역이 없습니다.
+      </div>
+
+      <!-- 지난 예약 목록을 보여줌 -->
+      <div
+        v-for="(reservation, index) in visiblePastReservations"
+        :key="index"
+        class="reservation"
+      >
+        <div class="reservation-info">
+          <p>호텔 이름: {{ reservation.hotelName }}</p>
+          <p>객실 이름: {{ reservation.roomName }}</p>
+          <p>체크인: {{ reservation.checkIn }}</p>
+          <p>체크아웃: {{ reservation.checkOut }}</p>
+          <p>투숙 인원: {{ reservation.guestNum }}</p>
+          <p>요청 사항: {{ reservation.request }}</p>
+          <p>예약 상태: {{ reservation.status }}</p>
+        </div>
+      </div>
+
+      <!-- 더 보기 버튼 (지난 예약) -->
+      <div v-if="pastReservations > visiblePastReservations">
+        <button @click="loadMorePastReservations">더 보기</button>
       </div>
     </div>
   </div>
@@ -33,7 +71,7 @@
 
 <script>
 import { useReservationStore } from "@/store/mypage_reservations";
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
 
 export default {
   setup() {
@@ -44,11 +82,21 @@ export default {
       reservationStore.fetchReservations();
     });
 
+    // 상태값을 computed로 정의해서 반응성을 보장
+    const visibleUpcomingReservations = computed(
+      () => reservationStore.visibleUpcomingReservations || []
+    );
+    const visiblePastReservations = computed(
+      () => reservationStore.visiblePastReservations || []
+    );
+    const loading = computed(() => reservationStore.loading);
+
     return {
-      reservations: reservationStore.reservations,
-      visibleReservations: reservationStore.visibleReservations,
-      loading: reservationStore.loading,
-      loadMoreReservations: reservationStore.loadMoreReservations,
+      visibleUpcomingReservations,
+      visiblePastReservations,
+      loading,
+      loadMoreUpcomingReservations: reservationStore.loadMoreUpcomingReservations,
+      loadMorePastReservations: reservationStore.loadMorePastReservations,
     };
   },
 };
@@ -64,7 +112,8 @@ export default {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-.reservation-list {
+.reservation-list,
+.past-reservation-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
