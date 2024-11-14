@@ -78,7 +78,6 @@ hotel:
 
 api:
   key: 
-  secret : ${SECRET-KEY}
 
 import:
   api-key: 8574783258275564
