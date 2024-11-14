@@ -134,8 +134,8 @@ export default {
     },
     goToSearchPage() {
       this.$router.push({ path: '/search-page', query: { query: this.searchQuery } });
-    },
-  },
+    }
+  }
 };
 </script>
 

@@ -2,6 +2,7 @@ package com.example.backend.service;
 
 import com.example.backend.dto.ReservationDTO;
 import com.example.backend.dto.RoomCountDTO;
+import com.example.backend.dto.RoomDTO;
 import com.example.backend.entity.*;
 import com.example.backend.repository.*;
 import com.siot.IamportRestClient.IamportClient;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Service
 public class PaymentService {

@@ -3,11 +3,7 @@
     <!-- 객실 이미지 -->
     <div class="room-image-container">
       <template v-if="room.primaryImageUrl">
-        <img
-          :src="room.primaryImageUrl"
-          class="img-container"
-          alt="Room Image"
-        />
+        <img :src="room.primaryImageUrl" class="img-container" alt="Room Image" />
       </template>
       <template v-else>
         <p class="no-image-text">업체측에서 제공된 이미지가 없습니다</p>
@@ -20,15 +16,11 @@
 
     <div class="hotel-info2">
       <p class="hotel-tel">
-        전화번호: {{ room.hotelPhone ? room.hotelPhone.replace('<br />', ', ') :
-        "정보없음" }}
+        전화번호: {{ room.hotelPhone ? room.hotelPhone.replace('<br />', ', ') : "정보없음" }}
       </p>
       <p class="hotel-addr">주소: {{ room.hotelAddress || "정보없음" }}</p>
       <div class="avg-person">
-        <img
-          class="person-icon"
-          src="https://yaimg.yanolja.com/stay/static/images/v3/icon_my.png"
-        />
+        <img class="person-icon" src="https://yaimg.yanolja.com/stay/static/images/v3/icon_my.png">
         <span class="avg-person-text">기준인원 {{ room.occupancy }}인</span>
       </div>
     </div>
@@ -37,110 +29,58 @@
     <div class="details-reservation">
       <div class="details-middle">
         <div class="reservation-cal">
-          <div v-if="showCalendar" class="calendar-modal">
-            <div class="modal-content">
-              <VDatePicker v-model.range="range" />
-              <button @click="onDateSelect">확인</button>
-            </div>
-          </div>
-
-          <div @click="showCalendar = !showCalendar">
-            <div>
-              {{
-                range.start
-                  ? `${range.start.getFullYear()}.${(range.start.getMonth() + 1)
-                      .toString()
-                      .padStart(2, "0")}.${range.start
-                      .getDate()
-                      .toString()
-                      .padStart(2, "0")} (${range.start.toLocaleDateString(
-                      "ko-KR",
-                      { weekday: "short" }
-                    )})`
-                  : `${new Date().getFullYear()}.${(new Date().getMonth() + 1)
-                      .toString()
-                      .padStart(2, "0")}.${new Date()
-                      .getDate()
-                      .toString()
-                      .padStart(2, "0")} (${new Date().toLocaleDateString(
-                      "ko-KR",
-                      { weekday: "short" }
-                    )})`
-              }}
-              -
-              {{
-                range.end
-                  ? `${range.end.getFullYear()}.${(range.end.getMonth() + 1)
-                      .toString()
-                      .padStart(2, "0")}.${range.end
-                      .getDate()
-                      .toString()
-                      .padStart(2, "0")} (${range.end.toLocaleDateString(
-                      "ko-KR",
-                      { weekday: "short" }
-                    )})`
-                  : `${new Date().getFullYear()}.${(new Date().getMonth() + 1)
-                      .toString()
-                      .padStart(2, "0")}.${new Date()
-                      .getDate()
-                      .toString()
-                      .padStart(2, "0")} (${new Date().toLocaleDateString(
-                      "ko-KR",
-                      { weekday: "short" }
-                    )})`
-              }}
-            </div>
+        <div v-if="showCalendar" class="calendar-modal">
+          <div class="modal-content">
+            <VDatePicker v-model.range="range" />
+            <button @click="onDateSelect">확인</button>
           </div>
         </div>
+
+        <div @click="showCalendar = !showCalendar">
+          <div>
+            {{ range.start ? `${range.start.getFullYear()}.${(range.start.getMonth() + 1).toString().padStart(2, '0')}.${range.start.getDate().toString().padStart(2, '0')} (${range.start.toLocaleDateString('ko-KR', { weekday: 'short' })})`
+            : `${new Date().getFullYear()}.${(new Date().getMonth() + 1).toString().padStart(2, '0')}.${new Date().getDate().toString().padStart(2, '0')} (${new Date().toLocaleDateString('ko-KR', { weekday: 'short' })})`
+            }} -
+            {{
+              range.end
+                ? `${range.end.getFullYear()}.${(range.end.getMonth() + 1).toString().padStart(2, '0')}.${range.end.getDate().toString().padStart(2, '0')} (${range.end.toLocaleDateString('ko-KR', { weekday: 'short' })})`
+                : `${new Date().getFullYear()}.${(new Date().getMonth() + 1).toString().padStart(2, '0')}.${new Date().getDate().toString().padStart(2, '0')} (${new Date().toLocaleDateString('ko-KR', { weekday: 'short' })})`
+            }}
+          </div>
+        </div>
+      </div>
         <div class="reservation-person">
           <label for="personSelect">예약 인원:</label>
           <select id="personSelect" v-model="selectedPersonCount">
             <option v-for="n in 5" :key="n" :value="n">{{ n }}명</option>
           </select>
         </div>
+
       </div>
       <div class="details-bottom">
         <div class="reservation-info">
           <h4 class="reservation-text">숙박</h4>
           <p class="check-info">
-            체크인: {{ room.hotelCheckIn || "정보없음" }} ~ 체크아웃:
-            {{ room.hotelCheckOut || "정보없음" }}
+            체크인: {{ room.hotelCheckIn || "정보없음" }} ~ 체크아웃: {{ room.hotelCheckOut || "정보없음" }}
           </p>
-          <h2 class="price">
-            {{
-              Number(room.price).toLocaleString()
-                ? `${Number(room.price).toLocaleString()}원`
-                : "가격 정보 없음"
-            }}
-          </h2>
+          <h2 class="price">{{ Number(room.price). toLocaleString() ? `${Number(room.price). toLocaleString()}원` : "가격 정보 없음"}}</h2>
           <div class="reservation-bottom">
-            <div class="room-count">
-              {{
-                room.availableRooms
-                  ? `남은 객실 ${room.availableRooms}개`
-                  : "남은 객실 정보 없음"
-              }}
-            </div>
+            <div class="room-count">{{ room.availableRooms ? `남은 객실 ${room.availableRooms}개` : "남은 객실 정보 없음" }}</div>
 
-            <!-- <router-link to="/payment">
-              <button class="reservation_btn">예약하기</button>
-            </router-link> -->
-            <button @click="move" class="reservation_btn">예약하기</button>
+            <button  @click="move"  class="reservation_btn">예약하기</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Login Modal -->
+     <!-- Login Modal -->
     <div class="modal" v-if="showModal">
       <div class="modal-content">
         <span class="close" @click="showModal = false">&times;</span>
         <h2>로그인 필요</h2>
         <p>예약을 진행하시려면 로그인이 필요합니다.</p>
         <router-link to="/login">
-          <button class="modal-btn" @click="onLoginSuccess">
-            로그인하러 가기
-          </button>
+          <button class="modal-btn" @click="onLoginSuccess" >로그인하러 가기</button>
         </router-link>
       </div>
     </div>
@@ -156,8 +96,7 @@
         <div class="reviewer">작성자명</div>
         <div class="room-name">객실명</div>
         <div class="review-content">
-          숙소도 전반적으로 깔끔했구요~ 고층이었는데 바다도 보이는 객실이라
-          좋았어요!
+          숙소도 전반적으로 깔끔했구요~ 고층이었는데 바다도 보이는 객실이라 좋았어요!
         </div>
       </div>
       <div class="review-grid">
@@ -167,7 +106,9 @@
         </div>
         <div class="reviewer">작성자명</div>
         <div class="room-name">객실명</div>
-        <div class="review-content">리뷰</div>
+        <div class="review-content">
+          리뷰
+        </div>
       </div>
       <div class="review-grid">
         <div class="review-top">
@@ -176,7 +117,9 @@
         </div>
         <div class="reviewer">작성자명</div>
         <div class="room-name">객실명</div>
-        <div class="review-content">리뷰</div>
+        <div class="review-content">
+          리뷰
+        </div>
       </div>
     </div>
     <button class="review-all-btn">리뷰 더보기</button>
@@ -185,39 +128,17 @@
     <div class="amenities-container">
       <h2 class="section-title">편의시설</h2>
       <div class="amenities-grid">
-        <p>
-          목욕시설: <span>{{ room.bathFacility ? "✅" : "❌" }}</span>
-        </p>
-        <p>
-          욕조: <span>{{ room.bath ? "✅" : "❌" }}</span>
-        </p>
-        <p>
-          에어컨: <span>{{ room.airCondition ? "✅" : "❌" }}</span>
-        </p>
-        <p>
-          TV: <span>{{ room.tv ? "✅" : "❌" }}</span>
-        </p>
-        <p>
-          케이블: <span>{{ room.cable ? "✅" : "❌" }}</span>
-        </p>
-        <p>
-          인터넷: <span>{{ room.internet ? "✅" : "❌" }}</span>
-        </p>
-        <p>
-          냉장고: <span>{{ room.refrigerator ? "✅" : "❌" }}</span>
-        </p>
-        <p>
-          세면도구: <span>{{ room.toiletries ? "✅" : "❌" }}</span>
-        </p>
-        <p>
-          소파: <span>{{ room.sofa ? "✅" : "❌" }}</span>
-        </p>
-        <p>
-          테이블: <span>{{ room.tableYn ? "✅" : "❌" }}</span>
-        </p>
-        <p>
-          드라이기: <span>{{ room.hairdryer ? "✅" : "❌" }}</span>
-        </p>
+        <p>목욕시설: <span>{{ room.bathFacility ? '✅' : '❌' }}</span></p>
+        <p>욕조: <span>{{ room.bath ? '✅' : '❌' }}</span></p>
+        <p>에어컨: <span>{{ room.airCondition ? '✅' : '❌' }}</span></p>
+        <p>TV: <span>{{ room.tv ? '✅' : '❌' }}</span></p>
+        <p>케이블: <span>{{ room.cable ? '✅' : '❌' }}</span></p>
+        <p>인터넷: <span>{{ room.internet ? '✅' : '❌' }}</span></p>
+        <p>냉장고: <span>{{ room.refrigerator ? '✅' : '❌' }}</span></p>
+        <p>세면도구: <span>{{ room.toiletries ? '✅' : '❌' }}</span></p>
+        <p>소파: <span>{{ room.sofa ? '✅' : '❌' }}</span></p>
+        <p>테이블: <span>{{ room.tableYn ? '✅' : '❌' }}</span></p>
+        <p>드라이기: <span>{{ room.hairdryer ? '✅' : '❌' }}</span></p>
       </div>
     </div>
   </div>
@@ -252,9 +173,7 @@ export default {
     async fetchRoomDetails() {
       const roomId = this.$route.params.roomId;
       try {
-        const response = await axios.get(
-          `http://localhost:8081/api/rooms/${roomId}`
-        );
+        const response = await axios.get(`http://localhost:8081/api/rooms/${roomId}`);
         this.room = response.data;
         console.log("객실 데이터:", this.room);
         this.selectedPersonCount = this.room.occupancy || 1;
@@ -263,54 +182,48 @@ export default {
       }
     },
 
-    move() {
-      console.log(this.dataObj);
-      console.log(this.room);
-      
-      const { hotelName, checkIn, checkOut, roomName, roomPrice } =
-        this.dataObj;
-      const currentRoomId = this.$route.params.roomId;
-      const userCheckIn = this.range.start ? this.range.start : new Date();
+  move() {
+    const { hotelName, checkIn, checkOut, roomName, roomPrice } = this.dataObj;
+    const currentRoomId = this.$route.params.roomId;
+    const userCheckIn = this.range.start ? this.range.start : new Date();
 
-      const userCheckOut = this.range.end ? this.range.end : new Date();
+    const userCheckOut = this.range.end ? this.range.end : new Date();
 
-      const guestNum = this.selectedPersonCount;
+    const guestNum = this.selectedPersonCount;
 
-      if (this.isLoggedIn) {
-        if (hotelName && checkIn && checkOut && roomName && roomPrice) {
-          this.$router.push({
-            name: "paymentPage",
-            state: {
-              hotelName,
-              checkIn,
-              checkOut,
-              roomName,
-              roomPrice,
-              roomId: currentRoomId,
-              userCheckIn,
-              userCheckOut,
-              guestNum,
-            },
-          });
-        } else {
-          console.log("예약에 필요한 정보가 부족합니다.");
-        }
+    if (this.isLoggedIn) {
+      if (hotelName && checkIn && checkOut && roomName && roomPrice) {
+        this.$router.push({
+          name: 'paymentPage',
+          state: {
+            hotelName,
+            checkIn,
+            checkOut,
+            roomName,
+            roomPrice,
+            roomId : currentRoomId,
+            userCheckIn,
+            userCheckOut,
+            guestNum,
+          },
+        });
       } else {
-        this.showModal = true;
+        console.log("예약에 필요한 정보가 부족합니다.");
       }
-    },
-    onDateSelect() {
+    } else {
+      this.showModal = true;
+    }
+  },
+  onDateSelect() {
       // 날짜가 선택되면 캘린더를 숨깁니다.
       this.showCalendar = false;
     },
   },
   computed: {
     formattedDescription() {
-      return this.room.description
-        ? this.room.description.replace(/<br\s*\/?>/gi, "<br>")
-        : "객실 설명이 없습니다.";
+      return this.room.description ? this.room.description.replace(/<br\s*\/?>/gi, '<br>') : "객실 설명이 없습니다.";
     },
-  },
+  }
 };
 </script>
 
@@ -405,6 +318,7 @@ export default {
   position: absolute;
   bottom: 10px;
   left: 10px;
+  margin-left: 10px;
 }
 .reservation-bottom {
   display: flex;

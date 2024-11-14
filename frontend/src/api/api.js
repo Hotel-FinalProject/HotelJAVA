@@ -44,7 +44,6 @@ function sendVerificationEmailAPI(email, mode) {
   });
 }
 
-
 /** 이메일 인증 확인 */
 function verifyEmailToken(token) {
   return config.get('/users/verify-email', {

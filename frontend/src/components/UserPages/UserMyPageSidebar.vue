@@ -2,9 +2,9 @@
 <template>
     <div class="sidebar">
       <h2>내 정보</h2>
-      <router-link to="/my-page" exact-active-class="active-link">내 정보 및 리뷰</router-link>
-      <router-link to="/my-page/reservations" exact-active-class="active-link">예약 내역 및 예약 현황</router-link>
-      <router-link to="/my-page/edit-info" exact-active-class="active-link">계정 설정</router-link>
+      <router-link to="/my_page" exact-active-class="active-link">내 정보 및 리뷰</router-link>
+      <router-link to="/my_page/reservations" exact-active-class="active-link">예약 내역 및 예약 현황</router-link>
+      <router-link to="/my_page/edit-info" exact-active-class="active-link">계정 설정</router-link>
     </div>
   </template>
 
