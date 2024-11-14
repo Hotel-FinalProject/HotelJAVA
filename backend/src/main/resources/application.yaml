@@ -5,9 +5,9 @@ spring:
   application:
     name: backend
   datasource:
-    url:
-    username:
-    password:
+    url: 
+    username: 
+    password: 
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -74,10 +74,10 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql.BasicBinder: trace
 hotel:
-  key:
+  key: 
 
 api:
-  key: ${API_KEY}
+  key: 
 
 import:
   api-key: 8574783258275564
