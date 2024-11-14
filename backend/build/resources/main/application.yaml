@@ -8,6 +8,7 @@ spring:
     url: ${DATABASE_URL}
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
+
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -78,7 +79,6 @@ hotel:
 
 api:
   key: ${API_KEY}
-
 
 import:
   api-key: 8574783258275564

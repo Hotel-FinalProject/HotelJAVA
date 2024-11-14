@@ -1,3 +1,4 @@
+
 <template>
   <div v-if="hotel" class="details-container">
     <!-- 호텔 이미지 -->

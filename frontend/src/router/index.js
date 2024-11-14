@@ -13,6 +13,7 @@ import HotelAdminPage from '@/components/HotelAdminPage.vue';
 import SearchPage from '@/components/SearchPage.vue';
 import MapPage from '@/components/MapPage.vue';
 
+
 const routes = [
   {
     path: '/',

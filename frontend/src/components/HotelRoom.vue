@@ -31,7 +31,7 @@
         <div class="reservation-cal">
         <div v-if="showCalendar" class="calendar-modal">
           <div class="modal-content">
-            <VDatePicker v-model.range="range" />
+            <VDatePicker v-model.range="range" :min-date="minDate" />
             <button @click="onDateSelect">확인</button>
           </div>
         </div>
@@ -161,6 +161,7 @@ export default {
       range: { start: null, end: null },
       showCalendar: false,
       dataObj: history.state || {},
+      minDate: new Date(),
     };
   },
   created() {
@@ -216,7 +217,9 @@ export default {
   },
   onDateSelect() {
       // 날짜가 선택되면 캘린더를 숨깁니다.
+       if (this.range.start && this.range.end) {
       this.showCalendar = false;
+    }
     },
   },
   computed: {
