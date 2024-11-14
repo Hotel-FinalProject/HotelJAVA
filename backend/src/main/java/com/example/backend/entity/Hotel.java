@@ -46,7 +46,7 @@ public class Hotel {
     private Double rating;
 
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
+//    @JsonManagedReference
     private List<Room> rooms;
 
     @OneToMany(mappedBy = "hotel")
@@ -54,6 +54,9 @@ public class Hotel {
 
     @OneToMany(mappedBy = "hotel")
     private Set<Favorites> favorite;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private User manager;
 }
 
 

@@ -1,3 +1,4 @@
+
 <template>
   <div v-if="hotel" class="details-container">
     <!-- 호텔 이미지 -->
@@ -96,12 +97,11 @@
               <div class="check-info">
                 체크인 {{ hotel.checkIn }} ~ 체크아웃 {{ hotel.checkOut }}
               </div>
-              <h2 class="price">{{ Number(room.price). toLocaleString() }}원</h2>
+              <h2 class="price">{{ room.roomPrice ? `${room.roomPrice.toLocaleString()}원` : "가격 정보 없음" }}</h2>
               <div class="reservation-bottom">
                 <div class="room-count">남은 객실 {{ room.roomCount }}개</div>
-                <router-link :to="`/room-details/${room.roomId}`">
-                  <button class="reservation_btn">예약 및 상세보기</button>
-                </router-link>
+                  <button @click="move(room)" class="reservation_btn">예약 및 상세보기</button>
+
               </div>
             </div>
           </div>
@@ -126,6 +126,7 @@
 import axios from "axios";
 
 export default {
+  name: "HotelDetails",
   data() {
     return {
       hotel: null,
@@ -163,22 +164,20 @@ export default {
         console.error("호텔 상세 정보를 가져오는 중 오류 발생:", error);
       }
     },
-
-    move(room){
+     move(room){
       this.$router.push({
         params: { roomId: room.roomId },
         name: 'HotelRoom',
         state: {
           hotelName: this.hotel.name,
-          roomName: room.name,
-          roomPrice: room.price,
+          roomName: room.roomType,
+          roomPrice: room.roomPrice,
           checkIn : this.hotel.checkIn,
           checkOut : this.hotel.checkOut,
           roomId : room.roomId
         }
       });
     },
-
     copyAddressToClipboard() {
       if (this.hotel && this.hotel.address) {
         navigator.clipboard.writeText(this.hotel.address)
@@ -193,7 +192,7 @@ export default {
     loadKakaoMap() {
       if (typeof kakao === "undefined") {
         const script = document.createElement("script");
-        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=&autoload=false`;
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=d685c63d7eb74d08883cdb9e13b5fb6c&autoload=false`;
         script.onload = this.initMap;  // 스크립트 로드 후 initMap 호출
         document.head.appendChild(script);
       } else {
@@ -220,7 +219,6 @@ export default {
       });
     },
   },
-  
 };
 </script>
 

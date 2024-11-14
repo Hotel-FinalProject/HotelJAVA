@@ -1,16 +1,11 @@
 package com.example.backend.entity;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -47,6 +42,14 @@ public class User  {
 
     private String oauthProvider;
 
+    // 리뷰 내용 보존을 위해 계정 활성화/비활성화 컬럼 추가
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
+    // 마지막 로그인 시간 기록
+    @Column(name = "last_login_time")
+    private LocalDateTime lastLoginTime;
+
     @OneToMany(mappedBy = "user")
     private List<Reservation> reservations;
 
@@ -55,6 +58,9 @@ public class User  {
 
     @OneToMany(mappedBy = "user")
     private List<Review> reviews;
+
+    @OneToOne(mappedBy = "manager", fetch = FetchType.LAZY)
+    private Hotel hotel;
 
     @Builder
     public User(String email, String password, String name) {

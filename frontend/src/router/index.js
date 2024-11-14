@@ -1,11 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import MainPage from "@/components/MainPage.vue";
 import register from '@/components/registerPage.vue';
-import login from '@/components/loginPage.vue'
+import login from '@/components/loginPage.vue';
 import OAuthRedirectHandler from '@/components/OAuthRedirectHandler.vue';
 import EmailVerificationPage from '@/components/UserPages/EmailVerification.vue';
-import PasswordReset from '@/components/UserPages/PasswordReset.vue'
+import PasswordReset from '@/components/UserPages/PasswordReset.vue';
+import UserMypage from '@/components/UserPages/UserMypage.vue';
+import UserInfo from '@/components/UserPages/UserInfo.vue';
+import Reservations from '@/components/UserPages/UserReservations.vue';
+import AccountSettings from "@/components/UserPages/AccountSettings.vue";
 import HotelAdminPage from '@/components/HotelAdminPage.vue';
+import SearchPage from '@/components/SearchPage.vue';
+import MapPage from '@/components/MapPage.vue';
+
 
 const routes = [
   {
@@ -14,7 +21,21 @@ const routes = [
   },
   {
     path: '/my_page',
-    component: () => import('@/components/UserPages/UserMypage.vue')
+    component: UserMypage,
+    children: [
+      {
+        path: '',
+        component: UserInfo,
+      },
+      {
+        path: 'reservations',
+        component: Reservations
+      },
+      {
+        path: 'edit-info',
+        component: AccountSettings
+      }
+    ]
   },
   {
     path: '/register',
@@ -34,31 +55,39 @@ const routes = [
     name: 'HotelRoom',
   },
   {
-    path: '/oauth2/success', // OAuth 리다이렉트 경로 추가
+    path: '/oauth2/success',
     component: OAuthRedirectHandler,
   },
   {
-    path: '/find-my-id', // OAuth 리다이렉트 경로 추가
+    path: '/find-my-id',
     component: () => import ('@/components/UserPages/FindId.vue'),
   },
   {
-    path: '/payment', // OAuth 리다이렉트 경로 추가
-    component: () => import ('@/components/PaymentPage.vue'),   
+    path: '/payment',
+    component: () => import ('@/components/PaymentPage.vue'),
     name: 'paymentPage',
   },
   {
-    path: '/verify-email', // 이메일 인증 페이지 경로
+    path: '/verify-email',
     component: EmailVerificationPage
   },
   {
-    path: '/admin/hotel', // 호텔 관리자 페이지 경로
+    path: '/admin/hotel',
     component: HotelAdminPage
   },
   {
-    path: '/reset-password', // 이메일 인증 페이지 경로
+    path: '/reset-password',
     component: PasswordReset
   },
-
+  {
+    path: '/search-results', // 검색 페이지 경로 추가
+    component: SearchPage
+  },
+  {
+    path: '/map-view', // 지도 페이지 경로
+    component: MapPage,
+    props: route => ({ hotels: route.query.hotels ? JSON.parse(route.query.hotels) : [] }),
+  },
 ];
 
 const router = createRouter({

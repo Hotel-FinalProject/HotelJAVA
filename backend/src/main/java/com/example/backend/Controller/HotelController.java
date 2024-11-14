@@ -1,7 +1,10 @@
 
 package com.example.backend.Controller;
 
+import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.dto.HotelDTO;
 import com.example.backend.dto.HotelRoomDTO;
 import com.example.backend.entity.Hotel;
+import com.example.backend.entity.Room;
 import com.example.backend.service.HotelService;
 
 @RestController
@@ -100,12 +104,14 @@ public class HotelController {
                     hotel.getImageUrl(),
                     hotel.getRating(),
                     hotel.getMapX(),
-                    hotel.getMapY()
+                    hotel.getMapY(),
+                    null
                 ))
                 .collect(Collectors.toList());
         }
         return hotelService.searchHotelsByNameOrAddress(query);
     }
+
 
 
 //    // 특정 호텔 조회 (HotelDetailDTO로 반환)

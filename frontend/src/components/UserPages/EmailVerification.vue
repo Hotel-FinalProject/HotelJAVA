@@ -28,10 +28,7 @@
       <button v-if="mode === 'signup'" @click="proceedToSignup">
         회원가입 페이지로 이동
       </button>
-      <button
-        v-else-if="mode === 'resetPassword'"
-        @click="proceedToResetPassword"
-      >
+      <button v-else-if="mode === 'resetPassword'" @click="proceedToResetPassword">
         비밀번호 재설정 페이지로 이동
       </button>
     </div>
@@ -53,7 +50,7 @@ export default {
     const router = useRouter();
     const authStore = useAuthStore();
 
-    // 모드 확인 (signup 또는 resetPassword)
+    // 모드 확인 (signup, resetPassword, editPassword)
     const mode = ref(route.query.mode);
     const verificationToken = ref(route.query.token);
     const email = ref("");
@@ -125,11 +122,17 @@ export default {
             email.value = response.data.email;
             authStore.email = response.data.email;
 
-            // 인증이 성공한 경우 mode에 따라 페이지 이동
+            // 인증이 성공한 경우 모드에 따라 처리
             if (mode.value === "signup") {
               router.push({ path: "/register" });
             } else if (mode.value === "resetPassword") {
               router.push({ path: "/reset-password" });
+            } else if (mode.value === "editPassword") {
+              // editPassword 모드의 경우 이메일과 토큰을 로컬 스토리지에 저장
+              localStorage.setItem("verifiedEmail", email.value);
+              localStorage.setItem("verificationToken", newToken);
+              alert("이메일 인증이 완료되었습니다. 비밀번호 변경을 진행해주세요.");
+              window.close();
             }
           } else {
             console.error("응답 데이터에서 success 값을 찾을 수 없습니다.", response);
