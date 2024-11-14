@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,13 +29,17 @@ import com.example.backend.dto.HotelRoomDTO;
 import com.example.backend.dto.RoomDetailDTO;
 import com.example.backend.entity.Hotel;
 import com.example.backend.entity.Room;
+import com.example.backend.entity.RoomCount;
 import com.example.backend.repository.HotelRepository;
+import com.example.backend.repository.RoomCountRepository;
 
 @Service
 public class HotelService {
 
     @Autowired
     private HotelRepository hotelRepository;
+    @Autowired
+    private RoomCountRepository roomCountRepository;
     private final RestTemplate restTemplate = new RestTemplate();
     private final String apiUrl = "https://apis.data.go.kr/B551011/KorService1/searchStay1";
     private final String detailApiUrl = "http://apis.data.go.kr/B551011/KorService1/detailIntro1";
@@ -260,7 +265,7 @@ public class HotelService {
                         room.getImages().isEmpty() ? null : room.getImages().get(0).getImageId(),
                         room.getImages().isEmpty() ? null : room.getImages().get(0).getImageUrl(),
                         null, // roomCountId
-                        room.getTotal() // roomCount
+                        getAvailableRooms(room, LocalDate.now()) // 특정 날짜의 남은 객실 수 조회
                 ))
                 .collect(Collectors.toList());
 
@@ -277,5 +282,17 @@ public class HotelService {
                 hotel.getCheckOut(),
                 roomDetails // 간소화된 객실 리스트 추가
         );
+    }
+    
+    /**
+     * 특정 날짜에 특정 객실의 남은 객실 수를 조회하는 메서드
+     * @param room - 남은 객실 수를 조회할 Room 엔티티
+     * @param date - 조회할 날짜
+     * @return 남은 객실 수 (RoomCount 엔티티가 없는 경우 기본값 10 반환)
+     */
+    private int getAvailableRooms(Room room, LocalDate date) {
+        RoomCount roomCount = roomCountRepository.findByRoomAndDate(room, date)
+                .orElse(null);
+        return (roomCount != null) ? roomCount.getRoomCount() : 10; // RoomCount가 없으면 기본 10개 반환
     }
 }
