@@ -5,9 +5,9 @@ spring:
   application:
     name: backend
   datasource:
-    url: jdbc:mysql://localhost:3306/MSAFinal?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/final_project?characterEncoding=utf8&useUnicode=true
     username: root
-    password: root
+    password: mysql
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -21,7 +21,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: sudongtaemsa6th@gmail.com
-    password: ${MAIL_SECRET}
+    password: ulimcmoofcvhyflz
     properties:
       mail:
         smtp:
@@ -34,8 +34,8 @@ spring:
       client:
         registration:
           naver:
-            clientId: ${NAVER_CLIENT_ID}
-            clientSecret: ${NAVER_CLIENT_SECRET}
+            clientId: 9EWyUF5g73oX_Rw5ouos
+            clientSecret: QG3wQOti25
             scope:
               - email
               - response
@@ -43,8 +43,8 @@ spring:
             client-name: naver
             authorization-grant-type: authorization_code
           google:
-            clientId: ${GOOGLE_CLIENT_ID}
-            clientSecret: ${GOOGLE_CLIENT_SECRET}
+            clientId: 179544849550-03o449lptj1skbr25sqvt95vftvin1ii.apps.googleusercontent.com
+            clientSecret: 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
             scope:
               - email
               - profile
@@ -78,7 +78,6 @@ hotel:
 
 api:
   key: CYJBOGwIQxPrPCXYckpw8Y1TSh95hf06DbqCionckIINZdwaK3L1RvFTl2mxFbGEVRyji%2F4AhD4mtRa91Kz9vg%3D%3D
-  secret : ${SECRET-KEY}
 
 import:
   api-key: 8574783258275564
