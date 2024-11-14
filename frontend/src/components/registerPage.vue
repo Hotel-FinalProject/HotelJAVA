@@ -35,7 +35,6 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router"; // Vue Router 사용
 // import { decode as jwtDecode } from "jwt-decode";
 
-
 export default {
   name: "SignupForm",
   setup() {
@@ -51,15 +50,14 @@ export default {
 
     // 컴포넌트가 마운트될 때 JWT 토큰에서 이메일을 가져옴
     onMounted(() => {
-      if (authStore.verificationToken) {
-        email.value = authStore.email;
+      if (!authStore.verificationToken) {
+        router.push("/verify-email?mode=signup");
       } else {
-        alert("인증되지 않은 이메일입니다. 다시 이메일 인증을 진행해주세요.");
-        router.push("/verify-email");
+        email.value = authStore.email;
       }
     });
 
-    /** 폼 제출 처리 */ 
+    /** 폼 제출 처리 */
     const submitForm = async () => {
       // 폼 유효성 검사
       if (password.value !== passwordConfirm.value) {
@@ -73,7 +71,7 @@ export default {
         router.push("/verify-email");
       }
 
-      // 사용자 정보 
+      // 사용자 정보
       const payload = {
         email: email.value,
         name: name.value,

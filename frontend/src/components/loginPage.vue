@@ -15,6 +15,9 @@
           <router-link to="/find-my-id">
             <span class="find-id-btn">아이디 찾기</span>
           </router-link>
+          <router-link to="/reset-password">
+            <span class="find-id-btn">비밀번호 찾기</span>
+          </router-link>
           <button type="submit" class="login-button">로그인</button>
         </div>
       </form>

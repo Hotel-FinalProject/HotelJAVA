@@ -36,11 +36,11 @@
           </div>
         </div>
 
-        <div @click="showCalendar = !showCalendar"> 
-          <div> 
+        <div @click="showCalendar = !showCalendar">
+          <div>
             {{ range.start ? `${range.start.getFullYear()}.${(range.start.getMonth() + 1).toString().padStart(2, '0')}.${range.start.getDate().toString().padStart(2, '0')} (${range.start.toLocaleDateString('ko-KR', { weekday: 'short' })})`
             : `${new Date().getFullYear()}.${(new Date().getMonth() + 1).toString().padStart(2, '0')}.${new Date().getDate().toString().padStart(2, '0')} (${new Date().toLocaleDateString('ko-KR', { weekday: 'short' })})`
-            }} - 
+            }} -
             {{
               range.end
                 ? `${range.end.getFullYear()}.${(range.end.getMonth() + 1).toString().padStart(2, '0')}.${range.end.getDate().toString().padStart(2, '0')} (${range.end.toLocaleDateString('ko-KR', { weekday: 'short' })})`
@@ -66,7 +66,7 @@
           <h2 class="price">{{ Number(room.price). toLocaleString() ? `${Number(room.price). toLocaleString()}원` : "가격 정보 없음"}}</h2>
           <div class="reservation-bottom">
             <div class="room-count">{{ room.availableRooms ? `남은 객실 ${room.availableRooms}개` : "남은 객실 정보 없음" }}</div>
-            
+
             <button  @click="move"  class="reservation_btn">예약하기</button>
           </div>
         </div>
@@ -182,14 +182,14 @@ export default {
         console.error("객실 정보를 가져오는 중 오류 발생:", error);
       }
     },
-    
+
   move() {
     const { hotelName, checkIn, checkOut, roomName, roomPrice } = this.dataObj;
     const currentRoomId = this.$route.params.roomId;
     const userCheckIn = this.range.start ? this.range.start : new Date();
 
     const userCheckOut = this.range.end ? this.range.end : new Date();
-    
+
     const guestNum = this.selectedPersonCount;
 
     if (this.isLoggedIn) {

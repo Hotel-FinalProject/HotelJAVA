@@ -38,7 +38,9 @@ public class ReservationService {
         for (Reservation reservation : reservations) {
             UserReservationDTO userReservationDTO = UserReservationDTO.builder()
                     .hotelName(reservation.getRooms().getHotel().getName())
+                    .imp_uid(reservation.getPayment().getTransactionId())
                     .roomName(reservation.getRooms().getName())
+                    .roomId(reservation.getRooms().getRoomId())
                     .checkIn(reservation.getCheckIn())
                     .checkOut(reservation.getCheckOut())
                     .guestNum(reservation.getGuestNum())

@@ -17,8 +17,8 @@ public class UserReservationDTO {
     int guestNum;
     String request;
     String status;
-
-    String uid;
+    // 결제 취소를 위해 추가
+    String imp_uid;
+    Long roomId;
     String paymentStatus;
-
 }
