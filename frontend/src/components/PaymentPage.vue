@@ -121,7 +121,7 @@
                 </div>
                 <div class="user-name-container">
                     <div class="label">결제 금액</div>
-                    <div >{{ Number(dataObj.roomPrice). toLocaleString() }}</div>
+                    <div >{{ Number(dataObj.roomPrice). toLocaleString() }}원</div>
                 </div>
             </div>
             <div class="move-container">
@@ -144,11 +144,9 @@
 
     <div class="payment-method-conatiner">
         <h3>결제 수단</h3>
-        <div> <button @click="submitReservation('html5_inicis')" class="submit-button">카드 결제</button></div>
-        <div> <button @click="submitReservation('kakaopay')" class="submit-button">카카오페이</button></div>
-        <div> <button @click="submitReservation('tosspay')" class="submit-button">토스페이</button></div>
-        
-   
+        <div class="submit-button"><button @click="selectedPaymentMethod = 'html5_inicis'; canSubmit = true" class="btn-card">카드 결제</button></div>
+        <div class="submit-button"><button @click="selectedPaymentMethod = 'kakaopay'; canSubmit = true" class="btn-kakao" >카카오페이</button></div>
+        <div class="submit-button"><button @click="selectedPaymentMethod = 'tosspay'; canSubmit = true" class="btn-toss">토스페이</button></div>
     </div>
     <div class="payment-agree-conatiner">
         <div class ="payment-agree-top">
@@ -166,26 +164,27 @@
             </div>
         </div>
     </div>
-    <div class = "check-conatiner">
-        <input type="checkbox"><span>전체동의</span>
+     <div class="check-conatiner">
+        <h3><input type="checkbox" v-model="agreeAll" @change="toggleAll"><span class="check-text">전체 동의(선택포함)</span></h3>
 
         <div class="check-detail-conatiner">
-            <div>
-                <input type="checkbox"><span class="check-text">[필수] 만 14세 이상 이용 동의</span>
+            <div class = "check-conatiner-detail">
+                <input type="checkbox" v-model="agree1"><span class="check-text">[필수] 만 14세 이상 이용 동의</span>
             </div>
-            <div>
-                <input type="checkbox"><span class="check-text">[필수] 이용 규칙</span>
+            <div class = "check-conatiner-detail">
+                <input type="checkbox" v-model="agree2"><span class="check-text">[필수] 이용 규칙</span>
             </div>
-            <div>
-                <input type="checkbox"><span class="check-text">[필수] 취소 및 환불 규칙</span>
+            <div class = "check-conatiner-detail">
+                <input type="checkbox" v-model="agree3"><span class="check-text">[필수] 취소 및 환불 규정</span>
             </div>
-            <div>
-                <input type="checkbox"><span class="check-text">[선택] 이벤트, 혜택 정보 수신 동의</span>
+            <div class = "check-conatiner-detail">
+                <input type="checkbox" v-model="agree4"><span class="check-text">[선택] 이벤트, 혜택 정보 수신 동의</span>
             </div>
-            <div>
-                <input type="checkbox"><span class="check-text">[선택] 이벤트, 혜택 정보 전송을 위한 개인정보 수집 및 이용 동의</span>
+            <div class = "check-conatiner-detail">
+                <input type="checkbox" v-model="agree5"><span class="check-text">[선택] 이벤트, 혜택 정보 전송을 위한 개인정보 수집 및 이용 동의</span>
             </div>
         </div>
+        <div><button :disabled="!canSubmit" class = "payment-btn" @click="submitReservationIfPossible">{{ Number(dataObj.roomPrice). toLocaleString() }}원 결제하기</button></div>
         <div class="info"> (주) OO플랫폼은 통신판매 중개자로서 통신판매의 당사자가 아니며 상품 예약, 이용 및 환불과는 관련한 의무와 책임은 각 판매자에게 있습니다. </div>
     </div>
     
@@ -209,6 +208,12 @@ export default {
       request: '',
       range: { start: null, end: null },
       isPaymentModalVisible: false,
+      agreeAll: false,
+      agree1: false,
+      agree2: false,
+      agree3: false,
+      agree4: false,
+      agree5: false
     };
   },
   async created() {
@@ -236,7 +241,22 @@ export default {
     }
   },
 
+ computed: {
+    canSubmit() {
+      // 모든 필수 항목이 동의되어야 결제 버튼을 활성화
+      return this.agreeAll || this.agree1 && this.agree2 && this.agree3;
+    }
+  },
+
   methods: {
+
+     submitReservationIfPossible() {
+      if (this.canSubmit && this.selectedPaymentMethod) {
+        this.submitReservation(this.selectedPaymentMethod);
+      } else {
+        alert('결제 수단을 선택해 주세요.');
+      }
+    },
     async submitReservation(pg_method) {
       const token = this.token;
       const userId = this.userid;
@@ -307,6 +327,15 @@ export default {
         },
       );
     },
+    toggleAll() {
+            this.agree1 = this.agreeAll;
+            this.agree2 = this.agreeAll;
+            this.agree3 = this.agreeAll;
+            this.agree4 = this.agreeAll;
+            this.agree5 = this.agreeAll;
+    },
+   
+
     showPaymentModal() {
         this.isPaymentModalVisible = true; 
         this.$nextTick(() => {
@@ -318,8 +347,6 @@ export default {
         const options = { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' };
         const formattedDate = new Date(date).toLocaleDateString('ko-KR', options);
         return formattedDate.replace(/\.$/, '').replace(' ', '');
-
-
     },
   },
 };
@@ -522,5 +549,79 @@ hr{
     height: 30px;
     background-color: #00aef0;
     border: none;
+}
+.submit-button{
+    margin-bottom: 10px;
+    border: 1px solid #e6e6e6;
+    height: 40px;
+    border-radius: 10px;
+}
+
+.btn-card{
+    width: 100%;  
+    border-radius: 10px;
+    height: 40px;
+    background-color: white;
+    color: black;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+}
+.btn-kakao{
+    width: 100%;  
+    border-radius: 10px;
+    height: 40px;
+    background-color: #FFEB00;
+    color: black;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+}
+.btn-toss{
+    width: 100%;  
+    border-radius: 10px;
+    height: 40px;
+    background-color: #3183F6;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+}
+.payment-btn{
+    margin-top : 10px;
+    width: 100%;  
+    border-radius: 10px;
+    height: 40px;
+    background-color: #00aef0;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+
+/* 비활성화된 버튼 */
+.payment-btn:disabled {
+  background-color: #cccccc; /* 비활성화된 상태 색상 (회색) */
+  color: #666666;
+  opacity: 0.6; /* 투명도 낮추기 */
+  cursor: not-allowed;
+}
+
+
+
+.check-text{
+    margin-left : 10px;
+}
+.check-conatiner-detail{
+    margin-bottom : 10px;
 }
 </style>

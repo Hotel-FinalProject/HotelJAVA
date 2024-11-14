@@ -18,4 +18,7 @@ public class UserReservationDTO {
     String request;
     String status;
 
+    String uid;
+    String paymentStatus;
+
 }
