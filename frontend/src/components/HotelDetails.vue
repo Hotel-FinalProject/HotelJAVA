@@ -15,7 +15,20 @@
 
     <!-- 호텔 정보 -->
     <div class="hotel-info-card">
-      <h2 class="hotel-name">{{ hotel.name }}</h2>
+      <div class="hotel-top">
+        <div>
+          <div class="hotel-name">{{ hotel.name }}</div>
+        </div>
+        <div class="favorite-container" v-if="isLoggedIn">
+          <div 
+            class="heart-button" 
+            :class="{'favorited': isFavorited, 'unfavorited': !isFavorited}" 
+            @click="toggleFavorite">
+            <i class="fas fa-heart" v-if="isFavorited"></i>
+            <i class="far fa-heart" v-else></i>
+          </div>
+        </div>
+      </div>
       <div class="hotel-info">
         <span class="rating">⭐ {{ hotel.rating || "4.5" }}</span>
         <span>({{ hotel.reviewCount || 0 }} 리뷰)</span>
@@ -124,15 +137,26 @@
 <script>
 /* global kakao */
 import axios from "axios";
+import { useAuthStore } from "@/store/register_login";
 
 export default {
   name: "HotelDetails",
   data() {
     return {
       hotel: null,
+      isFavorited: false,
+      isLoggedIn: false,
     };
   },
+  mounted() {
+    this.fetchFavoriteStatus(); 
+  },
   async created() {
+    const authStore = useAuthStore();
+    authStore.checkLoginStatus();
+    this.isLoggedIn = authStore.LoggedIn;
+    this.token = authStore.accessToken;
+
     await this.fetchHotelDetails();
     if (this.hotel && this.hotel.mapX && this.hotel.mapY) {
       this.loadKakaoMap();
@@ -153,6 +177,7 @@ export default {
       }
     }
   },
+
   methods: {
     async fetchHotelDetails() {
       const hotelId = this.$route.params.id;
@@ -218,6 +243,48 @@ export default {
         marker.setMap(map);
       });
     },
+    async fetchFavoriteStatus() {
+      const token = this.token;
+      const hotelId = this.$route.params.id;
+
+      if (!this.isLoggedIn) {
+        return;
+      }
+
+     try {
+        const response = await axios.get(`http://localhost:8081/api/auth/favorites/status/${hotelId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        this.isFavorited = response.data; // 서버에서 받은 true/false 값을 isFavorited에 반영
+      } catch (error) {
+        console.error("찜 상태 불러오기 실패", error);
+      }
+    },
+    async toggleFavorite(){
+      const token = this.token;
+       const hotelId = this.$route.params.id;
+       if (!this.isLoggedIn) {
+        alert("로그인 후 즐겨찾기를 추가할 수 있습니다.");
+        return;
+      }
+      const url = this.isFavorited
+        ? `http://localhost:8081/api/auth/favorites/cancel/${hotelId}`  
+        : `http://localhost:8081/api/auth/favorites/${hotelId}`;      
+
+      try {
+        await axios.post(url, {}, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        this.isFavorited = !this.isFavorited;  // 상태 변경 후 isFavorited 반영
+      } catch (error) {
+        console.error("찜 상태 변경 실패", error);
+      }
+    },
   },
 };
 </script>
@@ -267,7 +334,23 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
 }
-
+.hotel-top{
+  display:flex;
+  justify-content:space-between;
+}
+.fa-heart{
+  font-size:30px;
+}
+.favorite-container {
+  display: flex;
+  align-items: center;
+}
+.favorited {
+  color: #FF0000;
+}
+.unfavorited {
+  color: gray;
+}
 .location-icon {
   margin-right: 5px;
   font-size: 18px; /* 이모지 크기 조정 */
