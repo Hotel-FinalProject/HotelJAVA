@@ -51,15 +51,15 @@ public class Room {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hotel_id", nullable = false) // 호텔 관리 번호 (외래키)
-    @JsonBackReference
+//    @JsonBackReference
     private Hotel hotel;
 
     @OneToMany(mappedBy = "rooms")
-    @JsonManagedReference
+//    @JsonManagedReference
     private List<Reservation> reservation;
 
     @OneToMany(mappedBy = "room")
-    @JsonManagedReference
+//    @JsonManagedReference
     private List<RoomImage> images;
 }
 

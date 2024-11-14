@@ -209,10 +209,11 @@
     width: 60%;
     margin: auto;
     padding: 20px;
+    position: relative; /* 부모 요소에 position: relative 적용 */
   }
   
   .search-container {
-    position: relative;
+    position: sticky;
     top: 0; /* 화면 상단에 고정 */
     z-index: 999;
     display: flex;

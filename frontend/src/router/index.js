@@ -5,7 +5,9 @@ import login from '@/components/loginPage.vue'
 import OAuthRedirectHandler from '@/components/OAuthRedirectHandler.vue';
 import EmailVerificationPage from '@/components/UserPages/EmailVerification.vue';
 import PasswordReset from '@/components/UserPages/PasswordReset.vue'
-import HotelAdminPage from '@/components/HotelAdminPage.vue';
+import HotelAdminPage from '@/components/HotelAdminPage.vue'; // 호텔 관리자 페이지
+import SearchPage from '@/components/SearchPage.vue'; // 검색 페이지 추가
+import MapPage from '@/components/MapPage.vue'; // 지도 페이지 추가
 
 const routes = [
   {
@@ -56,6 +58,15 @@ const routes = [
   {
     path: '/reset-password', // 이메일 인증 페이지 경로
     component: PasswordReset
+  },
+  {
+    path: '/search-results', // 검색 페이지 경로 추가
+    component: SearchPage
+  },
+  {
+    path: '/map-view', // 지도 페이지 경로
+    component: MapPage,
+    props: route => ({ hotels: route.query.hotels ? JSON.parse(route.query.hotels) : [] }),
   },
 ];
 

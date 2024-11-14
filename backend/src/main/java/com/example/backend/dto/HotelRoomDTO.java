@@ -1,16 +1,15 @@
 package com.example.backend.dto;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class HotelDTO {
+public class HotelRoomDTO {
 	
+	// 호텔
 	private Long hotelId;
     private String name;
     private String address;
@@ -18,7 +17,9 @@ public class HotelDTO {
     private Double rating;
     private Double mapX;
     private Double mapY;
+    private String hotelnum;
+    private String checkIn;
+    private String checkOut;
     
-    // 객실
-    private BigDecimal roomPrice;
+    private List<RoomDetailDTO> rooms;
 }

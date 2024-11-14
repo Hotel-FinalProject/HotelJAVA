@@ -55,7 +55,7 @@
           <p class="check-info">
             체크인: {{ room.hotelCheckIn || "정보없음" }} ~ 체크아웃: {{ room.hotelCheckOut || "정보없음" }}
           </p>
-          <h2 class="price">{{ room.price ? `${room.price}원` : "가격 정보 없음" }}</h2>
+          <h2 class="price">{{ room.price ? `${room.price.toLocaleString()}원` : "가격 정보 없음" }}</h2>
           <div class="reservation-bottom">
             <div class="room-count">{{ room.availableRooms ? `남은 객실 ${room.availableRooms}개` : "남은 객실 정보 없음" }}</div>
             <router-link to="/payment">
@@ -269,6 +269,7 @@ export default {
   position: absolute;
   bottom: 10px;
   left: 10px;
+  margin-left: 10px;
 }
 .reservation-bottom {
   display: flex;
