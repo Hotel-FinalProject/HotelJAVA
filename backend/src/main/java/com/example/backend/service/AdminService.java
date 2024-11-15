@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.AdminUserDTO;
 import com.example.backend.entity.Hotel;
 import com.example.backend.entity.User;
 import com.example.backend.repository.HotelRepository;
@@ -14,9 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AdminService {
@@ -122,10 +121,145 @@ public class AdminService {
         user.setRole("ROLE_HOTELADMIN");
         user.setLoginType("normal");
 
+        user.setHotel(hotelInfo);
+        hotelInfo.setManager(user);
 
         userRepository.save(user);
+        hotelRepository.save(hotelInfo);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다. 비밀번호: " + rawPassword);
     }
 
+    public List<AdminUserDTO> getUser(Long adminUserId) throws IllegalAccessException {
+
+        User user = userRepository.findById(adminUserId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        if (!"ROLE_ADMIN".equals(user.getRole())) {
+            throw new IllegalAccessException("시스템 관리자 계정이 아닙니다.");
+        }
+
+        List<User> users = userRepository.findByRole("ROLE_USER");
+
+        List<AdminUserDTO> adminUserDTOS = new ArrayList<>();
+
+        for (User u : users) {
+            AdminUserDTO adminUserDTO = AdminUserDTO.builder()
+                    .name(u.getName())
+                    .email(u.getEmail())
+                    .phone(u.getPhone())
+                    .isActive(u.getIsActive())
+                    .build();
+
+            adminUserDTOS.add(adminUserDTO);
+        }
+
+        return adminUserDTOS;
+    }
+
+    public List<AdminUserDTO> getHotelAdmin(Long adminUserId) throws IllegalAccessException {
+        User user = userRepository.findById(adminUserId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        if (!"ROLE_ADMIN".equals(user.getRole())) {
+            throw new IllegalAccessException("시스템 관리자 계정이 아닙니다.");
+        }
+
+        List<User> users = userRepository.findByRole("ROLE_HOTELADMIN");
+
+        List<AdminUserDTO> adminUserDTOS = new ArrayList<>();
+
+        for (User u : users) {
+            AdminUserDTO adminUserDTO = AdminUserDTO.builder()
+                    .name(u.getName())
+                    .email(u.getEmail())
+                    .phone(u.getPhone())
+                    .isActive(u.getIsActive())
+                    .build();
+
+            adminUserDTOS.add(adminUserDTO);
+        }
+
+        return adminUserDTOS;
+    }
+
+    public List<AdminUserDTO> getUserSearch(Long adminUserId,String search) throws IllegalAccessException {
+        User user = userRepository.findById(adminUserId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        if (!"ROLE_ADMIN".equals(user.getRole())) {
+            throw new IllegalAccessException("시스템 관리자 계정이 아닙니다.");
+        }
+        List<User> users;
+        if (search != null) {
+            users = userRepository.findByRoleAndNameContainingIgnoreCaseOrRoleAndEmailContainingIgnoreCase("ROLE_USER", search, "ROLE_USER", search);
+        } else {
+            throw new IllegalAccessException("검색 값이 없습니다.");
+        }
+
+        List<AdminUserDTO> adminUserDTOS = new ArrayList<>();
+
+        for (User u : users) {
+            AdminUserDTO adminUserDTO = AdminUserDTO.builder()
+                    .name(u.getName())
+                    .email(u.getEmail())
+                    .phone(u.getPhone())
+                    .isActive(u.getIsActive())
+                    .build();
+
+            adminUserDTOS.add(adminUserDTO);
+        }
+
+        return adminUserDTOS;
+
+    }
+
+    public List<AdminUserDTO> getHotelAdminSearch(Long adminUserId, String search) throws IllegalAccessException {
+        User user = userRepository.findById(adminUserId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        if (!"ROLE_ADMIN".equals(user.getRole())) {
+            throw new IllegalAccessException("시스템 관리자 계정이 아닙니다.");
+        }
+
+        List<User> users;
+        if (search != null) {
+            users = userRepository.findByRoleAndNameContainingIgnoreCaseOrRoleAndEmailContainingIgnoreCase("ROLE_HOTELADMIN", search, "ROLE_HOTELADMIN", search);
+        } else {
+            throw new IllegalAccessException("검색 값이 없습니다.");
+        }
+
+        List<AdminUserDTO> adminUserDTOS = new ArrayList<>();
+
+        for (User u : users) {
+            AdminUserDTO adminUserDTO = AdminUserDTO.builder()
+                    .name(u.getName())
+                    .email(u.getEmail())
+                    .phone(u.getPhone())
+                    .isActive(u.getIsActive())
+                    .build();
+
+            adminUserDTOS.add(adminUserDTO);
+        }
+
+        return adminUserDTOS;
+    }
+
+    public void getIsActive(Long adminUserId, Long userId) throws IllegalAccessException {
+        User adminuser = userRepository.findById(adminUserId)
+                .orElseThrow(() -> new RuntimeException("관리자를 찾을 수 없습니다."));
+
+        if (!"ROLE_ADMIN".equals(adminuser.getRole())) {
+            throw new IllegalAccessException("시스템 관리자 계정이 아닙니다.");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        if ("ROLE_USER".equals(user.getRole()) || "ROLE_HOTELADMIN".equals(user.getRole())) {
+            user.setIsActive(!user.getIsActive());
+        }
+        userRepository.save(user);
+
+    }
 }

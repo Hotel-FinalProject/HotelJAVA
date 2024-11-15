@@ -1,5 +1,6 @@
 package com.example.backend.Controller;
 
+import com.example.backend.dto.AdminUserDTO;
 import com.example.backend.dto.HotelDTO;
 import com.example.backend.dto.LoginRequest;
 import com.example.backend.entity.User;
@@ -11,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import retrofit2.http.POST;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -67,6 +70,101 @@ public class AdminController {
             return ResponseEntity.badRequest().body("생성 실패: " + e.getMessage());
         }
     }
+
+    //사용자 조회
+    @GetMapping("/auth/user-read")
+    public ResponseEntity<?> readUser (@RequestHeader("Authorization") String token){
+        try {
+            // 토큰에서 userId 추출
+            String actualToken = token.replace("Bearer ", "");
+            Long adminUserId = jwtUtil.verifyJwtAndGetUserId(actualToken);
+
+            if (adminUserId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
+            }
+            List<AdminUserDTO> adminUserDTOS = adminService.getUser(adminUserId);
+            return ResponseEntity.ok(adminUserDTOS);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("조회 실패: " + e.getMessage());
+        }
+    }
+
+    // 호텔 관리자 조회
+    @GetMapping("/auth/hotelAdmin-read")
+    public ResponseEntity<?> readHotelAdmin (@RequestHeader("Authorization") String token){
+        try {
+            // 토큰에서 userId 추출
+            String actualToken = token.replace("Bearer ", "");
+            Long adminUserId = jwtUtil.verifyJwtAndGetUserId(actualToken);
+
+            if (adminUserId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
+            }
+            List<AdminUserDTO> adminUserDTOS = adminService.getHotelAdmin(adminUserId);
+            return ResponseEntity.ok(adminUserDTOS);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("조회 실패: " + e.getMessage());
+        }
+    }
+
+    // 유저 검색
+    @GetMapping("/auth/user-search")
+    public ResponseEntity<?> searchUser (@RequestHeader("Authorization") String token,@RequestParam(value = "search", required = false) String search){
+        try {
+            // 토큰에서 userId 추출
+            String actualToken = token.replace("Bearer ", "");
+            Long adminUserId = jwtUtil.verifyJwtAndGetUserId(actualToken);
+
+            if (adminUserId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
+            }
+            List<AdminUserDTO> adminUserDTOS = adminService.getUserSearch(adminUserId,search);
+            return ResponseEntity.ok(adminUserDTOS);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("조회 실패: " + e.getMessage());
+        }
+    }
+
+
+    // 호텔 검색
+    @GetMapping("/auth/hotelAdmin-search")
+    public ResponseEntity<?> searchHotelAdmin (@RequestHeader("Authorization") String token,@RequestParam(value = "search", required = false) String search){
+        try {
+            // 토큰에서 userId 추출
+            String actualToken = token.replace("Bearer ", "");
+            Long adminUserId = jwtUtil.verifyJwtAndGetUserId(actualToken);
+
+            if (adminUserId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
+            }
+            List<AdminUserDTO> adminUserDTOS = adminService.getHotelAdminSearch(adminUserId,search);
+            return ResponseEntity.ok(adminUserDTOS);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("조회 실패: " + e.getMessage());
+        }
+    }
+
+    // 계정상태 변경(유저/호텔 - 활성화/비활성화)
+    @PostMapping("/auth/hotel")
+    public ResponseEntity<?> searchHotelAdmin (@RequestHeader("Authorization") String token,@RequestParam Long userId){
+        try {
+            // 토큰에서 userId 추출
+            String actualToken = token.replace("Bearer ", "");
+            Long adminUserId = jwtUtil.verifyJwtAndGetUserId(actualToken);
+
+            if (adminUserId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
+            }
+            adminService.getIsActive(adminUserId,userId);
+            return ResponseEntity.ok("상태 변경이 완료되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("조회 실패: " + e.getMessage());
+        }
+
+    }
+
+
+
 
 
 
