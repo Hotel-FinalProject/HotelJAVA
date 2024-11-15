@@ -43,7 +43,7 @@ public class User  {
     private String oauthProvider;
 
     // 리뷰 내용 보존을 위해 계정 활성화/비활성화 컬럼 추가
-    @Column(name = "is_active", nullable = false)
+    @Column(name = "is_active", nullable = false, columnDefinition = "TINYINT(1)")
     private Boolean isActive = true;
 
     // 마지막 로그인 시간 기록

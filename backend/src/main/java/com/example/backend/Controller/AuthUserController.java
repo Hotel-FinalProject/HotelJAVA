@@ -8,6 +8,7 @@ import com.example.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -133,9 +134,9 @@ public class AuthUserController {
 
     /** 회원 탈퇴 */
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authorizationToken) {
         try {
-            String token = authorizationHeader.replace("Bearer ", "");
+            String token = authorizationToken.replace("Bearer ", "");
             String email = jwtUtil.verifyJwt(token);
 
             return userService.deleteUser(email);
