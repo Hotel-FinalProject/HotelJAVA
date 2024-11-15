@@ -1,7 +1,6 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.UpdateUserRequest;
-import com.example.backend.dto.UserDTO;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.util.JwtUtil;

@@ -1,7 +1,6 @@
 package com.example.backend.Controller;
 
 import com.example.backend.dto.UpdateUserRequest;
-import com.example.backend.dto.UserDTO;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.service.UserService;
@@ -9,7 +8,6 @@ import com.example.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;

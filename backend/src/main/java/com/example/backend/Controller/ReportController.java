@@ -20,7 +20,7 @@ public class ReportController {
     public ResponseEntity<ReportResponseDTO> createReport(@RequestBody ReportDTO reportDTO) {
         try {
             // ReportDTO에서 각 ID를 받아 신고를 생성하고 결과 DTO 반환
-            ReportResponseDTO response = reportService.insertReport(reportDTO.getReporterId(), reportDTO.getReportedId(), reportDTO.getReservationId());
+            ReportResponseDTO response = reportService.insertReport(reportDTO.getReporterId(), reportDTO.getReportedId(), reportDTO.getReviewId());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
