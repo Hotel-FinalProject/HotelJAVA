@@ -6,21 +6,24 @@ import com.example.backend.entity.Review;
 import com.example.backend.service.ReviewService;
 import com.example.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class ReviewController {
     private final ReviewService reviewService;
     private final JwtUtil jwtUtil;
 
     // 리뷰 작성
-    @PostMapping("/api/auth/reviews")
-    public ResponseEntity<?> createReview(@RequestHeader("Authorization") String token, @RequestBody ReviewDTO review) {
+    @PostMapping(value = "/api/auth/reviews", consumes = "multipart/form-data")
+    public ResponseEntity<?> createReview(@RequestHeader("Authorization") String token, @ModelAttribute ReviewDTO review, @RequestParam(value = "images", required = false) List<MultipartFile> images) {
         try {
             // Bearer 토큰에서 "Bearer " 부분 제거
             String actualToken = token.replace("Bearer ", "");
@@ -33,7 +36,7 @@ public class ReviewController {
             }
 
             // 유저 인증이 되었으므로, 서비스에서 리뷰 작성
-            ReviewResponseDTO createdReview = reviewService.createReview(userId, review, null);
+            ReviewResponseDTO createdReview = reviewService.createReview(userId, review, images);
             return ResponseEntity.ok(createdReview);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("오류: " + e.getMessage());

@@ -3,6 +3,7 @@ package com.example.backend.dto;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class ReviewResponseDTO {
@@ -11,7 +12,7 @@ public class ReviewResponseDTO {
     private Float rating;
     private Date writeDate;
     private Date updateDate;
-    private String imageUrl;
+    private List<String> imageUrl;
     private Long reservationId;
     private Long userId;
     private String userName;

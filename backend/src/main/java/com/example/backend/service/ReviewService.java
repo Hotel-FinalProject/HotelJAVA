@@ -10,6 +10,7 @@ import com.example.backend.repository.ReviewRepository;
 import com.example.backend.repository.UserRepository;
 //import com.example.backend.util.S3Handler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,13 +24,20 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
+    private final S3Service s3Service;
 
     public ReviewResponseDTO createReview(Long userId, ReviewDTO reviewDTO, List<MultipartFile> images) throws IOException {
+        log.info("리뷰 생성 요청 유저 Id : {}", userId);
+        log.info("리뷰 생성 요청 DTO : {}", reviewDTO);
+        log.info("리뷰 생성 요청 이미지 : {}", images);
+
+
         // 예약 정보 확인
         Reservation reservation = reservationRepository.findById(reviewDTO.getReservationId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
@@ -44,16 +52,19 @@ public class ReviewService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         // 이미지 업로드 확인 및 처리
-        // List<String> imageUrls = new ArrayList<>();
-        // if (images != null && !images.isEmpty()) {
-        //     imageUrls = S3Handler.uploadFiles(images);
-        // }
+        List<String> imageUrls = new ArrayList<>();
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile image : images) {
+                String fileUrl = s3Service.uploadFile(image); // 업로드 후 URL 반환
+                imageUrls.add(fileUrl); // URL을 리스트에 추가
+            }
+        }
 
         // 리뷰 생성
         Review review = new Review();
         review.setContent(reviewDTO.getContent());
         review.setRating(reviewDTO.getRating());
-        review.setImageUrl(null); // 이미지 URL 리스트 설정
+        review.setImageUrl(imageUrls); // 이미지 URL 리스트 설정
         review.setUser(user);
         review.setReservation(reservation);
         review.setHotel(reservation.getRooms().getHotel()); // 예약에 해당하는 호텔 정보 설정

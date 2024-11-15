@@ -46,7 +46,6 @@ public class ReservationService {
                     .guestNum(reservation.getGuestNum())
                     .request(reservation.getRequest())
                     .status(reservation.getStatus())
-                    .imp_uid(reservation.getPayment().getTransactionId())
                     .paymentStatus(reservation.getPayment().getStatus())
                     .build();
             userReservationDTOList.add(userReservationDTO);

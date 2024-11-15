@@ -1,6 +1,7 @@
 package com.example.backend.entity;
 
 import java.util.Date;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,7 +30,7 @@ public class Review {
     private Date updateDate; // 후기 수정 날짜
 
     @Column(nullable = true)
-    private String imageUrl; // 후기 이미지 URL (S3 이미지 경로)
+    private List<String> imageUrl; // 후기 이미지 URL (S3 이미지 경로)
 
     @OneToOne
     @JoinColumn(name = "reservation_id", nullable = false) // 예약 관리 번호 (외래키)
