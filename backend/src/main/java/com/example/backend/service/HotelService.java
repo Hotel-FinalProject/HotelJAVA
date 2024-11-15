@@ -32,12 +32,15 @@ import com.example.backend.entity.Room;
 import com.example.backend.entity.RoomCount;
 import com.example.backend.repository.HotelRepository;
 import com.example.backend.repository.RoomCountRepository;
+import com.example.backend.repository.RoomRepository;
 
 @Service
 public class HotelService {
 
     @Autowired
     private HotelRepository hotelRepository;
+    @Autowired
+    private RoomRepository roomRepository;
     @Autowired
     private RoomCountRepository roomCountRepository;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -295,4 +298,42 @@ public class HotelService {
                 .orElse(null);
         return (roomCount != null) ? roomCount.getRoomCount() : 10; // RoomCount가 없으면 기본 10개 반환
     }
+    
+    public List<HotelDTO> searchHotelsByDateAndGuest(LocalDate checkInDate, LocalDate checkOutDate, int guests, String query) {
+        // 호텔 검색 결과를 가져옵니다.
+        List<Hotel> hotels = query == null || query.isEmpty()
+            ? hotelRepository.findAll() // 검색어가 없으면 모든 호텔
+            : hotelRepository.searchByNameAndAddressIgnoringSpaces(query); // 검색어로 필터링된 호텔
+        
+        // 호텔 리스트 중에서 날짜와 인원에 맞는 호텔만 필터링
+        return hotels.stream()
+            .filter(hotel -> hotelHasAvailableRooms(hotel, checkInDate, checkOutDate, guests))
+            .map(hotel -> new HotelDTO(
+                    hotel.getHotelId(),
+                    hotel.getName(),
+                    hotel.getAddress(),
+                    hotel.getImageUrl(),
+                    hotel.getRating(),
+                    hotel.getMapX(),
+                    hotel.getMapY(),
+                    null
+            ))
+            .collect(Collectors.toList());
+    }
+    
+    private boolean hotelHasAvailableRooms(Hotel hotel, LocalDate checkInDate, LocalDate checkOutDate, int guests) {
+        List<Room> rooms = roomRepository.findByHotel(hotel);
+        
+        // 호텔의 모든 객실을 순회하며 조건에 맞는 객실이 있는지 확인
+        return rooms.stream().anyMatch(room -> 
+            room.getOccupancy() >= guests && isRoomAvailable(room, checkInDate, checkOutDate)
+        );
+    }
+
+    private boolean isRoomAvailable(Room room, LocalDate checkInDate, LocalDate checkOutDate) {
+        // 특정 날짜 범위에서 객실 예약 정보를 확인하여 가용 여부를 판별
+        List<RoomCount> roomCounts = roomCountRepository.findByRoomAndDateBetween(room, checkInDate, checkOutDate);
+        return roomCounts.stream().allMatch(roomCount -> roomCount.getRoomCount() > 0);
+    }
+
 }

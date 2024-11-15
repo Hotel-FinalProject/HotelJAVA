@@ -55,7 +55,7 @@
         <div class="occupancy-selector">
           <span class="icon">👤</span>
           <select v-model="totalGuests">
-            <option v-for="n in 5" :key="n" :value="n">{{ n }}명</option>
+            <option v-for="n in 20" :key="n" :value="n">{{ n }}명</option>
           </select>
         </div>
       </div>
@@ -117,36 +117,31 @@
     },
     methods: {
         async performSearch() {
-        if (this.searchQuery) {
-            try {
-            const response = await axios.get(
-                `http://localhost:8081/api/hotels/search?query=${this.searchQuery}`
-            );
-            this.hotels = response.data;
+  const params = {
+    query: this.searchQuery || undefined,
+    checkInDate: this.checkInDate || undefined,
+    checkOutDate: this.checkOutDate || undefined,
+    guests: this.totalGuests || 1
+  };
 
-            // 검색 수행 후 연관 검색어 목록 초기화
-            this.autocompleteResults = [];
-            this.noResults = false;
+  try {
+    const response = await axios.get("http://localhost:8081/api/hotels/search-by-date-and-guest", { params });
+    this.hotels = response.data;
 
-            // 검색을 수행할 때 현재 검색어를 query 파라미터에 저장하여 URL을 업데이트
-            this.$router.replace({
-                query: { ...this.$route.query, query: this.searchQuery }
-            });
-            } catch (error) {
-            console.error("검색 결과를 가져오는 중 오류 발생:", error);
-            this.hotels = [];
-            }
-        } else {
-            // 검색어가 없을 경우 검색 결과를 초기화
-            this.hotels = [];
-            this.autocompleteResults = [];
-            this.noResults = false;
-            // URL의 query 파라미터에서 검색어 제거
-            this.$router.replace({
-            query: { ...this.$route.query, query: undefined }
-            });
-        }
-        },
+    // URL 업데이트 (검색 조건 유지)
+    this.$router.replace({
+      query: { ...this.$route.query, query: this.searchQuery }
+    });
+
+    // 검색 결과 초기화
+    this.autocompleteResults = [];
+    this.noResults = false;
+  } catch (error) {
+    console.error("검색 결과를 가져오는 중 오류 발생:", error);
+    this.hotels = [];
+  }
+}
+,
         async fetchAutocompleteResults() {
       if (this.searchQuery.length > 0) {
         const queryWithoutSpaces = this.searchQuery.replace(/\s+/g, '');

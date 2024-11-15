@@ -67,7 +67,8 @@
           <div class="reservation-bottom">
             <div class="room-count">{{ room.availableRooms ? `남은 객실 ${room.availableRooms}개` : "남은 객실 정보 없음" }}</div>
 
-            <button  @click="move"  class="reservation_btn">예약하기</button>
+            <!-- 예약하기 버튼, 남은 객실이 없으면 비활성화 -->
+        <button @click="move" :disabled="room.availableRooms === 0" class="reservation_btn">예약하기</button>
           </div>
         </div>
       </div>
@@ -342,6 +343,11 @@ export default {
   text-align: center;
   border: none;
   font-size: 15px;
+}
+.reservation_btn[disabled] {
+  background-color: grey;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 .review-container {
   display: flex;
