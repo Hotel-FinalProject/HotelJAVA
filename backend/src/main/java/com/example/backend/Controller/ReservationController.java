@@ -90,12 +90,17 @@ public class ReservationController {
 
     // 날짜별 객실 예약 조회
     @GetMapping("/reservationInfo-Date")
-    public ResponseEntity<?> getReservationDate(@RequestParam Long hotelId) {
+    public ResponseEntity<?> getReservationDate(@RequestHeader("Authorization") String token) {
         try {
+            String actualToken = token.replace("Bearer ", "");
+            Long adminUserId = jwtUtil.verifyJwtAndGetUserId(actualToken);
 
+            if (adminUserId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
+            }
 
             LocalDate today = LocalDate.now();
-            List<ReservationDateDTO> reservationDateDTOs = reservationService.getReservationDate(today, hotelId);
+            List<ReservationDateDTO> reservationDateDTOs = reservationService.getReservationDate(today,adminUserId);
             return ResponseEntity.ok(reservationDateDTOs);
 
         } catch (Exception e) {

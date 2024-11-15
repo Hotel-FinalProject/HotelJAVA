@@ -9,6 +9,8 @@ import com.example.backend.repository.HotelRepository;
 import com.example.backend.repository.ReservationRepository;
 import com.example.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -46,7 +48,6 @@ public class ReservationService {
                     .guestNum(reservation.getGuestNum())
                     .request(reservation.getRequest())
                     .status(reservation.getStatus())
-                    .imp_uid(reservation.getPayment().getTransactionId())
                     .paymentStatus(reservation.getPayment().getStatus())
                     .build();
             userReservationDTOList.add(userReservationDTO);
@@ -55,21 +56,29 @@ public class ReservationService {
 
     }
 
-    public List<ReservationDateDTO> getReservationDate(LocalDate today, Long hotelId) {
+    public List<ReservationDateDTO> getReservationDate(LocalDate today, Long adminUserId) throws IllegalAccessException {
 
-        Hotel hotel = hotelRepository.findById(hotelId)
-                .orElseThrow(() -> new RuntimeException("호텔을 찾을 수 없습니다."));
+        User adminUser = userRepository.findById(adminUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid admin user ID"));
+
+
+        Hotel hotel = adminUser.getHotel();
+        if (hotel == null) {
+            throw new RuntimeException("이 관리자에게 연결된 호텔이 없습니다.");
+        }
+
+        if (!"ROLE_HOTELADMIN".equals(adminUser.getRole())) {
+            throw new IllegalAccessException("호텔 관리자 계정이 아닙니다.");
+        }
 
         // 해당 호텔에 대한 모든 예약 조회
         List<Reservation> reservations = reservationRepository.findByRooms_Hotel(hotel);
         List<ReservationDateDTO> reservationDateDTOS = new ArrayList<>();
 
         for (Reservation reservation : reservations) {
-
             if ("예약 완료".equals(reservation.getStatus())) {
 
                 if (!reservation.getCheckIn().isAfter(today) && !reservation.getCheckOut().isBefore(today)) {
-
                     ReservationDateDTO reservationDateDTO = ReservationDateDTO.builder()
                             .roomName(reservation.getRooms().getName())
                             .userName(reservation.getUser().getName())
