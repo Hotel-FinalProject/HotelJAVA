@@ -163,6 +163,7 @@ export default {
   padding-right: 40px; /* 돋보기 버튼 공간 확보 */
   padding-left: 10px;
   background-color: transparent;
+  margin-right: 10px; 
 }
 
 .search-button {
@@ -195,7 +196,7 @@ export default {
   max-height: 150px;
   overflow-y: auto;
   position: absolute;
-  width: 1000px;
+  width: 100%
 }
 
 .autocomplete-item {
@@ -267,5 +268,105 @@ export default {
 .review-title {
   margin-top: 20px;
 }
+
+@media (max-width: 1600px) {
+  .main-container {
+    width: 80%;
+  }
+  .hotel_grid {
+    grid-template-columns: repeat(4, 1fr); /* 4개의 열 */
+  }
+  .img-container,
+  .search-bar {
+    width: 200px; /* 이미지와 서치바 너비 동일 */
+  }
+  .img-container {
+    height: 150px;
+  }
+  .search-bar {
+    height: 35px;
+  }
+}
+
+/* 1200px 이하 화면 */
+@media (max-width: 1200px) {
+  .main-container {
+    width: 80%;
+  }
+  .hotel_grid {
+    grid-template-columns: repeat(3, 1fr); /* 3개의 열 */
+  }
+  .img-container,
+  .search-bar {
+    width: 200px; /* 이미지와 서치바 너비 동일 */
+  }
+  .img-container {
+    height: 150px;
+  }
+  .search-bar {
+    height: 35px;
+  }
+}
+
+/* 800px 이하 화면 */
+@media (max-width: 800px) {
+  .main-container {
+    width: 85%;
+  }
+  .hotel_grid {
+    grid-template-columns: repeat(2, 1fr); /* 2개의 열 */
+  }
+  .img-container,
+  .search-bar {
+    width: 200px; /* 이미지와 서치바 너비 동일 */
+  }
+  .img-container {
+    height: 150px;
+  }
+  .search-bar {
+    height: 30px;
+  }
+}
+
+/* 558px 이하 화면 */
+@media (max-width: 558px) {
+  .main-container {
+    width: 90%;
+  }
+  .hotel_grid {
+    grid-template-columns: repeat(1, 1fr); /* 1개의 열 */
+  }
+  .img-container,
+  .search-bar {
+    width: 200px; /* 이미지와 서치바 너비 동일 */
+  }
+  .img-container {
+    height: 150px;
+  }
+  .search-bar {
+    height: 28px;
+  }
+}
+
+/* 더 작은 화면 (모바일 전용) */
+@media (max-width: 375px) {
+  .main-container {
+    width: 95%;
+  }
+  .hotel_grid {
+    grid-template-columns: 1fr; /* 1개의 열 */
+  }
+  .img-container,
+  .search-bar {
+    width: 100%; /* 이미지와 서치바 너비 동일 */
+  }
+  .img-container {
+    height: 80px;
+  }
+  .search-bar {
+    height: 28px;
+  }
+}
+
 
 </style>

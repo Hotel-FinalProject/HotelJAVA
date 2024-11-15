@@ -129,4 +129,41 @@ export default {
   font-size: 1.2em;
   margin-left: 20px;
 }
+
+@media (max-width: 768px) {
+  .brand_name {
+    font-size: 2em; /* 로고 크기 축소 */
+  }
+
+  .navbar_item li {
+    margin-left: 10px;
+    font-size: 1em; /* 글자 크기 축소 */
+  }
+
+  .navbar_items {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .navbar_item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .navbar {
+    padding: 10px;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand_name {
+    font-size: 1.8em; /* 더 작은 화면에서 로고 크기 줄임 */
+  }
+
+  .navbar_items {
+    display: none; /* 작은 화면에서는 기본 메뉴 숨김 */
+  }
+}
 </style>
