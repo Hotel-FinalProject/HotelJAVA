@@ -18,7 +18,6 @@ public class HotelDTO {
     private Double rating;
     private Double mapX;
     private Double mapY;
-    
     // 객실
     private BigDecimal roomPrice;
 }

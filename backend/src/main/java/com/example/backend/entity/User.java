@@ -5,13 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -64,6 +58,9 @@ public class User  {
 
     @OneToMany(mappedBy = "user")
     private List<Review> reviews;
+
+    @OneToOne(mappedBy = "manager", fetch = FetchType.LAZY)
+    private Hotel hotel;
 
     @Builder
     public User(String email, String password, String name) {

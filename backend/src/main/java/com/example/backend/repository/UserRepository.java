@@ -15,4 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByName(String name);
     List<User> findByLastLoginTimeBeforeAndIsActiveTrue(LocalDateTime date);
 
+    List<User> findByRole(String role_user);
+
+    List<User> findByRoleAndNameContainingIgnoreCaseOrRoleAndEmailContainingIgnoreCase(String role1, String name,String role2,String email);
 }

@@ -1,7 +1,7 @@
 <template>
     <div class="container">
       <div class="login-form">
-        <h2 class="title">로그인</h2>
+        <h2 class="title">ADMIN</h2>
         <form @submit.prevent="submitForm">
           <div class="input-group">
             <label for="email">Email</label>
@@ -12,19 +12,9 @@
             <input type="password" id="passwd" v-model="passwd" />
           </div>
           <div class="top-actions">
-            <router-link to="/find-my-id">
-              <span class="find-id-btn">아이디 찾기</span>
-            </router-link>
             <button type="submit" class="login-button">로그인</button>
           </div>
         </form>
-        <div class="divider">
-          <span>SNS LOGIN</span>
-        </div>
-        <div class="social-login">
-          <button @click="googleLogin" class="social-button google">G</button>
-          <button @click="naverLogin" class="social-button naver">N</button>
-        </div>
       </div>
     </div>
   </template>
@@ -42,12 +32,7 @@
       };
     },
     methods: {
-      async googleLogin() {
-        window.location.href = "http://localhost:8081/oauth2/authorization/google";
-      },
-      async naverLogin() {
-        window.location.href = "http://localhost:8081/oauth2/authorization/naver"
-      },
+      
       async submitForm() {
         const payload = {
           email: this.email,
@@ -109,22 +94,8 @@
     font-size: 16px;
   }
   
-  .top-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
   
-  .top-actions a{
-    text-decoration-line: none;
-  }
-  
-  .find-id-btn {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: bold;
-  }
+
   
   .login-button {
     background-color: #007bff;
@@ -136,59 +107,5 @@
     cursor: pointer;
   }
   
-  .divider {
-    text-align: center;
-    margin: 20px 0;
-    position: relative;
-  }
-  
-  .divider span {
-    background-color: #fff;
-    padding: 0 10px;
-    font-weight: bold;
-    color: #666;
-  }
-  
-  .divider::before, .divider::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    width: 40%;
-    height: 1px;
-    background-color: #ddd;
-  }
-  
-  .divider::before {
-    left: 0;
-  }
-  
-  .divider::after {
-    right: 0;
-  }
-  
-  .social-login {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
-  }
-  
-  .social-button {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    font-weight: bold;
-    font-size: 16px;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .google {
-    background-color: #db4437;
-  }
-  
-  .naver {
-    background-color: #2db400;
-  }
+
   </style>

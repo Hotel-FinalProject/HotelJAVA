@@ -1,10 +1,13 @@
 package com.example.backend.util;
 
+import org.springframework.context.annotation.Configuration;
+
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Configuration
 public class PasswordGenerator {
 
     // 비밀번호에 포함될 문자들 정의
