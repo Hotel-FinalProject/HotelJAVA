@@ -21,8 +21,24 @@
               <div class="review-content">
                 {{ review.content }}
               </div>
-            </div>
+
+          <!-- 이미지 갤러리 -->
+          <div class="image-gallery">
+            <img
+              v-for="(image, imgIndex) in review.imageUrl"
+              :src="image"
+              :key="imgIndex"
+              class="thumbnail"
+              @click="openLightbox(image)"
+            />
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div v-if="lightboxImage" class="lightbox" @click="closeLightbox">
+      <img :src="lightboxImage" alt="Review Image" />
         </div>
       </div>   
     </template>
@@ -46,8 +62,21 @@
           type: Array,
           default: () => []
         }
+  },
+  data() {
+    return {
+      lightboxImage: null
+    };
+  },
+  methods: {
+    openLightbox(image) {
+      this.lightboxImage = image;
+    },
+    closeLightbox() {
+      this.lightboxImage = null;
       }
     }
+};
     </script>
 
 <style scoped>
@@ -91,5 +120,45 @@
 
 .review-date {
   color: #888888;
+}
+
+/* 이미지 갤러리 스타일 */
+.image-gallery {
+  display: flex;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.thumbnail {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: transform 0.2s;
+}
+
+.thumbnail:hover {
+  transform: scale(1.05);
+}
+
+/* Lightbox 스타일 */
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.lightbox img {
+  max-width: 80%;
+  max-height: 80%;
+  border-radius: 10px;
 }
 </style>

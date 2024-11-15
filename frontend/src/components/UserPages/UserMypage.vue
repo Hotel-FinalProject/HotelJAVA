@@ -30,6 +30,7 @@
 
 <script>
 import SidebarComponent from "@/components/UserPages/UserMyPageSidebar.vue";
+import { getReviewsByUser } from "@/api/api";
 
 export default {
   name: "MyPage",
@@ -43,18 +44,45 @@ export default {
       phone: '',
       reviews: [],
       favoriteHotels: [],
+      intervalId: null,
     };
   },
   mounted() {
-    // 로컬 스토리지에서 사용자 정보 가져오기
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
     if (userInfo) {
       this.userName = userInfo.userName || "이름을 추가해주세요.";
       this.email = userInfo.email || "이메일을 추가해주세요.";
       this.phone = userInfo.phone || "전화번호를 추가해주세요.";
+
+      this.fetchUserReviews();
+      this.startFetchingReviews();
     } else {
       console.log("로컬 스토리지에 userInfo가 없습니다.");
     }
+  },
+  beforeUnmount() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  },
+  methods: {
+    async fetchUserReviews() {
+      try {
+        const token = sessionStorage.getItem("token");
+        const userId = JSON.parse(localStorage.getItem("userInfo")).userId;
+        
+        // 로그 추가
+        console.log("Fetching reviews for userId:", userId, "with token:", token);
+
+        const response = await getReviewsByUser(userId, token);
+        this.reviews = response.data;
+      } catch (error) {
+        console.error("리뷰 데이터를 가져오는 데 실패했습니다:", error);
+      }
+    },
+    startFetchingReviews() {
+      this.intervalId = setInterval(this.fetchUserReviews, 30000);
+    },
   },
 };
 </script>
