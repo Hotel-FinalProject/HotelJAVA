@@ -62,7 +62,10 @@ spring:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 google:
   people-api-url: "https://people.googleapis.com/v1/people/me"
 
@@ -89,3 +92,5 @@ aws:
   s3:
     bucket-name: hotel-java
     region: ap-northeast-2
+
+

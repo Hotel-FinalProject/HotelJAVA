@@ -8,7 +8,6 @@ spring:
     url: ${DATABASE_URL}
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
-
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -22,7 +21,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: sudongtaemsa6th@gmail.com
-    password: mtdemkdtofobosyo
+    password: ${MAIL_SECRET}
     properties:
       mail:
         smtp:
@@ -63,7 +62,10 @@ spring:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 google:
   people-api-url: "https://people.googleapis.com/v1/people/me"
 
@@ -83,3 +85,12 @@ api:
 import:
   api-key: 8574783258275564
   secret-key: JsGOComCLXxULGSVO4eHqPMjS5X1N4YzBiLrYSVbBQtf58RxmT0Wq71qyhj3ulWjvvtuHlJII7b6FTST
+
+aws:
+  access-key-id: ${ACCESS_KEY_ID}
+  secret-access-key: ${ACCESS_SCRETKEY_ID}
+  s3:
+    bucket-name: hotel-java
+    region: ap-northeast-2
+
+

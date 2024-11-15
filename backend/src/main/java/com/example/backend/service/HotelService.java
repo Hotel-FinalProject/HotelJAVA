@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,13 +29,20 @@ import com.example.backend.dto.HotelRoomDTO;
 import com.example.backend.dto.RoomDetailDTO;
 import com.example.backend.entity.Hotel;
 import com.example.backend.entity.Room;
+import com.example.backend.entity.RoomCount;
 import com.example.backend.repository.HotelRepository;
+import com.example.backend.repository.RoomCountRepository;
+import com.example.backend.repository.RoomRepository;
 
 @Service
 public class HotelService {
 
     @Autowired
     private HotelRepository hotelRepository;
+    @Autowired
+    private RoomRepository roomRepository;
+    @Autowired
+    private RoomCountRepository roomCountRepository;
     private final RestTemplate restTemplate = new RestTemplate();
     private final String apiUrl = "https://apis.data.go.kr/B551011/KorService1/searchStay1";
     private final String detailApiUrl = "http://apis.data.go.kr/B551011/KorService1/detailIntro1";
@@ -260,7 +268,7 @@ public class HotelService {
                         room.getImages().isEmpty() ? null : room.getImages().get(0).getImageId(),
                         room.getImages().isEmpty() ? null : room.getImages().get(0).getImageUrl(),
                         null, // roomCountId
-                        room.getTotal() // roomCount
+                        getAvailableRooms(room, LocalDate.now()) // 특정 날짜의 남은 객실 수 조회
                 ))
                 .collect(Collectors.toList());
 
@@ -278,4 +286,54 @@ public class HotelService {
                 roomDetails // 간소화된 객실 리스트 추가
         );
     }
+    
+    /**
+     * 특정 날짜에 특정 객실의 남은 객실 수를 조회하는 메서드
+     * @param room - 남은 객실 수를 조회할 Room 엔티티
+     * @param date - 조회할 날짜
+     * @return 남은 객실 수 (RoomCount 엔티티가 없는 경우 기본값 10 반환)
+     */
+    private int getAvailableRooms(Room room, LocalDate date) {
+        RoomCount roomCount = roomCountRepository.findByRoomAndDate(room, date)
+                .orElse(null);
+        return (roomCount != null) ? roomCount.getRoomCount() : 10; // RoomCount가 없으면 기본 10개 반환
+    }
+    
+    public List<HotelDTO> searchHotelsByDateAndGuest(LocalDate checkInDate, LocalDate checkOutDate, int guests, String query) {
+        // 호텔 검색 결과를 가져옵니다.
+        List<Hotel> hotels = query == null || query.isEmpty()
+            ? hotelRepository.findAll() // 검색어가 없으면 모든 호텔
+            : hotelRepository.searchByNameAndAddressIgnoringSpaces(query); // 검색어로 필터링된 호텔
+        
+        // 호텔 리스트 중에서 날짜와 인원에 맞는 호텔만 필터링
+        return hotels.stream()
+            .filter(hotel -> hotelHasAvailableRooms(hotel, checkInDate, checkOutDate, guests))
+            .map(hotel -> new HotelDTO(
+                    hotel.getHotelId(),
+                    hotel.getName(),
+                    hotel.getAddress(),
+                    hotel.getImageUrl(),
+                    hotel.getRating(),
+                    hotel.getMapX(),
+                    hotel.getMapY(),
+                    null
+            ))
+            .collect(Collectors.toList());
+    }
+    
+    private boolean hotelHasAvailableRooms(Hotel hotel, LocalDate checkInDate, LocalDate checkOutDate, int guests) {
+        List<Room> rooms = roomRepository.findByHotel(hotel);
+        
+        // 호텔의 모든 객실을 순회하며 조건에 맞는 객실이 있는지 확인
+        return rooms.stream().anyMatch(room -> 
+            room.getOccupancy() >= guests && isRoomAvailable(room, checkInDate, checkOutDate)
+        );
+    }
+
+    private boolean isRoomAvailable(Room room, LocalDate checkInDate, LocalDate checkOutDate) {
+        // 특정 날짜 범위에서 객실 예약 정보를 확인하여 가용 여부를 판별
+        List<RoomCount> roomCounts = roomCountRepository.findByRoomAndDateBetween(room, checkInDate, checkOutDate);
+        return roomCounts.stream().allMatch(roomCount -> roomCount.getRoomCount() > 0);
+    }
+
 }

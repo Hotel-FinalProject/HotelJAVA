@@ -205,9 +205,18 @@ public class RoomService {
     // 특정 날짜의 남은 객실 수 계산
     private int getAvailableRooms(Room room) {
         RoomCount roomCount = roomCountRepository.findByRoomAndDate(room, LocalDate.now())
-                .orElse(new RoomCount(null, LocalDate.now(), room.getTotal(), room));
+                .orElse(null);
+        if (roomCount == null) {
+            return 10;
+        }
+
         return roomCount.getRoomCount();
     }
+//    private int getAvailableRooms(Room room) {
+//        RoomCount roomCount = roomCountRepository.findByRoomAndDate(room, LocalDate.now())
+//                .orElse(null);
+//        return (roomCount != null) ? roomCount.getRoomCount() : 10; // 기본 10개 반환
+//    }
 
     public RoomDTO getRoomById(Long roomId) {
         Room room = roomRepository.findById(roomId)

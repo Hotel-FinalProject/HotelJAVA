@@ -70,9 +70,10 @@ dependencies {
 	// SMTP
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-	// AWS S3
+	//S3
 	implementation 'software.amazon.awssdk:s3:2.20.17'
 	implementation 'software.amazon.awssdk:auth:2.20.17'
+
 }
 
 tasks.named('test') {
