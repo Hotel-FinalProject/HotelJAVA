@@ -5,6 +5,13 @@
       <div class="menu-container">
         <a
           href="#"
+          :class="{ active: currentView === 'Dashboard' }"
+          @click.prevent="currentView = 'Dashboard'"
+        >
+          <span class="icon">📋</span>대시보드
+        </a>
+        <a
+          href="#"
           :class="{ active: currentView === 'RoomManagement' }"
           @click.prevent="currentView = 'RoomManagement'"
         >
@@ -22,13 +29,34 @@
           :class="{ active: currentView === 'Analytics' }"
           @click.prevent="currentView = 'Analytics'"
         >
-          <span class="icon">📊</span>호텔 분석
+          <span class="icon">📊</span>매출 분석
         </a>
       </div>
     </template>
 
     <!-- 메인 콘텐츠 -->
     <div class="main-content">
+      <div v-if="currentView === 'Dashboard'">
+        <h2>대시보드</h2>
+        <p>호텔의 전체 상태를 한눈에 확인하세요.</p>
+        <ul class="dashboard-summary">
+          <li class="dashboard-item">
+            <h3>🛏️ 객실 관리</h3>
+            <p>현재 관리 중인 객실 수: 50개</p>
+            <p>점검 중인 객실: 3개</p>
+          </li>
+          <li class="dashboard-item">
+            <h3>📅 예약 관리</h3>
+            <p>오늘 체크인 예정: 10건</p>
+            <p>예약 취소 요청: 2건</p>
+          </li>
+          <li class="dashboard-item">
+            <h3>📊 매출 분석</h3>
+            <p>이번 달 매출: 1,200,000원</p>
+            <p>예약률: 75%</p>
+          </li>
+        </ul>
+      </div>
       <div v-if="currentView === 'RoomManagement'">
         <h2>객실 관리</h2>
         <p>객실 정보를 관리합니다.</p>
@@ -55,7 +83,7 @@ export default {
   },
   data() {
     return {
-      currentView: "RoomManagement", // 초기 화면 설정
+      currentView: "Dashboard", // 초기 화면 설정
     };
   },
 };
@@ -102,5 +130,29 @@ export default {
   border: 1px solid #ddd;
   border-radius: 8px;
   margin-top: 20px;
+}
+
+/* 대시보드 요약 스타일 */
+.dashboard-summary {
+  list-style: none;
+  padding: 0;
+}
+
+.dashboard-item {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.dashboard-item h3 {
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.dashboard-item p {
+  margin: 5px 0;
+  color: #555;
 }
 </style>

@@ -5,6 +5,13 @@
         <div class="menu-container">
           <a
             href="#"
+            :class="{ active: currentView === 'Dashboard' }"
+            @click.prevent="currentView = 'Dashboard'"
+          >
+            <span class="icon">📋</span>대시보드
+          </a>
+          <a
+            href="#"
             :class="{ active: currentView === 'UserManagement' }"
             @click.prevent="currentView = 'UserManagement'"
           >
@@ -29,6 +36,27 @@
   
       <!-- 메인 콘텐츠 -->
       <div class="main-content">
+        <div v-if="currentView === 'Dashboard'">
+          <h2>대시보드</h2>
+          <p>시스템의 전체 상태를 한눈에 확인하세요.</p>
+          <ul class="dashboard-summary">
+            <li class="dashboard-item">
+              <h3>🔍 사용자 관리</h3>
+              <p>총 사용자 수: 1,200명</p>
+              <p>비활성 계정: 45명</p>
+            </li>
+            <li class="dashboard-item">
+              <h3>🏨 호텔 관리자 계정 관리</h3>
+              <p>등록된 호텔 관리자: 50명</p>
+              <p>승인 대기 관리자: 5명</p>
+            </li>
+            <li class="dashboard-item">
+              <h3>🚨 리뷰 관리</h3>
+              <p>신고된 리뷰: 12건</p>
+              <p>미검토 리뷰: 3건</p>
+            </li>
+          </ul>
+        </div>
         <div v-if="currentView === 'UserManagement'">
           <h2>사용자 관리</h2>
           <p>사용자 계정을 관리하고 검색할 수 있습니다.</p>
@@ -55,7 +83,7 @@
     },
     data() {
       return {
-        currentView: "UserManagement", // 초기 화면 설정
+        currentView: "Dashboard", // 초기 화면 설정
       };
     },
   };
@@ -102,6 +130,30 @@
     border: 1px solid #ddd;
     border-radius: 8px;
     margin-top: 20px;
+  }
+  
+  /* 대시보드 요약 스타일 */
+  .dashboard-summary {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .dashboard-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  .dashboard-item h3 {
+    margin-bottom: 10px;
+    font-size: 20px;
+  }
+  
+  .dashboard-item p {
+    margin: 5px 0;
+    color: #555;
   }
   </style>
   
