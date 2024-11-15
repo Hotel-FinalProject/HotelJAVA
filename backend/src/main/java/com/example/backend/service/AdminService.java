@@ -2,8 +2,10 @@ package com.example.backend.service;
 
 import com.example.backend.dto.AdminUserDTO;
 import com.example.backend.entity.Hotel;
+import com.example.backend.entity.Report;
 import com.example.backend.entity.User;
 import com.example.backend.repository.HotelRepository;
+import com.example.backend.repository.ReportRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.util.JwtUtil;
 import com.example.backend.util.PasswordGenerator;
@@ -33,6 +35,9 @@ public class AdminService {
 
     @Autowired
     private HotelRepository hotelRepository;
+
+    @Autowired
+    private ReportRepository reportRepository;
 
 
     public void update(String email) {
@@ -261,5 +266,22 @@ public class AdminService {
         }
         userRepository.save(user);
 
+    }
+
+    public void isActiveReview(Long adminUserId, Long reportId) throws IllegalAccessException {
+        User adminuser = userRepository.findById(adminUserId)
+                .orElseThrow(() -> new RuntimeException("관리자를 찾을 수 없습니다."));
+        if (!"ROLE_ADMIN".equals(adminuser.getRole())) {
+            throw new IllegalAccessException("시스템 관리자 계정이 아닙니다.");
+        }
+
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("신고ID를 찾을 수 없습니다."));
+
+        if ("신고 접수됨".equals(report.getStatus())) {
+            report.setStatus("신고처리 완료");
+        }
+
+        reportRepository.save(report);
     }
 }

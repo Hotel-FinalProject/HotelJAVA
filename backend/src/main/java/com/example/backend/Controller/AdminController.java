@@ -163,6 +163,24 @@ public class AdminController {
 
     }
 
+    // 리뷰 신고 관리
+    @PostMapping("/auth/review-report")
+    public ResponseEntity<?> reviewReport (@RequestHeader("Authorization") String token,@RequestParam Long reportId){
+        try {
+            // 토큰에서 userId 추출
+            String actualToken = token.replace("Bearer ", "");
+            Long adminUserId = jwtUtil.verifyJwtAndGetUserId(actualToken);
+
+            if (adminUserId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
+            }
+            adminService.isActiveReview(adminUserId,reportId);
+            return ResponseEntity.ok("상태 변경이 완료되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("조회 실패: " + e.getMessage());
+        }
+
+    }
 
 
 
