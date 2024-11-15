@@ -212,6 +212,11 @@ public class RoomService {
 
         return roomCount.getRoomCount();
     }
+//    private int getAvailableRooms(Room room) {
+//        RoomCount roomCount = roomCountRepository.findByRoomAndDate(room, LocalDate.now())
+//                .orElse(null);
+//        return (roomCount != null) ? roomCount.getRoomCount() : 10; // 기본 10개 반환
+//    }
 
     public RoomDTO getRoomById(Long roomId) {
         Room room = roomRepository.findById(roomId)

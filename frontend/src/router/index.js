@@ -13,7 +13,6 @@ import HotelAdminPage from '@/components/HotelAdminPage.vue';
 import SearchPage from '@/components/SearchPage.vue';
 import MapPage from '@/components/MapPage.vue';
 
-
 const routes = [
   {
     path: '/',
@@ -76,7 +75,11 @@ const routes = [
     component: HotelAdminPage
   },
   {
-    path: '/reset-password',
+    path: '/admin/system', // 시스템 관리자 페이지
+    component: () => import('@/components/SystemAdminPage.vue'),
+  },
+  {
+    path: '/reset-password', // 이메일 인증 페이지 경로
     component: PasswordReset
   },
   {

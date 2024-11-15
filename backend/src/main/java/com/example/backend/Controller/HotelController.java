@@ -2,6 +2,7 @@
 package com.example.backend.Controller;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -130,5 +131,15 @@ public class HotelController {
     public HotelRoomDTO getHotelDetailById(@PathVariable("id") Long id) {
         return hotelService.getHotelDetailById(id);
     }
+    
+    @GetMapping("/hotels/search-by-date-and-guest")
+    public List<HotelDTO> searchHotelsByDateAndGuest(
+            @RequestParam(value = "checkInDate", required = false) LocalDate checkInDate,
+            @RequestParam(value = "checkOutDate", required = false) LocalDate checkOutDate,
+            @RequestParam(value = "guests", required = false, defaultValue = "1") int guests,
+            @RequestParam(value = "query", required = false) String query) {
+        return hotelService.searchHotelsByDateAndGuest(checkInDate, checkOutDate, guests, query);
+    }
+
 
 }
