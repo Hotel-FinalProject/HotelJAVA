@@ -65,10 +65,18 @@
           </p>
           <h2 class="price">{{ Number(room.price). toLocaleString() ? `${Number(room.price). toLocaleString()}원` : "가격 정보 없음"}}</h2>
           <div class="reservation-bottom">
-            <div class="room-count">{{ room.availableRooms ? `남은 객실 ${room.availableRooms}개` : "남은 객실 정보 없음" }}</div>
+            <div class="room-count">
+              남은 객실 {{ room.availableRooms || 0 }}개
+            </div>
 
-            <!-- 예약하기 버튼, 남은 객실이 없으면 비활성화 -->
-        <button @click="move" :disabled="room.availableRooms === 0" class="reservation_btn">예약하기</button>
+            <!-- 예약하기 버튼, 남은 객실이 없으면 "객실 마감" 표시 -->
+            <button
+              @click="move"
+              :disabled="room.availableRooms === 0"
+              class="reservation_btn"
+            >
+              {{ room.availableRooms === 0 ? "객실 마감" : "예약하기" }}
+            </button>
           </div>
         </div>
       </div>
@@ -343,6 +351,8 @@ export default {
   text-align: center;
   border: none;
   font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 .reservation_btn[disabled] {
   background-color: grey;
