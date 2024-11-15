@@ -2,34 +2,27 @@ package com.example.backend.entity;
 
 import java.util.Date;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EnableJpaAuditing
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId; // 후기 관리 번호
 
     private String content; // 후기 내용
-    private Long rating; // 평점
+    private Float rating; // 평점
     @CreatedDate
     private Date writeDate; // 후기 작성 날짜
     @LastModifiedDate
@@ -47,7 +40,7 @@ public class Review {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "hotel_id",referencedColumnName = "hotelId", nullable = false) // 호텔 관리 번호 (외래키)
+    @JoinColumn(name = "hotel_id", referencedColumnName = "hotelId", nullable = false) // 호텔 관리 번호 (외래키)
     private Hotel hotel;
 }
 
