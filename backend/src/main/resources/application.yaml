@@ -20,7 +20,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: sudongtaemsa6th@gmail.com
-    password: ulimcmoofcvhyflz
+    password: ${MAIL_SECRET}
     properties:
       mail:
         smtp:
@@ -33,8 +33,8 @@ spring:
       client:
         registration:
           naver:
-            clientId: 9EWyUF5g73oX_Rw5ouos
-            clientSecret: QG3wQOti25
+            clientId: ${NAVER_CLIENT_ID}
+            clientSecret: ${NAVER_CLIENT_SECRET}
             scope:
               - email
               - response
@@ -42,8 +42,8 @@ spring:
             client-name: naver
             authorization-grant-type: authorization_code
           google:
-            clientId: 179544849550-03o449lptj1skbr25sqvt95vftvin1ii.apps.googleusercontent.com
-            clientSecret: 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
+            clientId: ${GOOGLE_CLIENT_ID}
+            clientSecret: ${GOOGLE_CLIENT_SECRET}
             scope:
               - email
               - profile
@@ -76,10 +76,10 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql.BasicBinder: trace
 hotel:
-  key: 
+  key:
 
 api:
-  key: 
+  key: ${API_KEY}
 
 import:
   api-key: 8574783258275564
