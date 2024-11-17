@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.LoginRequest;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.util.JwtUtil;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -59,5 +61,27 @@ public class HotelAdminService {
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 올바르지 않습니다.");
+    }
+
+    @Transactional
+    public void updatePassword(Long adminUserId, LoginRequest loginRequest) throws IllegalAccessException {
+        User adminUser = userRepository.findById(adminUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid admin user ID"));
+
+        if (!"ROLE_HOTELADMIN".equals(adminUser.getRole())) {
+            throw new IllegalAccessException("호텔 관리자 계정이 아닙니다.");
+        }
+
+        String passwordPattern = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{4,12}$";
+        String newPassword = loginRequest.getPasswd();
+        if (newPassword == null || newPassword.isEmpty()) {
+            throw new IllegalAccessException("새 비밀번호가 입력되지 않았습니다.");
+        } else if (!newPassword.matches(passwordPattern)) {
+            throw new IllegalAccessException("비밀번호는 4~12자, 영어 대/소문자 및 특수문자를 포함해야 합니다.");
+        }
+
+        // 비밀번호 암호화 및 저장
+        adminUser.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(adminUser);
     }
 }
