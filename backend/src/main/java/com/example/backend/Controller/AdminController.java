@@ -3,6 +3,7 @@ package com.example.backend.Controller;
 import com.example.backend.dto.AdminUserDTO;
 import com.example.backend.dto.HotelDTO;
 import com.example.backend.dto.LoginRequest;
+import com.example.backend.dto.ReportInfoDTO;
 import com.example.backend.entity.User;
 import com.example.backend.service.AdminService;
 import com.example.backend.util.JwtUtil;
@@ -179,14 +180,27 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("조회 실패: " + e.getMessage());
         }
-
     }
 
+    //신고된 리뷰 조회
+    @GetMapping("/auth/review-read")
+    public ResponseEntity<?> getReviewReport (@RequestHeader("Authorization") String token){
+        try {
+            // 토큰에서 userId 추출
+            String actualToken = token.replace("Bearer ", "");
+            Long adminUserId = jwtUtil.verifyJwtAndGetUserId(actualToken);
 
+            if (adminUserId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
+            }
+            adminService.getReviewReport(adminUserId);
 
-
-
-
+            List<ReportInfoDTO> reportInfoDTOS = adminService.getReviewReport(adminUserId);
+            return ResponseEntity.ok(reportInfoDTOS);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("조회 실패: " + e.getMessage());
+        }
+    }
 
 
 }
