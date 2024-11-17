@@ -1,10 +1,8 @@
 package com.example.backend.service;
 
-import com.example.backend.dto.AdminUserDTO;
-import com.example.backend.dto.ReportInfoDTO;
+import com.example.backend.dto.*;
 import com.example.backend.entity.Hotel;
 import com.example.backend.entity.Report;
-import com.example.backend.entity.Review;
 import com.example.backend.entity.User;
 import com.example.backend.repository.HotelRepository;
 import com.example.backend.repository.ReportRepository;
@@ -288,7 +286,6 @@ public class AdminService {
     }
 
     public List<ReportInfoDTO> getReviewReport(Long adminUserId) throws IllegalAccessException {
-        // 1. 유저 확인 (시스템 관리자 계정 확인)
         User user = userRepository.findById(adminUserId)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
 
@@ -316,4 +313,43 @@ public class AdminService {
         return reportInfoDTOS;
     }
 
+    public UserInfoDTO getUserInfo(Long adminUserId) throws IllegalAccessException{
+        User adminUser = userRepository.findById(adminUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid admin user ID"));
+
+        // 권한 체크
+        if (!"ROLE_ADMIN".equals(adminUser.getRole())) {
+            throw new IllegalAccessException("시스템 관리자 계정이 아닙니다.");
+        }
+
+        // 데이터 조회
+        int userAllCount = userRepository.countByRole("ROLE_USER");
+        int hotelAllCount = userRepository.countByRole("ROLE_HOTELADMIN");
+
+        int userActiveCount = userRepository.countByRoleAndIsActive("ROLE_USER", true);
+        int userUnActiveCount = userRepository.countByRoleAndIsActive("ROLE_USER", false);
+
+        int hotelActiveCount = userRepository.countByRoleAndIsActive("ROLE_HOTELADMIN", true);
+        int hotelUnActiveCount = userRepository.countByRoleAndIsActive("ROLE_HOTELADMIN", false);
+
+
+        return new UserInfoDTO(userAllCount, hotelAllCount, userActiveCount, userUnActiveCount, hotelActiveCount, hotelUnActiveCount);
+
+    }
+
+    public ReviewReportInfo getReportInfo(Long adminUserId) throws IllegalAccessException{
+        User adminUser = userRepository.findById(adminUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid admin user ID"));
+
+        // 권한 체크
+        if (!"ROLE_ADMIN".equals(adminUser.getRole())) {
+            throw new IllegalAccessException("시스템 관리자 계정이 아닙니다.");
+        }
+
+        long reportCount = reportRepository.count();
+        int reportComplete = reportRepository.countByStatus("신고처리 완료");
+        int reportInComplete = reportRepository.countByStatus("신고 접수됨");
+
+        return new ReviewReportInfo(reportCount,reportInComplete,reportComplete);
+    }
 }
