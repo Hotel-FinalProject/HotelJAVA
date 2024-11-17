@@ -43,16 +43,17 @@
             <li class="dashboard-item">
               <h3>🔍 사용자 관리</h3>
               <p>총 사용자 수: 1,200명</p>
+              <p>활성 계정: 45명</p>
               <p>비활성 계정: 45명</p>
             </li>
             <li class="dashboard-item">
               <h3>🏨 호텔 관리자 계정 관리</h3>
               <p>등록된 호텔 관리자: 50명</p>
-              <p>승인 대기 관리자: 5명</p>
             </li>
             <li class="dashboard-item">
               <h3>🚨 리뷰 관리</h3>
               <p>신고된 리뷰: 12건</p>
+              <p>검토 완료 리뷰: 3건</p>
               <p>미검토 리뷰: 3건</p>
             </li>
           </ul>
@@ -60,7 +61,14 @@
         
         <!--사용자 관리사용자 -->
         <div v-if="currentView === 'UserManagement'">
-          <h2>사용자 관리</h2>
+          <div class="top-container">
+            <div class="title">
+              <h2>사용자 관리</h2>
+            </div>
+            <div class="search-container">
+              <input class="search-input" type="text" placeholder="이름, 이메일로 검색해주세요.">
+            </div>
+          </div>
           <hr>
           <div class="user-table-container">
             <!-- 테이블 헤더 -->
@@ -100,7 +108,14 @@
 
          <!-- 호텔 관리 -->
         <div v-if="currentView === 'HotelAdminAccounts'">
-          <h2>호텔 관리자 계정 관리</h2>
+          <div class="top-container">
+            <div class="title">
+              <h2>호텔 관리자 계정 관리</h2>
+            </div>
+            <div class="search-container">
+              <input class="search-input" type="text" placeholder="이름, 이메일로 검색해주세요.">
+            </div>
+          </div>
           <hr>
           <div class="user-table-container">
             <!-- 테이블 헤더 -->
@@ -252,6 +267,20 @@
     background-color: #f9f9f9;
   }
 
+  .top-container{
+    display:flex;
+    justify-content:space-between;
+  }
+
+ .search-container{
+    display:flex;
+    padding:20px;
+ }
+ .search-input{
+    width:300px;
+    border-radius:5px;
+    border : 1px solid lightgray;
+ }
   .user-table-container {
   display: flex;
   flex-direction: column;
