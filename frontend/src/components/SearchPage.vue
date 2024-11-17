@@ -55,6 +55,7 @@
         <div class="occupancy-selector">
           <span class="icon">👤</span>
           <select v-model="totalGuests">
+            <option value="0">인원무관</option>
             <option v-for="n in 20" :key="n" :value="n">{{ n }}명</option>
           </select>
         </div>
@@ -100,7 +101,7 @@
         hotels: [],
         checkInDate: "",
         checkOutDate: "",
-        totalGuests: 1,
+        totalGuests: 0,
         today: new Date().toISOString().split("T")[0], // 오늘 날짜를 yyyy-mm-dd 형식으로 저장
         defaultImage:
           "https://png.pngtree.com/png-vector/20240613/ourlarge/pngtree-modern-hotel-icon-with-palm-trees-black-isolated-on-white-background-vector-png-image_7010310.png",

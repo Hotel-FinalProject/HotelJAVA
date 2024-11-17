@@ -326,8 +326,8 @@ public class HotelService {
         
         // 호텔의 모든 객실을 순회하며 조건에 맞는 객실이 있는지 확인
         return rooms.stream().anyMatch(room -> 
-            room.getOccupancy() >= guests && isRoomAvailable(room, checkInDate, checkOutDate)
-        );
+	        (guests == 0 || room.getOccupancy() >= guests) && isRoomAvailable(room, checkInDate, checkOutDate)
+	    );
     }
 
     private boolean isRoomAvailable(Room room, LocalDate checkInDate, LocalDate checkOutDate) {
