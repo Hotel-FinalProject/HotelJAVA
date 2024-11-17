@@ -51,7 +51,7 @@
       </div>
         <div class="reservation-person">
           <label for="personSelect">예약 인원:</label>
-          <select id="personSelect" v-model="selectedPersonCount">
+          <select id="personSelect" v-model="selectedPersonCount" class="pl">
             <option v-for="n in 5" :key="n" :value="n">{{ n }}명</option>
           </select>
         </div>
@@ -311,6 +311,26 @@ export default {
   justify-content: center;
   margin-right: 8px;
   gap: 8px;
+}
+
+.pl{
+    width: 200px;
+    border: 1px solid #C4C4C4;
+    box-sizing: border-box;
+    border-radius: 10px;
+    padding: 5px 5px;
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+}
+
+.pl:focus{
+    border: 1px solid lightgray;
+    box-sizing: border-box;
+    border-radius: 10px;
+    border-radius: 10px;
 }
 .details-bottom {
   margin-top: 30px;

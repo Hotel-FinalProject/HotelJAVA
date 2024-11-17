@@ -57,17 +57,123 @@
             </li>
           </ul>
         </div>
+        
+        <!--사용자 관리사용자 -->
         <div v-if="currentView === 'UserManagement'">
           <h2>사용자 관리</h2>
-          <p>사용자 계정을 관리하고 검색할 수 있습니다.</p>
+          <hr>
+          <div class="user-table-container">
+            <!-- 테이블 헤더 -->
+            <div class="user-table-header">
+              <span>계정 상태</span>
+              <span>Index</span>
+              <span>이름</span>
+              <span>이메일</span>
+              <span>전화번호</span>
+              <span>관리</span>
+            </div>
+            <!-- 테이블 내용 -->
+            <div class="user-table-row">
+              <span class="user-active">사용중</span>
+              <span>1</span>
+              <span>홍길동</span>
+              <span>user1@example.com</span>
+              <span>010-1234-5678</span>
+              <div class="user-activeBtn-container">
+                <button>활성화</button>
+                <button>정지</button>
+              </div>
+            </div>
+            <div class="user-table-row">
+              <span class="user-deactive">비활성</span>
+              <span>2</span>
+              <span>김영희</span>
+              <span>user2@example.com</span>
+              <span>010-8765-4321</span>
+              <div class="user-activeBtn-container">
+                <button>활성화</button>
+                <button>정지</button>
+              </div>
+            </div>
+          </div>
         </div>
+
+         <!-- 호텔 관리 -->
         <div v-if="currentView === 'HotelAdminAccounts'">
           <h2>호텔 관리자 계정 관리</h2>
-          <p>호텔 관리자 계정을 관리하고 권한을 업데이트할 수 있습니다.</p>
+          <hr>
+          <div class="user-table-container">
+            <!-- 테이블 헤더 -->
+            <div class="user-table-header">
+              <span>계정 상태</span>
+              <span>Index</span>
+              <span>호텔명</span>
+              <span>이메일</span>
+              <span>전화번호</span>
+              <span>관리</span>
+            </div>
+            <!-- 테이블 내용 -->
+            <div class="user-table-row">
+              <span class="user-active">사용중</span>
+              <span>1</span>
+              <span>홍길동</span>
+              <span>user1@example.com</span>
+              <span>010-1234-5678</span>
+              <div class="user-activeBtn-container">
+                <button>활성화</button>
+                <button>정지</button>
+              </div>
+            </div>
+            <div class="user-table-row">
+              <span class="user-deactive">비활성</span>
+              <span>2</span>
+              <span>김영희</span>
+              <span>user2@example.com</span>
+              <span>010-8765-4321</span>
+              <div class="user-activeBtn-container">
+                <button>활성화</button>
+                <button>정지</button>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- 리뷰 관리 -->
         <div v-if="currentView === 'ReviewReports'">
           <h2>리뷰 관리</h2>
-          <p>신고된 리뷰를 검토하고 조치를 취할 수 있습니다.</p>
+          <hr>
+          <div class="user-table-container">
+            <!-- 테이블 헤더 -->
+            <div class="review-table-header">
+              <span>계정 상태</span>
+              <span>Index</span>
+              <span>이름</span>
+              <span>리뷰 내용</span>
+              <span>신고자 이름</span>
+              <span>관리</span>
+            </div>
+            <!-- 테이블 내용 -->
+            <div class="user-table-row">
+              <span class="review-active">처리완료</span>
+              <span>1</span>
+              <span>test1</span>
+              <span>바보</span>
+              <span>ㅇㅇㅇ</span>
+              <div class="user-activeBtn-container">
+                <button>숨김 처리</button>
+              </div>
+            </div>
+            <div class="user-table-row">
+              <span class="review-deactive">미처리</span>
+              <span>2</span>
+              <span>test2</span>
+              <span>바보</span>
+              <span>ㅇㅇㅇ</span>
+              <div class="user-activeBtn-container">
+                <button>숨김 처리</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </SidebarLayout>
@@ -145,6 +251,79 @@
     border-radius: 8px;
     background-color: #f9f9f9;
   }
+
+  .user-table-container {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  overflow: hidden;
+}
+
+.user-table-header, .user-table-row {
+  display: grid;
+  grid-template-columns: 0.5fr 0.5fr 1fr 2fr 1.5fr 1fr;
+  gap: 10px;
+  padding: 10px 20px;
+  font-size: 14px;
+  align-items: center;
+}
+ .review-table-header{
+   display: grid;
+  grid-template-columns: 0.5fr 0.5fr 1fr 2fr 1.5fr 1fr;
+  gap: 10px;
+  padding: 10px 20px;
+  font-size: 14px;
+  align-items: center;
+ }
+
+.user-table-header, .review-table-header {
+  background-color: #ddd;
+  color: #fff;
+  font-weight: bold;
+}
+
+.user-table-row {
+  background-color: #ffffff;
+}
+
+
+.user-active,.review-active {
+  width:60px;
+  background-color: rgb(219, 238, 159);
+  border-radius: 4px;
+  font-weight: bold;
+  padding: 5px 10px;
+  text-align: center;
+}
+.user-deactive,.review-deactive{
+  width:60px;
+  background-color: lightgray;
+  border-radius: 4px;
+  font-weight: bold;
+  padding: 5px 10px;
+  text-align: center;
+}
+
+.user-activeBtn-container {
+  display: flex;
+  gap: 5px;
+}
+
+.user-activeBtn-container button {
+  padding: 5px 10px;
+  font-size: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.user-activeBtn-container button:hover {
+  background-color: #f0f0f0;
+}
   
   .dashboard-item h3 {
     margin-bottom: 10px;
