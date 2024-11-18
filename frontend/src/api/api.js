@@ -126,13 +126,15 @@ function createReview(formData, token) {
     console.log(`${key}: ${value}`);
   }
 
+  // 헤더와 요청 경로 확인
   return config.post('/auth/reviews', formData, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`, // JWT 토큰 추가
       'Content-Type': 'multipart/form-data', // 이미지 업로드를 위한 설정
     },
   });
 }
+
 
 /** 단일 리뷰 조회 */
 function getReview(reviewId, token) {

@@ -13,28 +13,28 @@
           v-for="star in 5"
           :key="star"
           class="star"
-          :class="{ filled: star <= rating }"
+          :class="{ selected: star <= rating }"
           @click="setRating(star)"
         >
           ★
         </span>
       </div>
-      <div class="image-upload-container">
+      <div class="image-upload-container" v-if="!isEdit">
         <input
           type="file"
           accept="image/*"
           multiple
           @change="handleImageUpload"
         />
-        <div class="image-preview">
-          <div
-            v-for="(image, index) in uploadedImages"
-            :key="index"
-            class="image-preview-item"
-          >
-            <img :src="image" alt="Preview" />
-            <button @click="removeImage(index)">삭제</button>
-          </div>
+      </div>
+      <div class="image-preview">
+        <div
+          v-for="(image, index) in uploadedImages"
+          :key="index"
+          class="image-preview-item"
+        >
+          <img :src="image.url" alt="Preview" />
+          <button v-if="!isEdit" @click="removeImage(index)">삭제</button>
         </div>
       </div>
       <div class="modal-actions">
@@ -48,61 +48,93 @@
 <script>
 export default {
   props: {
-    isEdit: Boolean, // 수정 모드 여부
-    initialData: Object, // 수정용 초기 데이터
+    isEdit: Boolean,
+    initialData: Object,
   },
   data() {
     return {
       reviewContent: "", // 리뷰 내용
       rating: 0, // 별점
-      uploadedImages: [], // 업로드된 이미지
+      uploadedImages: [], // { file: File, url: string } 형태로 저장
     };
   },
   methods: {
-    // 초기화 메서드
-    initializeModal(data) {
-      if (data) {
-        this.reviewContent = data.content || "";
-        this.rating = data.rating || 0;
-        this.uploadedImages = [...(data.imageUrl || [])];
-      } else {
-        this.reviewContent = "";
-        this.rating = 0;
-        this.uploadedImages = [];
-      }
-    },
     setRating(star) {
       this.rating = star;
     },
     handleImageUpload(event) {
+      if (this.isEdit) return; // 수정 모드에서는 업로드 금지
       const files = Array.from(event.target.files);
+
+      if (!files.length) {
+        console.error("이미지 파일이 선택되지 않았습니다.");
+        return;
+      }
+
       files.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.uploadedImages.push(e.target.result);
+          if (e.target && e.target.result) {
+            this.uploadedImages.push({ file, url: e.target.result }); // 파일과 URL을 함께 저장
+          } else {
+            console.error("이미지 로딩 실패:", e);
+          }
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file); // 파일의 Base64 URL 생성
       });
     },
     removeImage(index) {
-      this.uploadedImages.splice(index, 1);
+      this.uploadedImages.splice(index, 1); // 선택한 이미지 제거
     },
     submitReview() {
+      if (!this.reviewContent || this.rating <= 0) {
+        alert("리뷰 내용을 입력하고 별점을 선택하세요.");
+        return;
+      }
+
+      if (!this.uploadedImages || !Array.isArray(this.uploadedImages)) {
+        alert("이미지 데이터가 올바르지 않습니다.");
+        console.error("uploadedImages is not an array:", this.uploadedImages);
+        return;
+      }
+
+      // FormData 생성 및 데이터 추가
+      const formData = new FormData();
+      formData.append("content", this.reviewContent);
+      formData.append("rating", this.rating);
+
+      this.uploadedImages.forEach((image, index) => {
+        if (image.file) {
+          formData.append("images", image.file);
+        } else {
+          console.warn(`유효하지 않은 이미지 데이터 (index: ${index}):`, image);
+        }
+      });
+
+      console.log("리뷰 제출 데이터:", {
+        content: this.reviewContent,
+        rating: this.rating,
+        images: this.uploadedImages,
+      });
+
       this.$emit("submit", {
         content: this.reviewContent,
         rating: this.rating,
         images: this.uploadedImages,
       });
     },
-    closeModal() {
-      this.$emit("close");
-    },
   },
   watch: {
     initialData: {
       immediate: true,
       handler(newData) {
-        this.initializeModal(newData); // 초기 데이터 설정
+        if (newData) {
+          this.reviewContent = newData.content || "";
+          this.rating = newData.rating || 0;
+          this.uploadedImages = newData.imageUrl
+            ? newData.imageUrl.map((url) => ({ file: null, url })) // URL만 있을 때 처리
+            : [];
+        }
       },
     },
   },
@@ -132,7 +164,6 @@ export default {
   overflow-y: auto;
 }
 
-
 textarea {
   width: 100%;
   height: 100px;
@@ -149,6 +180,7 @@ textarea {
   font-size: 24px;
   cursor: pointer;
   color: #ddd;
+  transition: color 0.2s;
 }
 
 .star.selected {
