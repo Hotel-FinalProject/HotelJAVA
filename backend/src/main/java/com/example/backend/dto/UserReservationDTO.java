@@ -10,6 +10,7 @@ import java.time.LocalDate;
 public class UserReservationDTO {
 
     // 호텔 이름, 객실명,체크인/아웃, 숙박인원, 요청사항
+    Long reservationId;
     String hotelName;
     String roomName;
     LocalDate checkIn;

@@ -37,7 +37,6 @@ public class ReviewService {
         log.info("리뷰 생성 요청 DTO : {}", reviewDTO);
         log.info("리뷰 생성 요청 이미지 : {}", images);
 
-
         // 예약 정보 확인
 
         Reservation reservation = reservationRepository.findById(reviewDTO.getReservationId())

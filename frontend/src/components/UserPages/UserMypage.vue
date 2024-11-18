@@ -1,4 +1,3 @@
-<!-- MyPage.vue -->
 <template>
   <div class="mypage-container">
     <!-- 사이드바 컴포넌트 -->
@@ -13,6 +12,7 @@
           :email="email"
           :phone="phone"
           :reviews="reviews"
+          :logged-in-user-id="loggedInUserId"
         />
       </router-view>
     </div>
@@ -50,6 +50,7 @@ export default {
       phone: "",
       reviews: [],
       favoriteHotels: [],
+      loggedInUserId: null, // 현재 로그인한 사용자 ID
       intervalId: null,
     };
   },
@@ -59,6 +60,7 @@ export default {
       this.userName = userInfo.userName || "이름을 추가해주세요.";
       this.email = userInfo.email || "이메일을 추가해주세요.";
       this.phone = userInfo.phone || "전화번호를 추가해주세요.";
+      this.loggedInUserId = userInfo.userId; // 현재 로그인한 사용자 ID 설정
 
       this.fetchUserReviews();
       this.fetchUserFavorite();
@@ -76,17 +78,7 @@ export default {
     async fetchUserReviews() {
       try {
         const token = sessionStorage.getItem("token");
-        const userId = JSON.parse(localStorage.getItem("userInfo")).userId;
-
-        // 로그 추가
-        console.log(
-          "Fetching reviews for userId:",
-          userId,
-          "with token:",
-          token
-        );
-
-        const response = await getReviewsByUser(userId, token);
+        const response = await getReviewsByUser(this.loggedInUserId, token);
         this.reviews = response.data;
       } catch (error) {
         console.error("리뷰 데이터를 가져오는 데 실패했습니다:", error);
@@ -98,12 +90,7 @@ export default {
     async fetchUserFavorite() {
       try {
         const token = sessionStorage.getItem("token");
-
-        console.log("Fetching Favorites for token : ", token);
-
         const response = await getFavoriteInfo(token);
-        console.log("FetchUserFavorite response : ", response.data);
-
         this.favoriteHotels = response.data;
       } catch (error) {
         console.error(

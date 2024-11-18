@@ -112,8 +112,8 @@ function getReservationInfo(token) {
 }
 
 /** 결제 취소 */
-function cancelReservationPay(imp_uid, roomId, token){
-  return config.post(`/auth/paymentCancel/${imp_uid}`, {roomId}, {
+function cancelReservationPay(imp_uid, roomId, token) {
+  return config.post(`/auth/paymentCancel/${imp_uid}`, { roomId }, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -121,12 +121,16 @@ function cancelReservationPay(imp_uid, roomId, token){
 }
 
 /** 리뷰 작성 */
-function createReview(reviewData, token) {
-  return config.post('/auth/reviews', reviewData, {
+function createReview(formData, token) {
+  for (let [key, value] of formData.entries()) {
+    console.log(`${key}: ${value}`);
+  }
+
+  return config.post('/auth/reviews', formData, {
     headers: {
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data' // 이미지 업로드를 위한 설정
-    }
+      'Content-Type': 'multipart/form-data', // 이미지 업로드를 위한 설정
+    },
   });
 }
 
@@ -184,7 +188,7 @@ function reportReview(reportData, token) {
 function getFavoriteInfo(token) {
   return config.get('/auth/favorites/favoriteInfo', {
     headers: {
-      'Authorization' : `Bearer ${token}`
+      'Authorization': `Bearer ${token}`
     }
   })
 }
