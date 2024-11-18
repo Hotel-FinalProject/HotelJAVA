@@ -18,7 +18,7 @@ RUN npm run build
 FROM nginx:1.25-alpine
 
 # Nginx 설정 덮어쓰기
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Vue 빌드 결과를 Nginx HTML 폴더로 복사
 COPY --from=build /app/dist /usr/share/nginx/html

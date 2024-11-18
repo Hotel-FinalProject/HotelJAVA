@@ -38,13 +38,14 @@ jobs:
           npm install
           npm run build
 
-      # Spring 도커 이미지 생성
+      # Spring Boot 백엔드 도커 이미지 생성
       - name: Docker image build (backend)
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/erppro-backend:${{ env.VERSION }} ./backend
+        run: docker build -t erppro:backend-${{ env.VERSION }} ./backend
 
-      # Vue 도커 이미지 생성
+      # Vue 프론트엔드 도커 이미지 생성
       - name: Docker image build (frontend)
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/erppro-front:${{ env.VERSION }} ./frontend
+        run: docker build -t erppro:frontend-${{ env.VERSION }} ./frontend
+
 
       - name: Docker login
         uses: docker/login-action@v3
@@ -53,10 +54,10 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Docker Hub push backend
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/erppro-backend:${{ env.VERSION }}
+        run: docker push erppro:backend-${{ env.VERSION }}
 
       - name: Docker Hub push frontend
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/erppro-front:${{ env.VERSION }}
+        run: docker push erppro:frontend-${{ env.VERSION }}
 
   deploy:
     needs: build-docker-image
