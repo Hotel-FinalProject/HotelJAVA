@@ -224,9 +224,10 @@ export default {
       }
     },
     loadKakaoMap() {
+      const apiKey = process.env.VUE_APP_KAKAO_API_KEY;
       if (typeof kakao === "undefined") {
         const script = document.createElement("script");
-        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=&autoload=false`;
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`;
         script.onload = this.initMap;  // 스크립트 로드 후 initMap 호출
         document.head.appendChild(script);
       } else {

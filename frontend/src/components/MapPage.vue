@@ -64,7 +64,8 @@
       loadKakaoMap() {
         if (typeof kakao === "undefined") {
           const script = document.createElement("script");
-          script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=&autoload=false`;
+          const apiKey = process.env.VUE_APP_KAKAO_API_KEY;
+          script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`;
           script.onload = this.initMap;
           document.head.appendChild(script);
         } else {

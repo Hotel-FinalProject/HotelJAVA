@@ -82,8 +82,8 @@ api:
   key: ${API_KEY}
 
 import:
-  api-key: 8574783258275564
-  secret-key: JsGOComCLXxULGSVO4eHqPMjS5X1N4YzBiLrYSVbBQtf58RxmT0Wq71qyhj3ulWjvvtuHlJII7b6FTST
+  api-key: ${IMPORT_KEY}
+  secret-key: ${IMPORT_SECRET_KEY}
 
 aws:
   access-key-id: ${ACCESS_KEY_ID}
