@@ -17,4 +17,5 @@ public class ReviewResponseDTO {
     private Long userId;
     private String userName;
     private Long hotelId;
+    private String hotelName;
 }

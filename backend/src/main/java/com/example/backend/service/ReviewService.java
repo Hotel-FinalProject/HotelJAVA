@@ -138,6 +138,7 @@ public class ReviewService {
         reviewResponseDTO.setUserId(review.getUser().getUserId());
         reviewResponseDTO.setUserName(review.getUser().getName());
         reviewResponseDTO.setHotelId(review.getHotel().getHotelId());
+        reviewResponseDTO.setHotelName(review.getHotel().getName());
         return reviewResponseDTO;
     }
 }

@@ -15,6 +15,9 @@
         작성한 리뷰가 없습니다.
       </div>
       <div class="review" v-for="(review, index) in reviews" :key="index">
+        <h3 class="hotel-name" @click="goToHotel(review.hotelId)">
+          {{ review.hotelName }}
+        </h3>
         <div class="review-header">
           <!-- 별점 표시 -->
           <div class="review-rating">
@@ -152,6 +155,9 @@ export default {
     closeLightbox() {
       this.lightboxImage = null;
     },
+    goToHotel(hotelId){
+      this.$router.push(`/hotel-details/${hotelId}`);
+    }
   },
 };
 </script>
@@ -233,5 +239,17 @@ button {
 .delete-button {
   background-color: #ff4d4d;
   color: white;
+}
+
+.hotel-name {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: none; /* 기본 밑줄 제거 */
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.hotel-name:hover {
+  text-decoration: underline; /* 마우스 오버 시 밑줄 추가 */
 }
 </style>
