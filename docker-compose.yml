@@ -20,9 +20,9 @@ services:
     ports:
       - "8081:8081"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://${RDS_HOSTNAME}:${RDS_PORT}/${RDS_DATABASE}?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: ${RDS_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${RDS_PASSWORD}
+      SPRING_DATASOURCE_URL: ${DATABASE_URL}
+      SPRING_DATASOURCE_USERNAME: ${DATABASE_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
       SPRING_PROFILES_ACTIVE: local
     restart: always
 
