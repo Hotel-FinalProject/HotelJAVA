@@ -53,7 +53,10 @@
           <p>요청 사항: {{ reservation.request }}</p>
           <p>예약 상태: {{ reservation.status }}</p>
           <button
-            v-if="canWriteReview(reservation.checkOut)"
+            v-if="
+              canWriteReview(reservation.checkOut) &&
+              !hasReview(reservation.reservationId)
+            "
             @click="openReviewModal(reservation.reservationId)"
           >
             리뷰 작성
@@ -86,7 +89,13 @@ export default {
   components: {
     ReviewModal,
   },
-  setup() {
+  props: {
+    reviews: {
+      type: Array,
+      required: true,
+    },
+  },
+  setup(props) {
     const reservationStore = useReservationStore();
 
     const state = reactive({
@@ -120,6 +129,14 @@ export default {
       return daysSinceCheckOut >= 0 && daysSinceCheckOut <= 7;
     };
 
+    // 리뷰 작성 버튼 활성화 여부 확인
+    const hasReview = (reservationId) => {
+      // 현재 예약 번호(reservationId)가 리뷰 배열(props.reviews)에 있는지 확인
+      return props.reviews.some(
+        (review) => review.reservationId === reservationId
+      );
+    };
+
     // 리뷰 작성 모달 열기
     const openReviewModal = (reservationId) => {
       console.log("openReviewModal called with reservationId:", reservationId);
@@ -134,11 +151,6 @@ export default {
     // 리뷰 작성 처리
     const handleReviewSubmit = async (reviewData) => {
       try {
-        console.log("Submitting review with data:", {
-          ...reviewData,
-          reservationId: state.selectedReservationId,
-        });
-
         if (!state.selectedReservationId) {
           alert("예약 정보가 없습니다. 다시 시도해주세요.");
           return;
@@ -150,15 +162,14 @@ export default {
         formData.append("rating", reviewData.rating || 0);
         formData.append("reservationId", state.selectedReservationId);
 
-        if (reviewData.images && reviewData.images.length > 0) {
-          reviewData.images.forEach((image) =>
-            formData.append("images", image)
-          );
-        }
+        // 이미지 배열을 순회하며 각 파일을 FormData에 추가
+        reviewData.images.forEach((image) => {
+          formData.append('images', image); // 이미지 키에 인덱스를 추가하여 고유한 키 생성
+        });
 
-        console.log("FormData prepared for Axios:", formData); // 확인용 로그 추가
+        console.log("FormData entries:");
         for (let [key, value] of formData.entries()) {
-          console.log(`${key}: ${value}`); // FormData 내용 출력
+          console.log(`${key}: ${value}`);
         }
 
         await createReview(formData, token);
@@ -166,6 +177,7 @@ export default {
 
         closeModal();
         reservationStore.fetchReservations();
+        this.$emit("update");
       } catch (error) {
         console.error("리뷰 작성 중 오류 발생:", error);
         alert("리뷰 작성 중 오류가 발생했습니다.");
@@ -184,6 +196,7 @@ export default {
       loading,
       canCancel,
       canWriteReview,
+      hasReview,
       openReviewModal,
       handleReviewSubmit,
       closeModal,

@@ -12,6 +12,7 @@
           :email="email"
           :phone="phone"
           :reviews="reviews"
+          @update="handleReviewUpdated"
           :logged-in-user-id="loggedInUserId"
         />
       </router-view>
@@ -99,6 +100,9 @@ export default {
         );
       }
     },
+    handleReviewUpdated() {
+    this.fetchUserReviews();
+  },
   },
 };
 </script>
