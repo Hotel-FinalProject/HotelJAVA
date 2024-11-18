@@ -54,10 +54,10 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Docker Hub push backend
-        run: docker push erppro:backend-${{ env.VERSION }}
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/erppro-backend:${{ env.VERSION }}
 
       - name: Docker Hub push frontend
-        run: docker push erppro:frontend-${{ env.VERSION }}
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/erppro-frontend:${{ env.VERSION }}
 
   deploy:
     needs: build-docker-image
