@@ -40,12 +40,11 @@ jobs:
 
       # Spring Boot 백엔드 도커 이미지 생성
       - name: Docker image build (backend)
-        run: docker build -t erppro:backend-${{ env.VERSION }} ./backend
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/erppro-backend:${{ env.VERSION }} ./backend
 
       # Vue 프론트엔드 도커 이미지 생성
-      - name: Docker image build (frontend)
-        run: docker build -t erppro:frontend-${{ env.VERSION }} ./frontend
-
+      - name: Docker image build(front)
+          run: docker build -t ${{ secrets.DOCKER_USERNAME }}/erppro-front:${{ env.VERSION }} ./frontend
 
       - name: Docker login
         uses: docker/login-action@v3
