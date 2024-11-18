@@ -62,17 +62,13 @@ jobs:
     needs: build-docker-image
     runs-on: ubuntu-latest
     steps:
-      - name: Install AWS CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y awscli
       - name: Configure AWS credentials
-        run: |
-          mkdir -p ~/.aws  # ~/.aws 디렉토리 생성
-          echo "[default]" > ~/.aws/config
-          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/config
-          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/config
-      
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+          
       - name: Deploy to AWS EC2
         env:
           INSTANCE_IP: ${{ secrets.INSTANCE_IP }}
