@@ -180,6 +180,16 @@ function reportReview(reportData, token) {
   });
 }
 
+/** 찜 목록 조회 */
+function getFavoriteInfo(token) {
+  return config.get('/auth/favorites/favoriteInfo', {
+    headers: {
+      'Authorization' : `Bearer ${token}`
+    }
+  })
+}
+
+
 export {
   signupUser,
   loginUser,
@@ -200,5 +210,6 @@ export {
   getReviewsByUser,
   updateReview,
   deleteReview,
-  reportReview
+  reportReview,
+  getFavoriteInfo,
 };

@@ -7,11 +7,13 @@
     <!-- 컨텐츠 랜더링 -->
     <div class="router-view-container">
       <router-view v-slot="{ Component }">
-        <component :is="Component" 
-                   :user-name="userName" 
-                   :email="email" 
-                   :phone="phone" 
-                   :reviews="reviews" />
+        <component
+          :is="Component"
+          :user-name="userName"
+          :email="email"
+          :phone="phone"
+          :reviews="reviews"
+        />
       </router-view>
     </div>
 
@@ -19,8 +21,12 @@
     <div class="favorite-hotels">
       <h2>찜한 호텔 목록</h2>
       <div class="hotel-list">
-        <div class="hotel-item" v-for="(hotel, index) in favoriteHotels" :key="index">
-          {{ hotel.name }}
+        <div class="hotel-item" v-for="(hotel, index) in favoriteHotels" :key="index" >
+          <!-- router-link로 호텔 상세 페이지로 이동 -->
+          <router-link :to="`/hotel-details/${hotel.hotelId}`" class="hotel-link" >
+            <img :src="hotel.hotelImage" alt="Hotel Image" class="hotel-image" />
+            <span class="hotel-name">{{ hotel.hotelName }}</span>
+          </router-link>
         </div>
         <div v-if="favoriteHotels.length === 0">찜한 호텔 목록이 없습니다.</div>
       </div>
@@ -30,7 +36,7 @@
 
 <script>
 import SidebarComponent from "@/components/UserPages/UserMyPageSidebar.vue";
-import { getReviewsByUser } from "@/api/api";
+import { getReviewsByUser, getFavoriteInfo } from "@/api/api";
 
 export default {
   name: "MyPage",
@@ -39,9 +45,9 @@ export default {
   },
   data() {
     return {
-      userName: '',
-      email: '',
-      phone: '',
+      userName: "",
+      email: "",
+      phone: "",
       reviews: [],
       favoriteHotels: [],
       intervalId: null,
@@ -55,6 +61,7 @@ export default {
       this.phone = userInfo.phone || "전화번호를 추가해주세요.";
 
       this.fetchUserReviews();
+      this.fetchUserFavorite();
       this.startFetchingReviews();
     } else {
       console.log("로컬 스토리지에 userInfo가 없습니다.");
@@ -70,9 +77,14 @@ export default {
       try {
         const token = sessionStorage.getItem("token");
         const userId = JSON.parse(localStorage.getItem("userInfo")).userId;
-        
+
         // 로그 추가
-        console.log("Fetching reviews for userId:", userId, "with token:", token);
+        console.log(
+          "Fetching reviews for userId:",
+          userId,
+          "with token:",
+          token
+        );
 
         const response = await getReviewsByUser(userId, token);
         this.reviews = response.data;
@@ -82,6 +94,23 @@ export default {
     },
     startFetchingReviews() {
       this.intervalId = setInterval(this.fetchUserReviews, 30000);
+    },
+    async fetchUserFavorite() {
+      try {
+        const token = sessionStorage.getItem("token");
+
+        console.log("Fetching Favorites for token : ", token);
+
+        const response = await getFavoriteInfo(token);
+        console.log("FetchUserFavorite response : ", response.data);
+
+        this.favoriteHotels = response.data;
+      } catch (error) {
+        console.error(
+          "찜한 호텔 목록 데이터를 가져오는 데 실패했습니다:",
+          error
+        );
+      }
     },
   },
 };
@@ -121,5 +150,28 @@ export default {
   border-radius: 10px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   align-self: flex-start; /* 이 섹션이 메인 콘텐츠 높이와 관계없이 상단에 고정되도록 설정 */
+}
+
+.hotel-item a{
+  display: flex;
+  align-items: center; /* 이미지와 텍스트를 수직 가운데 정렬 */
+  gap: 15px; /* 이미지와 텍스트 사이 간격 */
+  padding: 10px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  text-decoration-line: none;
+}
+
+.hotel-image {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.hotel-name {
+  font-size: 14px;
+  color: #333333;
 }
 </style>
