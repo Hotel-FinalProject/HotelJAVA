@@ -1,6 +1,5 @@
 .DS_Store
 node_modules
-/dist
 .gitmessage.txt
 
 # local env files
