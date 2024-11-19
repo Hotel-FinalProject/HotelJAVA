@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: backend
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   datasource:
     url: ${DATABASE_URL}
     username: ${DATABASE_USER}
@@ -91,4 +93,5 @@ aws:
   s3:
     bucket-name: hotel-java
     region: ap-northeast-2
+
 
