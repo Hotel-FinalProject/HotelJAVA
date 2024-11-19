@@ -39,21 +39,24 @@
       <div v-if="currentView === 'Dashboard'">
         <h2>대시보드</h2>
         <p>호텔의 전체 상태를 한눈에 확인하세요.</p>
+        <p>{{ roomSummary }}</p>
+
         <ul class="dashboard-summary">
           <li class="dashboard-item">
   <h3>🛏️ 객실 관리</h3>
   <p>전체 객실 수: {{ roomSummary?.totalRooms || 0 }}개</p>
-  <div v-if="roomSummary?.roomTypeCounts && Object.keys(roomSummary.roomTypeCounts).length > 0">
-    <p>유형별 객실 수:</p>
-    <ul>
-      <li v-for="(count, type) in roomSummary.roomTypeCounts" :key="type">
-        {{ type }}: {{ count }}개
-      </li>
-    </ul>
-  </div>
-  <div v-else>
-    <p>객실 정보가 없습니다.</p>
-  </div>
+<div v-if="roomSummary?.roomTypeCounts && Object.keys(roomSummary.roomTypeCounts).length > 0">
+  <p>유형별 객실 수:</p>
+  <ul>
+    <li v-for="(count, type) in roomSummary.roomTypeCounts" :key="type">
+      {{ type }}: {{ count }}개
+    </li>
+  </ul>
+</div>
+<div v-else>
+  <p>객실 정보가 없습니다.</p>
+</div>
+
 </li>
           <li class="dashboard-item">
             <h3>📅 오늘 예약 정보</h3>
@@ -113,30 +116,28 @@ export default {
   },
   methods: {
     async fetchRoomSummary() {
-    try {
-        const hotelId = 17; // 고정된 호텔 ID
-        const date = new Date().toISOString().split("T")[0]; // 오늘 날짜
+  try {
+    const hotelId = 17; // 고정된 호텔 ID
+    const date = new Date().toISOString().split("T")[0]; // 오늘 날짜
 
-        const response = await axios.get(`/api/rooms/hotel/${hotelId}/room-summary`, {
-            params: { date },
-        });
+    const response = await axios.get(`http://localhost:8081/api/rooms/hotel/${hotelId}/room-summary`, {
+        params: { date },
+    });
 
-        console.log("응답 데이터:", response.data); // 디버깅용 로그 추가
-        this.roomSummary = response.data || { totalRooms: 0, roomTypeCounts: {} };
-    } catch (error) {
-        console.error("객실 요약 데이터를 가져오는 중 오류 발생:", error);
-        this.roomSummary = { totalRooms: 0, roomTypeCounts: {} }; // 기본값 설정
-    }
+    console.log("응답 데이터:", response.data); // 반환 데이터 확인
+    this.roomSummary = response.data || { totalRooms: 0, roomTypeCounts: {} };
+  } catch (error) {
+    console.error("객실 요약 데이터를 가져오는 중 오류 발생:", error);
+    this.roomSummary = { totalRooms: 0, roomTypeCounts: {} }; // 기본값 설정
+  }
 }
-
-
 
 ,
     async fetchTodayReservations() {
       try {
         const hotelId = 17; // 실제 호텔 ID
 
-        const response = await axios.get(`/api/auth/reservations/today`, {
+        const response = await axios.get(`http://localhost:8081/api/auth/reservations/today`, {
           params: { hotelId },
         });
 
@@ -148,11 +149,10 @@ export default {
     },
   },
   mounted() {
-    if (this.currentView === "Dashboard") {
-      this.fetchRoomSummary();
-      this.fetchTodayReservations(); // 오늘 예약 정보 가져오기
-    }
-  },
+  this.fetchRoomSummary();
+  this.fetchTodayReservations(); // 오늘 예약 정보 가져오기
+}
+,
 };
 </script>
 

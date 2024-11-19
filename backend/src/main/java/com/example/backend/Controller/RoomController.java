@@ -75,14 +75,15 @@ public class RoomController {
 //        @RequestParam("date") LocalDate date) {
 //        return roomService.getRoomSummary(hotelId, date);
 //    }
-    @GetMapping("/hotel/{hotelId}/room-summary")
-    public ResponseEntity<Map<String, Object>> getRoomSummary(
-            @PathVariable("hotelId") Long hotelId,
-            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        LocalDate targetDate = (date != null) ? date : LocalDate.now();
-        Map<String, Object> roomSummary = roomService.getRoomSummary(hotelId, targetDate);
-        return ResponseEntity.ok(roomSummary);
-    }
+//    @GetMapping("/hotel/{hotelId}/room-summary")
+//    public ResponseEntity<Map<String, Object>> getRoomSummary(
+//            @PathVariable("hotelId") Long hotelId,
+//            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+//        LocalDate targetDate = (date != null) ? date : LocalDate.now();
+//        Map<String, Object> roomSummary = roomService.getRoomSummary(hotelId, targetDate);
+//        System.out.println("Room Summary: " + roomSummary); // 디버깅용 로그 추가
+//        return ResponseEntity.ok(roomSummary);
+//    }
 
 
     
