@@ -193,8 +193,8 @@ public class HotelService {
                 hotel.getHotelId(), 
                 hotel.getName(), 
                 hotel.getAddress(), 
-                hotel.getImageUrl(), 
-                hotel.getRating(), 
+                hotel.getImageUrl(),
+                calculateAverageRating(hotel),
                 hotel.getMapX(),
                 hotel.getMapY(),
                 null
@@ -211,8 +211,8 @@ public class HotelService {
                     hotel.getHotelId(), 
                     hotel.getName(), 
                     hotel.getAddress(), 
-                    hotel.getImageUrl(), 
-                    hotel.getRating(),
+                    hotel.getImageUrl(),
+                    calculateAverageRating(hotel),
                     hotel.getMapX(),  // mapX 추가
                     hotel.getMapY(),   // mapY 추가
                     null
@@ -229,7 +229,7 @@ public class HotelService {
                     hotel.getName(),
                     hotel.getAddress(),
                     hotel.getImageUrl(),
-                    hotel.getRating(),
+                    calculateAverageRating(hotel),
                     hotel.getMapX(),
                     hotel.getMapY(),
                     null
@@ -243,7 +243,7 @@ public class HotelService {
                     hotel.getName(),
                     hotel.getAddress(),
                     hotel.getImageUrl(),
-                    hotel.getRating(),
+                    calculateAverageRating(hotel),
                     hotel.getMapX(),
                     hotel.getMapY(),
                     null
@@ -277,7 +277,7 @@ public class HotelService {
                 hotel.getName(),
                 hotel.getAddress(),
                 hotel.getImageUrl(),
-                hotel.getRating(),
+                calculateAverageRating(hotel),
                 hotel.getMapX(),
                 hotel.getMapY(),
                 hotel.getHotelnum(),
@@ -313,7 +313,7 @@ public class HotelService {
                     hotel.getName(),
                     hotel.getAddress(),
                     hotel.getImageUrl(),
-                    hotel.getRating(),
+                    calculateAverageRating(hotel),
                     hotel.getMapX(),
                     hotel.getMapY(),
                     null
@@ -336,4 +336,91 @@ public class HotelService {
         return roomCounts.stream().allMatch(roomCount -> roomCount.getRoomCount() > 0);
     }
 
+    public List<HotelDTO> getTop10HotelsByReviewCount() {
+        List<HotelDTO> hotelsWithReviews = hotelRepository.findAll().stream()
+                .filter(hotel -> hotel.getReviews() != null && !hotel.getReviews().isEmpty())
+                .sorted((h1, h2) -> Integer.compare(h2.getReviews().size(), h1.getReviews().size()))
+                .limit(10)
+                .map(hotel -> new HotelDTO(
+                        hotel.getHotelId(),
+                        hotel.getName(),
+                        hotel.getAddress(),
+                        hotel.getImageUrl(),
+                        calculateAverageRating(hotel),  // rating을 서비스 레이어에서 계산하여 전달합니다.
+                        hotel.getMapX(),
+                        hotel.getMapY(),
+                        null
+                ))
+                .collect(Collectors.toList());
+
+        // 리뷰가 있는 호텔이 10개 미만인 경우, 리뷰가 없는 호텔로 추가 채움
+        if (hotelsWithReviews.size() < 10) {
+            List<HotelDTO> hotelsWithoutReviews = hotelRepository.findAll().stream()
+                    .filter(hotel -> hotel.getReviews() == null || hotel.getReviews().isEmpty())
+                    .limit(10 - hotelsWithReviews.size())
+                    .map(hotel -> new HotelDTO(
+                            hotel.getHotelId(),
+                            hotel.getName(),
+                            hotel.getAddress(),
+                            hotel.getImageUrl(),
+                            null,  // 리뷰가 없으므로 평점은 null
+                            hotel.getMapX(),
+                            hotel.getMapY(),
+                            null
+                    ))
+                    .collect(Collectors.toList());
+            hotelsWithReviews.addAll(hotelsWithoutReviews);
+        }
+
+        return hotelsWithReviews;
+    }
+
+    public List<HotelDTO> getTop10HotelsByRating() {
+        List<HotelDTO> hotelsWithReviews = hotelRepository.findAll().stream()
+                .filter(hotel -> hotel.getReviews() != null && !hotel.getReviews().isEmpty())
+                .sorted((h1, h2) -> Double.compare(calculateAverageRating(h2), calculateAverageRating(h1)))
+                .limit(10)
+                .map(hotel -> new HotelDTO(
+                        hotel.getHotelId(),
+                        hotel.getName(),
+                        hotel.getAddress(),
+                        hotel.getImageUrl(),
+                        calculateAverageRating(hotel),  // rating을 서비스 레이어에서 계산하여 전달합니다.
+                        hotel.getMapX(),
+                        hotel.getMapY(),
+                        null
+                ))
+                .collect(Collectors.toList());
+
+        // 평점이 있는 호텔이 10개 미만인 경우, 평점이 없는 호텔로 추가 채움
+        if (hotelsWithReviews.size() < 10) {
+            List<HotelDTO> hotelsWithoutReviews = hotelRepository.findAll().stream()
+                    .filter(hotel -> hotel.getReviews() == null || hotel.getReviews().isEmpty())
+                    .limit(10 - hotelsWithReviews.size())
+                    .map(hotel -> new HotelDTO(
+                            hotel.getHotelId(),
+                            hotel.getName(),
+                            hotel.getAddress(),
+                            hotel.getImageUrl(),
+                            null,  // 리뷰가 없으므로 평점은 null
+                            hotel.getMapX(),
+                            hotel.getMapY(),
+                            null
+                    ))
+                    .collect(Collectors.toList());
+            hotelsWithReviews.addAll(hotelsWithoutReviews);
+        }
+
+        return hotelsWithReviews;
+    }
+
+    public Double calculateAverageRating(Hotel hotel) {
+        if (hotel.getReviews() == null || hotel.getReviews().isEmpty()) {
+            return 0.0;
+        }
+        return hotel.getReviews().stream()
+                .mapToDouble(review -> review.getRating())
+                .average()
+                .orElse(0.0);
+    }
 }

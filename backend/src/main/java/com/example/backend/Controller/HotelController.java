@@ -3,9 +3,7 @@ package com.example.backend.Controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +101,7 @@ public class HotelController {
                     hotel.getName(),
                     hotel.getAddress(),
                     hotel.getImageUrl(),
-                    hotel.getRating(),
+                    hotelService.calculateAverageRating(hotel),
                     hotel.getMapX(),
                     hotel.getMapY(),
                     null
@@ -142,4 +140,15 @@ public class HotelController {
     }
 
 
+    @GetMapping("/hotels/top10")
+    public Map<String, List<HotelDTO>> getTop10Hotels() {
+        List<HotelDTO> topHotelsByReviewCount = hotelService.getTop10HotelsByReviewCount();
+        List<HotelDTO> topHotelsByRating = hotelService.getTop10HotelsByRating();
+
+        Map<String, List<HotelDTO>> response = new HashMap<>();
+        response.put("topByReviewCount", topHotelsByReviewCount);
+        response.put("topByRating", topHotelsByRating);
+
+        return response;
+    }
 }
