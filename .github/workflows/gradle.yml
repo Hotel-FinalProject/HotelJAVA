@@ -73,9 +73,7 @@ jobs:
         env:
           INSTANCE_IP: ${{ secrets.INSTANCE_IP }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL}}
-          DATABASE_USER : ${{ secrets.DATABASE_USER}}
-          DATABASE_PASSWORD : ${{ secrets.DATABASE_PASSWORD}}
+       
 
         run: |
           echo "${{ secrets.PRIVATE_KEY }}" > finalproject.pem
