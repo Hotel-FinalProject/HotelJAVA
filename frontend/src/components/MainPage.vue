@@ -72,7 +72,7 @@
           <div class="hotel-name">{{ hotel.name }}</div>
           <div class="hotel-info">
             <span class="rating">⭐{{ hotel.rating || 0 }}</span>
-            <span>(리뷰 갯수)</span>
+            <span>({{ hotel.reviewCount }})</span>
           </div>
         </div>
       </div>
@@ -94,7 +94,7 @@
           <div class="hotel-name">{{ hotel.name }}</div>
           <div class="hotel-info">
             <span class="rating">⭐{{ hotel.rating || 0 }}</span>
-            <span>(리뷰 갯수)</span>
+            <span>({{ hotel.reviewCount }})</span>
           </div>
         </div>
       </div>
@@ -171,15 +171,37 @@ export default {
         query: { query: this.searchQuery },
       });
     },
-    async fetchTopHotelList(){
-        try {
-          const response = await getHotelsReviewsTop();
-          
-          this.topByReviewCount = response.data.topByReviewCount;
-          this.topByRating = response.data.topByRating;
-        } catch (error) {
-          console.error("목록 조회중 오류 발생 : ",error);
-        }
+    async fetchTopHotelList() {
+      try {
+        // 데이터를 가져오기
+        const response = await getHotelsReviewsTop();
+
+        // 가져온 데이터를 변수에 저장
+        let topByReviewCount = response.data.topByReviewCount;
+        let topByRating = response.data.topByRating;
+
+        // 리뷰 개수가 많은 순으로 내림차순 정렬 (리뷰 개수 동일시 이름 오름차순으로 정렬)
+        topByReviewCount = topByReviewCount.sort((a, b) => {
+          if (b.reviewCount !== a.reviewCount) {
+            return b.reviewCount - a.reviewCount; // 리뷰 개수 내림차순: 큰 값이 상단에 위치
+          }
+          return a.name.localeCompare(b.name); // 리뷰 개수가 같으면 이름 오름차순
+        });
+
+        // 평점이 높은 순으로 내림차순 정렬 (평점 동일시 이름 오름차순으로 정렬)
+        topByRating = topByRating.sort((a, b) => {
+          if (b.rating !== a.rating) {
+            return b.rating - a.rating; // 평점 내림차순: 큰 값이 상단에 위치
+          }
+          return a.name.localeCompare(b.name); // 평점이 같으면 이름 오름차순
+        });
+
+        // 정렬된 데이터를 Vue 컴포넌트의 데이터에 저장
+        this.topByReviewCount = topByReviewCount;
+        this.topByRating = topByRating;
+      } catch (error) {
+        console.error("목록 조회 중 오류 발생: ", error);
+      }
     },
   },
 };

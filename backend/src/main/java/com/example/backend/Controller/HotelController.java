@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.example.backend.dto.HotelReviewDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -141,11 +142,11 @@ public class HotelController {
 
 
     @GetMapping("/hotels/top10")
-    public Map<String, List<HotelDTO>> getTop10Hotels() {
-        List<HotelDTO> topHotelsByReviewCount = hotelService.getTop10HotelsByReviewCount();
-        List<HotelDTO> topHotelsByRating = hotelService.getTop10HotelsByRating();
+    public Map<String, List<HotelReviewDTO>> getTop10Hotels() {
+        List<HotelReviewDTO> topHotelsByReviewCount = hotelService.getTop10HotelsByReviewCount();
+        List<HotelReviewDTO> topHotelsByRating = hotelService.getTop10HotelsByRating();
 
-        Map<String, List<HotelDTO>> response = new HashMap<>();
+        Map<String, List<HotelReviewDTO>> response = new HashMap<>();
         response.put("topByReviewCount", topHotelsByReviewCount);
         response.put("topByRating", topHotelsByRating);
 
