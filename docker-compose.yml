@@ -11,6 +11,8 @@ services:
       - ./frontend:/usr/share/nginx/html
     environment:
       - NODE_ENV=production  # Vue의 환경 설정, production 모드
+    networks:
+      - app-network
 
   # Spring Boot WAS1
   was1:
@@ -25,6 +27,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
       SPRING_PROFILES_ACTIVE: local
     restart: always
+    networks:
+      - app-network
 
   # Spring Boot WAS2
   was2:
@@ -37,6 +41,8 @@ services:
       SPRING_DATASOURCE_URL: ${DATABASE_URL}
       SPRING_DATASOURCE_USERNAME: ${DATABASE_USER}
       SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
+    networks:
+      - app-network
 
   # Nginx Reverse Proxy
   nginx:
@@ -50,3 +56,6 @@ services:
       - frontend
       - was1
       - was2
+networks:
+  app-network:
+    driver: bridge
