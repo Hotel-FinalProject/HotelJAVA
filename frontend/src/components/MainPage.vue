@@ -174,8 +174,6 @@ export default {
     async fetchTopHotelList(){
         try {
           const response = await getHotelsReviewsTop();
-
-          console.log("응답 객체 : ", response.data);
           
           this.topByReviewCount = response.data.topByReviewCount;
           this.topByRating = response.data.topByRating;
