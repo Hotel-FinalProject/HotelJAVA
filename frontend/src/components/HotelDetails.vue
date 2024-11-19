@@ -61,12 +61,13 @@
 
       <!-- 리뷰가 있을 때 -->
       <div v-else>
-        <transition-group name="fade" tag="div">
+        <transition-group name="fade" tag="div" class="review-list">
           <div
             v-for="(review, index) in visibleReviews"
             :key="index"
             class="review-grid"
           >
+            <!-- 리뷰 상단 -->
             <div class="review-top">
               <div class="review-rating">
                 <span
@@ -74,23 +75,47 @@
                   :key="star"
                   class="star"
                   :class="{ filled: star <= review.rating }"
-                  >⭐</span
                 >
+                  ⭐
+                </span>
               </div>
-              <div class="review-date">{{ review.date }}</div>
+              <div class="review-actions">
+                <div class="review-date">
+                  {{ reviewFormatDate(review.updateDate || review.writeDate) }}
+                </div>
+                <button
+                  v-if="review.userId === loggedInUserId"
+                  class="edit-button"
+                  @click="openEditModal(review)"
+                >
+                  수정하기
+                </button>
+                <button
+                  v-else
+                  class="report-button"
+                  @click="reportReviews(review.reviewId, review.userId)"
+                >
+                  신고하기
+                </button>
+              </div>
             </div>
+
+            <!-- 작성자 및 객실 정보 -->
+            <div class="reviewer">{{ review.userName }}</div>
+
+            <!-- 리뷰 내용 -->
             <div class="review-content">{{ review.content }}</div>
 
             <!-- 이미지 갤러리 -->
             <div
-              class="image-gallery"
+              class="review-images"
               v-if="review.imageUrl && review.imageUrl.length > 0"
             >
               <img
                 v-for="(image, imgIndex) in review.imageUrl"
                 :src="image"
                 :key="imgIndex"
-                class="thumbnail"
+                class="review-image"
                 @click="openLightbox(image)"
               />
             </div>
@@ -179,7 +204,7 @@
 <script>
 /* global kakao */
 import axios from "axios";
-import { getReviewsByHotel } from "@/api/api";
+import { getReviewsByHotel, reportReview } from "@/api/api";
 import { useAuthStore } from "@/store/register_login";
 
 export default {
@@ -378,6 +403,57 @@ export default {
         console.error("호텔 리뷰 조회 중 오류 발생:", error);
       }
     },
+    reviewFormatDate(dateString) {
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Date(dateString).toLocaleDateString("ko-KR", options);
+    },
+    expandReviews() {
+      const newCount = this.visibleReviewCount + 3;
+      this.visibleReviewCount = newCount;
+      this.visibleReviews = this.hotelReviews.slice(0, newCount);
+    },
+    async reportReviews(reviewId, reviewUser) {
+      const authStore = useAuthStore();
+      const token = sessionStorage.getItem("token");
+
+      // 로그인 확인
+      if (!this.isLoggedIn) {
+        alert("로그인이 필요합니다");
+        this.$router.push("/login");
+        return;
+      }
+
+      // loggedInUserId와 reviewId 확인
+      if (!reviewId) {
+        alert("신고 정보를 확인할 수 없습니다.");
+        console.error("Missing userId or reviewId");
+        return;
+      }
+
+      console.log("리뷰 id : ", reviewId);
+      console.log("리뷰 유저 : ", reviewUser);
+      
+      // 리퀘스트 바디 생성
+      const reportData = {
+        reporterId: authStore.userId, // 현재 로그인된 사용자 ID
+        reportedId: reviewUser, // 신고 대상 사용자 ID
+        reviewId: reviewId, // 신고 대상 리뷰 ID
+      };
+
+      try {
+        // Axios를 사용한 신고 요청
+        const response = await reportReview(reportData, token);
+
+        if (response.data) {
+          alert("신고되었습니다.");
+          console.log(response.data);
+          
+        } 
+      } catch (error) {
+        alert("신고 중 오류가 발생했습니다.");
+        console.error("Axios request error:", error.response || error.message);
+      }
+    },
   },
 };
 </script>
@@ -482,28 +558,67 @@ export default {
 .review-conatiner {
   display: flex;
 }
+.review-list {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
 .review-grid {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  flex: 0 1 30%;
   width: 400px;
   height: 150px;
   border: 1px solid lightgray;
   border-radius: 5px;
   margin-top: 15px;
-  margin-right: 20px;
+  margin-right: 10px;
   padding: 5px;
+}
+
+.review-rating {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffcc00;
+}
+
+.review-date {
+  font-size: 14px;
+  color: #999;
+}
+
+.reviewer {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 5px;
 }
 
 .review-images {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 10px;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.review-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 5px;
 }
 
 .review-top {
-  margin-top: 10px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* 좌우 정렬 */
+  align-items: center; /* 수직 정렬 */
+  margin-bottom: 10px;
 }
+
+.review-actions {
+  display: flex;
+  gap: 10px; /* 버튼 간격 설정 */
+}
+
 .review-date {
   color: rgb(109, 109, 109);
 }
@@ -658,5 +773,33 @@ export default {
   height: 400px !important;
   margin-top: 10px;
   margin-left: 30px;
+}
+
+.edit-button {
+  background-color: #007bff;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+.report-button {
+  background-color: #ff4d4d;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.report-button:hover {
+  background-color: #d32f2f;
 }
 </style>

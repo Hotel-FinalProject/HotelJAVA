@@ -179,7 +179,7 @@ function deleteReview(reviewId, token) {
 
 /** 리뷰 신고 */
 function reportReview(reportData, token) {
-  return config.post('/reports', reportData, {
+  return config.post('/auth/reports', reportData, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
