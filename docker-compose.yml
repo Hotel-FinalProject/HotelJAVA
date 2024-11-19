@@ -25,7 +25,7 @@ services:
       SPRING_DATASOURCE_URL: ${DATABASE_URL}
       SPRING_DATASOURCE_USERNAME: ${DATABASE_USER}
       SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
-      SPRING_PROFILES_ACTIVE: local
+      SPRING_PROFILES_ACTIVE: prod
     restart: always
     networks:
       - app-network
@@ -51,11 +51,13 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx/nginx.confnginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - frontend
       - was1
       - was2
+    networks:
+      - app-network
 networks:
   app-network:
     driver: bridge
