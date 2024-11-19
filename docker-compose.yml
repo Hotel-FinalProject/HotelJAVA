@@ -6,7 +6,7 @@ services:
     image: sumin22/erppro-frontend:v1.0
     container_name: "frontend"
     ports:
-      - "80:80"  # 프론트엔드 앱을 외부에서 접근할 수 있도록 포트 80에 바인딩
+      - "8080:80"  # 프론트엔드 앱을 외부에서 접근할 수 있도록 포트 80에 바인딩
     volumes:
       - ./frontend:/usr/share/nginx/html
     environment:
