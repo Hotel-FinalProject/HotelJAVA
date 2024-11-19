@@ -52,7 +52,7 @@
         <div class="reservation-person">
           <label for="personSelect">예약 인원:</label>
           <select id="personSelect" v-model="selectedPersonCount" class="pl">
-            <option v-for="n in 5" :key="n" :value="n">{{ n }}명</option>
+            <option v-for="n in 20" :key="n" :value="n">{{ n }}명</option>
           </select>
         </div>
 
@@ -200,9 +200,14 @@ export default {
     const userCheckOut = this.range.end ? this.range.end : new Date();
 
     const guestNum = this.selectedPersonCount;
-
+    const addPerson = this.selectedPersonCount > this.room.occupancy? (this.selectedPersonCount - this.room.occupancy) * 10000: 0;
+    
+    const oneDay = 1000 * 60 * 60 * 24;
+    const stayDuration = this.range.start && this.range.end? Math.ceil((this.range.end - this.range.start) / oneDay): 0;
+    const addDate = stayDuration > 1 ? (stayDuration - 1) * 20000 : 0;
     if (this.isLoggedIn) {
       if (hotelName && checkIn && checkOut && roomName && roomPrice) {
+         
         this.$router.push({
           name: 'paymentPage',
           state: {
@@ -215,6 +220,8 @@ export default {
             userCheckIn,
             userCheckOut,
             guestNum,
+            addPerson,
+            addDate,
           },
         });
       } else {
@@ -226,7 +233,7 @@ export default {
   },
   onDateSelect() {
       // 날짜가 선택되면 캘린더를 숨깁니다.
-       if (this.range.start && this.range.end) {
+       if (this.range.start && this.range.end ) {
       this.showCalendar = false;
     }
     },
