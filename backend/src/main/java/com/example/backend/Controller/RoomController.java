@@ -69,12 +69,30 @@ public class RoomController {
     }
     
     // 호텔 객실 요약 정보
+//    @GetMapping("/hotel/{hotelId}/room-summary")
+//    public Map<String, Object> getRoomSummary(
+//        @PathVariable("hotelId") Long hotelId, 
+//        @RequestParam("date") LocalDate date) {
+//        return roomService.getRoomSummary(hotelId, date);
+//    }
     @GetMapping("/hotel/{hotelId}/room-summary")
-    public Map<String, Object> getRoomSummary(
-        @PathVariable("hotelId") Long hotelId, 
-        @RequestParam("date") LocalDate date) {
-        return roomService.getRoomSummary(hotelId, date);
+    public ResponseEntity<Map<String, Object>> getRoomSummary(
+            @PathVariable("hotelId") Long hotelId,
+            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        LocalDate targetDate = (date != null) ? date : LocalDate.now();
+        Map<String, Object> roomSummary = roomService.getRoomSummary(hotelId, targetDate);
+        return ResponseEntity.ok(roomSummary);
     }
+
+
+    
+    
+    
+    
+    
+    
+    
+    
 //    @GetMapping("/hotel/{hotelId}/room-summary")
 //    public ResponseEntity<?> getRoomSummary(
 //        @PathVariable Long hotelId,

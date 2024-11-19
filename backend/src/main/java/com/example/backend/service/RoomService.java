@@ -266,36 +266,65 @@ public class RoomService {
     }
     
     // 객실 요약 정보
+//    public Map<String, Object> getRoomSummary(Long hotelId, LocalDate date) {
+//        // 객실 요약 정보를 가져오기
+//        List<RoomSummaryDTO> roomSummaries = roomRepository.findRoomSummaryByHotelAndDate(hotelId, date);
+//
+//        // 예약 정보를 고려한 총 객실 수 계산
+//        int totalRooms = roomSummaries.stream()
+//                .mapToInt(summary -> {
+//                    Room room = summary.getRoom();
+//                    int reservedCount = reservationRepository.findReservedRoomCountByRoomAndDate(room.getRoomId(), date);
+//                    return summary.getRoomCount() - reservedCount; // 사용 가능한 객실 수를 합산
+//                })
+//                .sum();
+//
+//        // 유형별 객실 수 계산
+//        Map<String, Integer> roomTypeCounts = roomSummaries.stream()
+//                .collect(Collectors.toMap(
+//                        RoomSummaryDTO::getRoomType,
+//                        summary -> {
+//                            Room room = summary.getRoom();
+//                            int reservedCount = reservationRepository.findReservedRoomCountByRoomAndDate(room.getRoomId(), date);
+//                            return summary.getRoomCount() - reservedCount; // 예약 반영
+//                        }
+//                ));
+//
+//        // 결과 반환
+//        Map<String, Object> result = new HashMap<>();
+//        result.put("totalRooms", totalRooms); // 예약 반영된 총 객실 수
+//        result.put("roomTypeCounts", roomTypeCounts); // 유형별 사용 가능한 객실 수
+//        return result;
+//    }
     public Map<String, Object> getRoomSummary(Long hotelId, LocalDate date) {
-        // 객실 요약 정보를 가져오기
         List<RoomSummaryDTO> roomSummaries = roomRepository.findRoomSummaryByHotelAndDate(hotelId, date);
 
-        // 예약 정보를 고려한 총 객실 수 계산
         int totalRooms = roomSummaries.stream()
-                .mapToInt(summary -> {
+            .mapToInt(summary -> {
+                Room room = summary.getRoom();
+                int reservedCount = reservationRepository.findReservedRoomCountByRoomAndDate(room.getRoomId(), date);
+                return summary.getRoomCount() - reservedCount;
+            })
+            .sum();
+
+        Map<String, Integer> roomTypeCounts = roomSummaries.stream()
+            .collect(Collectors.toMap(
+                RoomSummaryDTO::getRoomType,
+                summary -> {
                     Room room = summary.getRoom();
                     int reservedCount = reservationRepository.findReservedRoomCountByRoomAndDate(room.getRoomId(), date);
-                    return summary.getRoomCount() - reservedCount; // 사용 가능한 객실 수를 합산
-                })
-                .sum();
+                    return summary.getRoomCount() - reservedCount;
+                },
+                Integer::sum // 중복 키를 합산
+            ));
 
-        // 유형별 객실 수 계산
-        Map<String, Integer> roomTypeCounts = roomSummaries.stream()
-                .collect(Collectors.toMap(
-                        RoomSummaryDTO::getRoomType,
-                        summary -> {
-                            Room room = summary.getRoom();
-                            int reservedCount = reservationRepository.findReservedRoomCountByRoomAndDate(room.getRoomId(), date);
-                            return summary.getRoomCount() - reservedCount; // 예약 반영
-                        }
-                ));
-
-        // 결과 반환
         Map<String, Object> result = new HashMap<>();
-        result.put("totalRooms", totalRooms); // 예약 반영된 총 객실 수
-        result.put("roomTypeCounts", roomTypeCounts); // 유형별 사용 가능한 객실 수
+        result.put("totalRooms", totalRooms);
+        result.put("roomTypeCounts", roomTypeCounts);
         return result;
     }
+
+
 
 
 

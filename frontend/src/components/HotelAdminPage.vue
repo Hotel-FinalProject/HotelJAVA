@@ -41,20 +41,20 @@
         <p>호텔의 전체 상태를 한눈에 확인하세요.</p>
         <ul class="dashboard-summary">
           <li class="dashboard-item">
-            <h3>🛏️ 객실 관리</h3>
-            <p>전체 객실 수: {{ roomSummary?.totalRooms || 0 }}개</p>
-            <div v-if="roomSummary?.roomTypeCounts && Object.keys(roomSummary.roomTypeCounts).length > 0">
-              <p>유형별 객실 수:</p>
-              <ul>
-                <li v-for="(count, type) in roomSummary.roomTypeCounts" :key="type">
-                  {{ type }}: {{ count }}개
-                </li>
-              </ul>
-            </div>
-            <div v-else>
-              <p>객실 정보가 없습니다.</p>
-            </div>
-          </li>
+  <h3>🛏️ 객실 관리</h3>
+  <p>전체 객실 수: {{ roomSummary?.totalRooms || 0 }}개</p>
+  <div v-if="roomSummary?.roomTypeCounts && Object.keys(roomSummary.roomTypeCounts).length > 0">
+    <p>유형별 객실 수:</p>
+    <ul>
+      <li v-for="(count, type) in roomSummary.roomTypeCounts" :key="type">
+        {{ type }}: {{ count }}개
+      </li>
+    </ul>
+  </div>
+  <div v-else>
+    <p>객실 정보가 없습니다.</p>
+  </div>
+</li>
           <li class="dashboard-item">
             <h3>📅 오늘 예약 정보</h3>
             <div v-if="todayReservations.length > 0">
@@ -113,20 +113,24 @@ export default {
   },
   methods: {
     async fetchRoomSummary() {
-  try {
-    const hotelId = 17; // 임의의 호텔 ID
-    const date = new Date().toISOString().split("T")[0]; // 오늘 날짜 (YYYY-MM-DD 형식)
+    try {
+        const hotelId = 17; // 고정된 호텔 ID
+        const date = new Date().toISOString().split("T")[0]; // 오늘 날짜
 
-    const response = await axios.get(`/api/rooms/hotel/${hotelId}/room-summary`, {
-      params: { date },
-    });
+        const response = await axios.get(`/api/rooms/hotel/${hotelId}/room-summary`, {
+            params: { date },
+        });
 
-    this.roomSummary = response.data || { totalRooms: 0, roomTypeCounts: {} };
-  } catch (error) {
-    console.error("객실 요약 데이터를 가져오는 중 오류 발생:", error);
-    this.roomSummary = { totalRooms: 0, roomTypeCounts: {} }; // 기본값
-  }
+        console.log("응답 데이터:", response.data); // 디버깅용 로그 추가
+        this.roomSummary = response.data || { totalRooms: 0, roomTypeCounts: {} };
+    } catch (error) {
+        console.error("객실 요약 데이터를 가져오는 중 오류 발생:", error);
+        this.roomSummary = { totalRooms: 0, roomTypeCounts: {} }; // 기본값 설정
+    }
 }
+
+
+
 ,
     async fetchTodayReservations() {
       try {
