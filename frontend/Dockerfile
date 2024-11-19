@@ -11,7 +11,9 @@ RUN npm install
 # 소스 파일 전체 복사
 COPY . .
 
-# Vue 빌드 실행
+# Vue 빌드 실행 (환경 변수를 빌드 시점에 전달)
+ARG VUE_APP_KAKAO_API_KEY
+ENV VUE_APP_KAKAO_API_KEY=${VUE_APP_KAKAO_API_KEY}
 RUN npm run build
 
 # Nginx 이미지
@@ -20,7 +22,7 @@ FROM nginx:1.25-alpine
 # Nginx 설정 덮어쓰기
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Vue 빌드 결과를 Nginx HTML 폴더로 복사
+# Vue 빌드 결과물을 Nginx HTML 폴더로 복사
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Nginx 실행
