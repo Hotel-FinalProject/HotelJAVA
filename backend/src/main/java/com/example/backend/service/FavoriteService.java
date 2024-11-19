@@ -113,6 +113,7 @@ public class FavoriteService {
             FavoriteDTO favoriteDTO = FavoriteDTO.builder()
                     .hotelName(favorite.getHotel().getName())
                     .hotelImage(favorite.getHotel().getImageUrl())
+                    .hotelId(favorite.getHotel().getHotelId())
                     .status(favorite.getStatus())
                     .build();
             favoriteDTOS.add(favoriteDTO);

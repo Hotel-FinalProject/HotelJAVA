@@ -315,7 +315,7 @@ export default {
                         totalPrice: this.dataObj.roomPrice,
                         roomId: this.dataObj.roomId,
                         request: this.request,
-                        guestNum: this.guestNum,
+                        guestNum: this.dataObj.guestNum,
                         imp_uid: imp_uid,
                     },
               {

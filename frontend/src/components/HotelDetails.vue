@@ -1,4 +1,3 @@
-
 <template>
   <div v-if="hotel" class="details-container">
     <!-- 호텔 이미지 -->
@@ -20,10 +19,11 @@
           <div class="hotel-name">{{ hotel.name }}</div>
         </div>
         <div class="favorite-container" v-if="isLoggedIn">
-          <div 
-            class="heart-button" 
-            :class="{'favorited': isFavorited, 'unfavorited': !isFavorited}" 
-            @click="toggleFavorite">
+          <div
+            class="heart-button"
+            :class="{ favorited: isFavorited, unfavorited: !isFavorited }"
+            @click="toggleFavorite"
+          >
             <i class="fas fa-heart" v-if="isFavorited"></i>
             <i class="far fa-heart" v-else></i>
           </div>
@@ -36,54 +36,79 @@
       <div class="hotel-info-details">
         <p>
           <span class="phone-icon">📞</span>
-          전화번호 : {{ hotel.hotelnum || "업체측에서 제공된 정보가 없습니다." }}
+          전화번호 :
+          {{ hotel.hotelnum || "업체측에서 제공된 정보가 없습니다." }}
         </p>
         <p>
-          <span class="location-icon">📍</span> 
+          <span class="location-icon">📍</span>
           {{ hotel.address || "업체측에서 제공된 정보가 없습니다." }}
-          <button class="copy-button" @click="copyAddressToClipboard">주소복사</button>
+          <button class="copy-button" @click="copyAddressToClipboard">
+            주소복사
+          </button>
         </p>
-        <div id="map" style="width:500px;height:400px;"></div>
+        <div id="map" style="width: 500px; height: 400px"></div>
       </div>
     </div>
 
     <!-- 리뷰 섹션 -->
-    <div class="review-conatiner">
-      <div class="review-grid">
-        <div class="review-top">
-          <div class="review-racting">⭐⭐⭐⭐⭐</div>
-          <div class="review-date">2024.10.25</div>
-        </div>
-        <div class="review-content">
-          숙소도 전반적으로 깔끔했구요~ 고층이었는데 바다도 보이는 객실이라 좋았어요! 동향이었는지 아침마다 햇빛이 엄청 들어왔지만 ㅋㅋㅋㅋ 이중 커튼과 에어컨으로 충분히 커버 가능합니다.
-          무엇보다도 조식이 깔끔하면서도 맛있었어요 콩나물국과 죽이 제일 기억이 많이 남습니다 ㅎㅎㅎ 오는정김밥이 숙소 바로 옆이라 예약하기 쉬웠다는 메리트도 있었습니다.ㅋㅋㅋ 직원분들도 저희가 체크인을 늦게 하게 됐는데
-          바로 연락주셔서 주차 안내해주시고, 내내 친절하셔서 감사했어요.(전기차는 주차타워를 아예 못 쓰는 것 같아요!)
-        </div>
+    <div class="review-container">
+      <h3>리뷰</h3>
+
+      <!-- 리뷰가 없을 때 -->
+      <div v-if="hotelReviews && hotelReviews.length === 0">
+        <p>이 호텔에 대한 리뷰가 없습니다.</p>
       </div>
-      <div class="review-grid">
-        <div class="review-top">
-          <div class="review-racting">⭐⭐⭐⭐⭐</div>
-          <div class="review-date">2024.10.25</div>
-        </div>
-        <div class="review-content">
-          숙소도 전반적으로 깔끔했구요~ 고층이었는데 바다도 보이는 객실이라 좋았어요! 동향이었는지 아침마다 햇빛이 엄청 들어왔지만 ㅋㅋㅋㅋ 이중 커튼과 에어컨으로 충분히 커버 가능합니다.
-          무엇보다도 조식이 깔끔하면서도 맛있었어요 콩나물국과 죽이 제일 기억이 많이 남습니다 ㅎㅎㅎ 오는정김밥이 숙소 바로 옆이라 예약하기 쉬웠다는 메리트도 있었습니다.ㅋㅋㅋ 직원분들도 저희가 체크인을 늦게 하게 됐는데
-          바로 연락주셔서 주차 안내해주시고, 내내 친절하셔서 감사했어요.(전기차는 주차타워를 아예 못 쓰는 것 같아요!)
-        </div>
-      </div>
-      <div class="review-grid">
-        <div class="review-top">
-          <div class="review-racting">⭐⭐⭐⭐⭐</div>
-          <div class="review-date">2024.10.25</div>
-        </div>
-        <div class="review-content">
-          숙소도 전반적으로 깔끔했구요~ 고층이었는데 바다도 보이는 객실이라 좋았어요! 동향이었는지 아침마다 햇빛이 엄청 들어왔지만 ㅋㅋㅋㅋ 이중 커튼과 에어컨으로 충분히 커버 가능합니다.
-          무엇보다도 조식이 깔끔하면서도 맛있었어요 콩나물국과 죽이 제일 기억이 많이 남습니다 ㅎㅎㅎ 오는정김밥이 숙소 바로 옆이라 예약하기 쉬웠다는 메리트도 있었습니다.ㅋㅋㅋ 직원분들도 저희가 체크인을 늦게 하게 됐는데
-          바로 연락주셔서 주차 안내해주시고, 내내 친절하셔서 감사했어요.(전기차는 주차타워를 아예 못 쓰는 것 같아요!)
+
+      <!-- 리뷰가 있을 때 -->
+      <div v-else>
+        <transition-group name="fade" tag="div">
+          <div
+            v-for="(review, index) in visibleReviews"
+            :key="index"
+            class="review-grid"
+          >
+            <div class="review-top">
+              <div class="review-rating">
+                <span
+                  v-for="star in 5"
+                  :key="star"
+                  class="star"
+                  :class="{ filled: star <= review.rating }"
+                  >⭐</span
+                >
+              </div>
+              <div class="review-date">{{ review.date }}</div>
+            </div>
+            <div class="review-content">{{ review.content }}</div>
+
+            <!-- 이미지 갤러리 -->
+            <div
+              class="image-gallery"
+              v-if="review.imageUrl && review.imageUrl.length > 0"
+            >
+              <img
+                v-for="(image, imgIndex) in review.imageUrl"
+                :src="image"
+                :key="imgIndex"
+                class="thumbnail"
+                @click="openLightbox(image)"
+              />
+            </div>
+          </div>
+        </transition-group>
+
+        <!-- 더 보기 버튼 -->
+        <div
+          v-if="visibleReviewCount < hotelReviews.length"
+          class="load-more-container"
+        >
+          <button @click="expandReviews" class="load-more-btn">
+            ➕ 더 보기
+          </button>
         </div>
       </div>
     </div>
-
+    <!-- 리뷰 섹션 끝 -->
     <div class="room-list">
       <h3>객실 정보</h3>
       <div v-if="hotel.rooms && hotel.rooms.length > 0">
@@ -94,7 +119,9 @@
             </template>
             <template v-else>
               <div class="no-room-image">
-                <p class="no-room-image-text">업체측에서 제공된 이미지가 없습니다</p>
+                <p class="no-room-image-text">
+                  업체측에서 제공된 이미지가 없습니다
+                </p>
               </div>
             </template>
           </div>
@@ -102,19 +129,32 @@
           <div class="room-info">
             <h4 class="room-name">{{ room.roomType }}</h4>
             <div class="avg-person">
-              <img class="person-icon" src="https://yaimg.yanolja.com/stay/static/images/v3/icon_my.png" />
-              <span class="avg-person-text">기준인원 {{ room.roomOccupancy }}인</span>
+              <img
+                class="person-icon"
+                src="https://yaimg.yanolja.com/stay/static/images/v3/icon_my.png"
+              />
+              <span class="avg-person-text"
+                >기준인원 {{ room.roomOccupancy }}인</span
+              >
             </div>
             <div class="reservation-info">
               <h5 class="reservation-text">숙박</h5>
               <div class="check-info">
-                체크인 <span v-html="formattedCheckIn"></span> ~ 체크아웃 <span v-html="formattedCheckOut"></span>
+                체크인 <span v-html="formattedCheckIn"></span> ~ 체크아웃
+                <span v-html="formattedCheckOut"></span>
               </div>
-              <h2 class="price">{{ room.roomPrice ? `${room.roomPrice.toLocaleString()}원` : "가격 정보 없음" }}</h2>
+              <h2 class="price">
+                {{
+                  room.roomPrice
+                    ? `${room.roomPrice.toLocaleString()}원`
+                    : "가격 정보 없음"
+                }}
+              </h2>
               <div class="reservation-bottom">
                 <div class="room-count">남은 객실 {{ room.roomCount }}개</div>
-                  <button @click="move(room)" class="reservation_btn">예약 및 상세보기</button>
-
+                <button @click="move(room)" class="reservation_btn">
+                  예약 및 상세보기
+                </button>
               </div>
             </div>
           </div>
@@ -123,7 +163,9 @@
       <div v-else>
         <div class="room-card">
           <div class="no-room-info-container">
-            <p class="no-room-info-text">업체측에서 제공된 객실 정보가 없습니다.</p>
+            <p class="no-room-info-text">
+              업체측에서 제공된 객실 정보가 없습니다.
+            </p>
           </div>
         </div>
       </div>
@@ -137,6 +179,7 @@
 <script>
 /* global kakao */
 import axios from "axios";
+import { getReviewsByHotel } from "@/api/api";
 import { useAuthStore } from "@/store/register_login";
 
 export default {
@@ -144,12 +187,15 @@ export default {
   data() {
     return {
       hotel: null,
+      hotelReviews: [],
+      visibleReviews: [],
+      visibleReviewCount: 3,
       isFavorited: false,
       isLoggedIn: false,
     };
   },
   mounted() {
-    this.fetchFavoriteStatus(); 
+    this.fetchFavoriteStatus();
   },
   async created() {
     const authStore = useAuthStore();
@@ -164,10 +210,12 @@ export default {
   },
   beforeUnmount() {
     // Kakao Map 스크립트를 제거하여 충돌 방지
-    const kakaoScript = document.querySelector("script[src*='//dapi.kakao.com/v2/maps/sdk.js']");
+    const kakaoScript = document.querySelector(
+      "script[src*='//dapi.kakao.com/v2/maps/sdk.js']"
+    );
     if (kakaoScript) {
       kakaoScript.remove();
-      delete window.kakao;  // 전역 kakao 객체 삭제
+      delete window.kakao; // 전역 kakao 객체 삭제
     }
   },
   watch: {
@@ -175,50 +223,59 @@ export default {
       if (newHotel && newHotel.mapX && newHotel.mapY) {
         this.loadKakaoMap();
       }
-    }
+    },
   },
 
   computed: {
-  formattedCheckIn() {
-    return this.hotel.checkIn ? this.hotel.checkIn.replace(/<br\s*\/?>/gi, '<br>') : "정보없음";
+    formattedCheckIn() {
+      return this.hotel.checkIn
+        ? this.hotel.checkIn.replace(/<br\s*\/?>/gi, "<br>")
+        : "정보없음";
+    },
+    formattedCheckOut() {
+      return this.hotel.checkOut
+        ? this.hotel.checkOut.replace(/<br\s*\/?>/gi, "<br>")
+        : "정보없음";
+    },
   },
-  formattedCheckOut() {
-    return this.hotel.checkOut ? this.hotel.checkOut.replace(/<br\s*\/?>/gi, '<br>') : "정보없음";
-  }
-},
 
   methods: {
     async fetchHotelDetails() {
       const hotelId = this.$route.params.id;
       try {
-        const response = await axios.get(`http://localhost:8081/api/hotels/${hotelId}`);
+        const response = await axios.get(
+          `http://localhost:8081/api/hotels/${hotelId}`
+        );
         this.hotel = response.data; // HotelDetailDTO 형태로 데이터 수신
         console.log(this.hotel);
+
+        await this.fetchHotelReviews(hotelId);
       } catch (error) {
         console.error("호텔 상세 정보를 가져오는 중 오류 발생:", error);
       }
     },
-     move(room){
+    move(room) {
       this.$router.push({
         params: { roomId: room.roomId },
-        name: 'HotelRoom',
+        name: "HotelRoom",
         state: {
           hotelName: this.hotel.name,
           roomName: room.roomType,
           roomPrice: room.roomPrice,
-          checkIn : this.hotel.checkIn,
-          checkOut : this.hotel.checkOut,
-          roomId : room.roomId
-        }
+          checkIn: this.hotel.checkIn,
+          checkOut: this.hotel.checkOut,
+          roomId: room.roomId,
+        },
       });
     },
     copyAddressToClipboard() {
       if (this.hotel && this.hotel.address) {
-        navigator.clipboard.writeText(this.hotel.address)
+        navigator.clipboard
+          .writeText(this.hotel.address)
           .then(() => {
             alert("주소가 복사되었습니다.");
           })
-          .catch(err => {
+          .catch((err) => {
             console.error("주소 복사 중 오류가 발생했습니다.", err);
           });
       }
@@ -227,17 +284,20 @@ export default {
       if (typeof kakao === "undefined") {
         const script = document.createElement("script");
         script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=&autoload=false`;
-        script.onload = this.initMap;  // 스크립트 로드 후 initMap 호출
+        script.onload = this.initMap; // 스크립트 로드 후 initMap 호출
         document.head.appendChild(script);
       } else {
-        this.initMap();  // kakao 객체가 이미 있으면 바로 지도 초기화
+        this.initMap(); // kakao 객체가 이미 있으면 바로 지도 초기화
       }
     },
     initMap() {
       kakao.maps.load(() => {
         const container = document.getElementById("map");
         const options = {
-          center: new kakao.maps.LatLng(this.hotel.mapY || "좌표❌", this.hotel.mapX || "좌표❌"), // 지도의 중심 좌표
+          center: new kakao.maps.LatLng(
+            this.hotel.mapY || "좌표❌",
+            this.hotel.mapX || "좌표❌"
+          ), // 지도의 중심 좌표
           level: 3, // 지도의 확대 레벨
         };
 
@@ -245,9 +305,12 @@ export default {
         const map = new kakao.maps.Map(container, options); // 지도 생성
 
         // 마커를 생성하고 지도에 표시
-        const markerPosition = new kakao.maps.LatLng(this.hotel.mapY || "좌표❌", this.hotel.mapX || "좌표❌");
+        const markerPosition = new kakao.maps.LatLng(
+          this.hotel.mapY || "좌표❌",
+          this.hotel.mapX || "좌표❌"
+        );
         const marker = new kakao.maps.Marker({
-          position: markerPosition
+          position: markerPosition,
         });
         marker.setMap(map);
       });
@@ -260,38 +323,59 @@ export default {
         return;
       }
 
-     try {
-        const response = await axios.get(`http://localhost:8081/api/auth/favorites/status/${hotelId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
+      try {
+        const response = await axios.get(
+          `http://localhost:8081/api/auth/favorites/status/${hotelId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        });
+        );
         this.isFavorited = response.data; // 서버에서 받은 true/false 값을 isFavorited에 반영
       } catch (error) {
         console.error("찜 상태 불러오기 실패", error);
       }
     },
-    async toggleFavorite(){
+    async toggleFavorite() {
       const token = this.token;
-       const hotelId = this.$route.params.id;
-       if (!this.isLoggedIn) {
+      const hotelId = this.$route.params.id;
+      if (!this.isLoggedIn) {
         alert("로그인 후 즐겨찾기를 추가할 수 있습니다.");
         return;
       }
       const url = this.isFavorited
-        ? `http://localhost:8081/api/auth/favorites/cancel/${hotelId}`  
-        : `http://localhost:8081/api/auth/favorites/${hotelId}`;      
+        ? `http://localhost:8081/api/auth/favorites/cancel/${hotelId}`
+        : `http://localhost:8081/api/auth/favorites/${hotelId}`;
 
       try {
-        await axios.post(url, {}, {
-          headers: {
-            Authorization: `Bearer ${token}`
+        await axios.post(
+          url,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        });
+        );
 
-        this.isFavorited = !this.isFavorited;  // 상태 변경 후 isFavorited 반영
+        this.isFavorited = !this.isFavorited; // 상태 변경 후 isFavorited 반영
       } catch (error) {
         console.error("찜 상태 변경 실패", error);
+      }
+    },
+    async fetchHotelReviews(hotelId) {
+      try {
+        const response = await getReviewsByHotel(hotelId); // API 호출
+        this.hotelReviews = response.data; // 리뷰 데이터를 저장
+
+        // 초기 visibleReviews 설정
+        this.visibleReviews = this.hotelReviews.slice(
+          0,
+          this.visibleReviewCount
+        );
+      } catch (error) {
+        console.error("호텔 리뷰 조회 중 오류 발생:", error);
       }
     },
   },
@@ -343,19 +427,19 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
 }
-.hotel-top{
-  display:flex;
-  justify-content:space-between;
+.hotel-top {
+  display: flex;
+  justify-content: space-between;
 }
-.fa-heart{
-  font-size:30px;
+.fa-heart {
+  font-size: 30px;
 }
 .favorite-container {
   display: flex;
   align-items: center;
 }
 .favorited {
-  color: #FF0000;
+  color: #ff0000;
 }
 .unfavorited {
   color: gray;
@@ -407,6 +491,14 @@ export default {
   margin-right: 20px;
   padding: 5px;
 }
+
+.review-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
 .review-top {
   margin-top: 10px;
   display: flex;
@@ -423,6 +515,25 @@ export default {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
+
+.load-more-container {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.load-more-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.load-more-btn:hover {
+  background-color: #0056b3;
+}
+
 .room-list {
   margin-top: 30px;
 }
@@ -483,7 +594,6 @@ export default {
   color: gray;
   text-align: center;
 }
-
 
 .room-info {
   width: 60%;

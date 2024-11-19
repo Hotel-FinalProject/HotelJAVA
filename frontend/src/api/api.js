@@ -112,13 +112,89 @@ function getReservationInfo(token) {
 }
 
 /** 결제 취소 */
-function cancelReservationPay(imp_uid, roomId, token){
-  return config.post(`/auth/paymentCancel/${imp_uid}`, {roomId}, {
+function cancelReservationPay(imp_uid, roomId, token) {
+  return config.post(`/auth/paymentCancel/${imp_uid}`, { roomId }, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
   })
 }
+
+/** 리뷰 작성 */
+function createReview(formData, token) {
+  for (let [key, value] of formData.entries()) {
+    console.log(`${key}: ${value}`);
+  }
+
+  // 헤더와 요청 경로 확인
+  return config.post('/auth/reviews', formData, {
+    headers: {
+      Authorization: `Bearer ${token}`, // JWT 토큰 추가
+      'Content-Type': 'multipart/form-data', // 이미지 업로드를 위한 설정
+    },
+  });
+}
+
+
+/** 단일 리뷰 조회 */
+function getReview(reviewId, token) {
+  return config.get(`/auth/reviews/user-review/${reviewId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+}
+
+/** 호텔별 리뷰 목록 조회 */
+function getReviewsByHotel(hotelId) {
+  return config.get(`/reviews/hotel/${hotelId}`);
+}
+
+/** 유저별 리뷰 목록 조회 */
+function getReviewsByUser(userId, token) {
+  return config.get(`/auth/reviews/user/${userId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+}
+
+/** 리뷰 수정 */
+function updateReview(reviewId, reviewData, token) {
+  return config.put(`/auth/reviews/${reviewId}`, reviewData, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+}
+
+/** 리뷰 삭제 */
+function deleteReview(reviewId, token) {
+  return config.delete(`/auth/reviews/${reviewId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+}
+
+/** 리뷰 신고 */
+function reportReview(reportData, token) {
+  return config.post('/reports', reportData, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+}
+
+/** 찜 목록 조회 */
+function getFavoriteInfo(token) {
+  return config.get('/auth/favorites/favoriteInfo', {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+}
+
 
 export {
   signupUser,
@@ -134,4 +210,12 @@ export {
   deactivateUserAPI,
   getReservationInfo,
   cancelReservationPay,
+  createReview,
+  getReview,
+  getReviewsByHotel,
+  getReviewsByUser,
+  updateReview,
+  deleteReview,
+  reportReview,
+  getFavoriteInfo,
 };
