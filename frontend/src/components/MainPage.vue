@@ -50,7 +50,7 @@
           <div class="hotel-name">{{ hotel.name }}</div>
           <div class="hotel-info">
             <span class="rating">⭐{{ hotel.rating || 0 }}</span>
-            <span>(리뷰 갯수)</span>
+            <span>({{ hotel.reviewCount }})</span>
           </div>
         </div>
       </div>

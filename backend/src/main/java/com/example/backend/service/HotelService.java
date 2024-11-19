@@ -204,23 +204,25 @@ public class HotelService {
     }
 
 
-    public List<HotelDTO> getRandomHotels(int count) {
+    public List<HotelReviewDTO> getRandomHotels(int count) {
         List<Hotel> allHotels = hotelRepository.findAll();
         Collections.shuffle(allHotels);
         return allHotels.subList(0, Math.min(count, allHotels.size())).stream()
-            .map(hotel -> new HotelDTO(
-                    hotel.getHotelId(), 
-                    hotel.getName(), 
-                    hotel.getAddress(), 
-                    hotel.getImageUrl(),
-                    calculateAverageRating(hotel),
-                    hotel.getMapX(),  // mapX 추가
-                    hotel.getMapY(),   // mapY 추가
-                    null
+                .map(hotel -> new HotelReviewDTO(
+                        hotel.getHotelId(),
+                        hotel.getName(),
+                        hotel.getAddress(),
+                        hotel.getImageUrl(),
+                        calculateAverageRating(hotel),  // 호텔의 평균 평점 계산
+                        hotel.getMapX(),  // mapX 추가
+                        hotel.getMapY(),  // mapY 추가
+                        null,
+                        hotel.getReviews() != null ? hotel.getReviews().size() : 0  // 리뷰 개수 설정
                 ))
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
-    
+
+
     public List<HotelDTO> searchHotelsByLocation(String location) {
         if (location == null) {
             // 검색어가 없으면 전체 호텔 목록 조회
@@ -279,6 +281,7 @@ public class HotelService {
                 hotel.getAddress(),
                 hotel.getImageUrl(),
                 calculateAverageRating(hotel),
+                hotel.getReviews().size(), // 리뷰 개수
                 hotel.getMapX(),
                 hotel.getMapY(),
                 hotel.getHotelnum(),

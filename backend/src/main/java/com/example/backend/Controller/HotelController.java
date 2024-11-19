@@ -49,7 +49,7 @@ public class HotelController {
     
  // 10개 랜덤 호텔 조회
     @GetMapping("/hotels/random")
-    public List<HotelDTO> getRandomHotels() {
+    public List<HotelReviewDTO> getRandomHotels() {
         return hotelService.getRandomHotels(10); // 10개 랜덤 호텔 반환
     }
 

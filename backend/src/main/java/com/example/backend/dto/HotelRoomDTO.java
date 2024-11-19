@@ -15,6 +15,7 @@ public class HotelRoomDTO {
     private String address;
     private String imageUrl;
     private Double rating;
+    private int reviewCount;
     private Double mapX;
     private Double mapY;
     private String hotelnum;
