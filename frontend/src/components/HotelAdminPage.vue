@@ -42,13 +42,32 @@
         <ul class="dashboard-summary">
           <li class="dashboard-item">
             <h3>🛏️ 객실 관리</h3>
-            <p>현재 관리 중인 객실 수: 50개</p>
-            <p>점검 중인 객실: 3개</p>
+            <p>전체 객실 수: {{ roomSummary?.totalRooms || 0 }}개</p>
+            <div v-if="roomSummary?.roomTypeCounts && Object.keys(roomSummary.roomTypeCounts).length > 0">
+              <p>유형별 객실 수:</p>
+              <ul>
+                <li v-for="(count, type) in roomSummary.roomTypeCounts" :key="type">
+                  {{ type }}: {{ count }}개
+                </li>
+              </ul>
+            </div>
+            <div v-else>
+              <p>객실 정보가 없습니다.</p>
+            </div>
           </li>
           <li class="dashboard-item">
-            <h3>📅 예약 관리</h3>
-            <p>오늘 체크인 예정: 10건</p>
-            <p>예약 취소 요청: 2건</p>
+            <h3>📅 오늘 예약 정보</h3>
+            <div v-if="todayReservations.length > 0">
+              <ul>
+                <li v-for="(reservation, index) in todayReservations" :key="index">
+                  객실 유형: {{ reservation.roomName }}<br />
+                  예약자 이름: {{ reservation.userName }}<br />
+                  휴대폰 번호: {{ reservation.phone }}<br />
+                  요청 사항: {{ reservation.request || '없음' }}
+                </li>
+              </ul>
+            </div>
+            <p v-else>오늘 예약 정보가 없습니다.</p>
           </li>
           <li class="dashboard-item">
             <h3>📊 매출 분석</h3>
@@ -74,23 +93,67 @@
 </template>
 
 <script>
+import axios from 'axios';
 import SidebarLayout from "@/layout/SidebarLayout.vue";
 
 export default {
   name: "HotelAdminPage",
   components: {
-    SidebarLayout,
+    SidebarLayout, // SidebarLayout 등록
   },
   data() {
     return {
-      currentView: "Dashboard", // 초기 화면 설정
+      currentView: "Dashboard", // 초기 화면
+      roomSummary: {
+        totalRooms: 0,
+        roomTypeCounts: {},
+      },
+      todayReservations: [], // 오늘 예약 정보를 저장할 상태
     };
+  },
+  methods: {
+    async fetchRoomSummary() {
+  try {
+    const hotelId = 17; // 임의의 호텔 ID
+    const date = new Date().toISOString().split("T")[0]; // 오늘 날짜 (YYYY-MM-DD 형식)
+
+    const response = await axios.get(`/api/rooms/hotel/${hotelId}/room-summary`, {
+      params: { date },
+    });
+
+    this.roomSummary = response.data || { totalRooms: 0, roomTypeCounts: {} };
+  } catch (error) {
+    console.error("객실 요약 데이터를 가져오는 중 오류 발생:", error);
+    this.roomSummary = { totalRooms: 0, roomTypeCounts: {} }; // 기본값
+  }
+}
+,
+    async fetchTodayReservations() {
+      try {
+        const hotelId = 17; // 실제 호텔 ID
+
+        const response = await axios.get(`/api/auth/reservations/today`, {
+          params: { hotelId },
+        });
+
+        console.log("오늘 예약 정보:", response.data); // 응답 데이터 확인
+        this.todayReservations = response.data;
+      } catch (error) {
+        console.error("오늘 예약 정보를 가져오는 중 오류 발생:", error);
+      }
+    },
+  },
+  mounted() {
+    if (this.currentView === "Dashboard") {
+      this.fetchRoomSummary();
+      this.fetchTodayReservations(); // 오늘 예약 정보 가져오기
+    }
   },
 };
 </script>
 
 <style scoped>
-/* 사이드바 메뉴 스타일 */
+/* 기존 스타일 유지 */
 .menu-container {
   display: flex;
   flex-direction: column;
@@ -117,13 +180,11 @@ export default {
   font-weight: bold;
 }
 
-/* 아이콘 스타일 */
 .menu-container a .icon {
   margin-right: 10px;
   font-size: 20px;
 }
 
-/* 메인 콘텐츠 스타일 */
 .main-content {
   padding: 20px;
   background-color: #ffffff;
@@ -132,7 +193,6 @@ export default {
   margin-top: 20px;
 }
 
-/* 대시보드 요약 스타일 */
 .dashboard-summary {
   list-style: none;
   padding: 0;
@@ -154,5 +214,18 @@ export default {
 .dashboard-item p {
   margin: 5px 0;
   color: #555;
+}
+
+.dashboard-item ul {
+  list-style: none;
+  padding: 0;
+}
+
+.dashboard-item ul li {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
 }
 </style>

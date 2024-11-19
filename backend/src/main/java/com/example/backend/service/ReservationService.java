@@ -1,6 +1,7 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.ReservationDateDTO;
+import com.example.backend.dto.ReservationTodayDTO;
 import com.example.backend.dto.UserReservationDTO;
 import com.example.backend.entity.Hotel;
 import com.example.backend.entity.Reservation;
@@ -96,5 +97,31 @@ public class ReservationService {
 
         return reservationDateDTOS;
     }
+    
+    // 오늘 날짜의 예약 정보 조회
+    public List<ReservationTodayDTO> getTodayReservations(Long hotelId, LocalDate today) {
+    	List<Reservation> reservations = reservationRepository.findReservationsForToday(hotelId, today);
 
+    	return reservations.stream()
+    		    .filter(reservation -> reservation.getRooms() != null && reservation.getUser() != null)
+    		    .map(reservation -> {
+    		        try {
+    		            return ReservationTodayDTO.builder()
+    		                .roomName(reservation.getRooms().getName())
+    		                .userName(reservation.getUser().getName())
+    		                .phone(reservation.getUser().getPhone())
+    		                .request(reservation.getRequest())
+    		                .checkIn(reservation.getCheckIn())
+    		                .checkOut(reservation.getCheckOut())
+    		                .guest(reservation.getGuestNum())
+    		                .status(reservation.getStatus())
+    		                .build();
+    		        } catch (Exception e) {
+    		            // 로그를 남기고 건너뛰기
+    		            return null;
+    		        }
+    		    })
+    		    .filter(dto -> dto != null)
+    		    .collect(Collectors.toList());
+    }
 }

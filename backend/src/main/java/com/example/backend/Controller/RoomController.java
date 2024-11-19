@@ -4,11 +4,15 @@ import com.example.backend.dto.RoomDTO;
 import com.example.backend.entity.Room;
 import com.example.backend.service.RoomService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/rooms")
@@ -63,4 +67,31 @@ public class RoomController {
         RoomDTO room = roomService.getRoomById(roomId);
         return ResponseEntity.ok(room);
     }
+    
+    // 호텔 객실 요약 정보
+    @GetMapping("/hotel/{hotelId}/room-summary")
+    public Map<String, Object> getRoomSummary(
+        @PathVariable("hotelId") Long hotelId, 
+        @RequestParam("date") LocalDate date) {
+        return roomService.getRoomSummary(hotelId, date);
+    }
+//    @GetMapping("/hotel/{hotelId}/room-summary")
+//    public ResponseEntity<?> getRoomSummary(
+//        @PathVariable Long hotelId,
+//        @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+//    ) {
+//        LocalDate targetDate = (date != null) ? date : LocalDate.now();
+//        Map<String, Object> roomSummary = roomService.getRoomSummary(hotelId, targetDate);
+//        return ResponseEntity.ok(roomSummary);
+//    }
+//    @GetMapping("/hotel/{hotelId}/room-summary")
+//    public ResponseEntity<?> getRoomSummary(
+//        @PathVariable Long hotelId,
+//        @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+//    ) {
+//        LocalDate targetDate = (date != null) ? date : LocalDate.now();
+//        Map<String, Object> roomSummary = roomService.getRoomSummary(hotelId, targetDate);
+//        return ResponseEntity.ok(roomSummary);
+//    }
+
 }

@@ -335,5 +335,16 @@ public class HotelService {
         List<RoomCount> roomCounts = roomCountRepository.findByRoomAndDateBetween(room, checkInDate, checkOutDate);
         return roomCounts.stream().allMatch(roomCount -> roomCount.getRoomCount() > 0);
     }
+    
+//    @Transactional
+//    public void updateRoomCountOnReservation(Room room, LocalDate date) {
+//        RoomCount roomCount = roomCountRepository.findByRoomAndDate(room, date)
+//                .orElse(new RoomCount(room, date, room.getTotal())); // RoomCount가 없으면 생성
+//
+//        // 예약된 객실 수 반영
+//        roomCount.setRoomCount(Math.max(0, roomCount.getRoomCount() - 1));
+//        roomCountRepository.save(roomCount);
+//    }
+
 
 }

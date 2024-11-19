@@ -2,6 +2,7 @@ package com.example.backend.Controller;
 
 import com.example.backend.dto.ReservationDTO;
 import com.example.backend.dto.ReservationDateDTO;
+import com.example.backend.dto.ReservationTodayDTO;
 import com.example.backend.dto.RoomCountDTO;
 import com.example.backend.dto.UserReservationDTO;
 import com.example.backend.entity.Room;
@@ -108,9 +109,16 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("오류: " + e.getMessage());
         }
     }
-
-
-
-
-
+    
+    @GetMapping("/reservations/today")
+    public ResponseEntity<List<ReservationTodayDTO>> getTodayReservations(
+        @RequestParam("hotelId") Long hotelId,
+        @RequestParam(value = "date", required = false) LocalDate date
+    ) {
+        LocalDate today = date != null ? date : LocalDate.now();
+        List<ReservationTodayDTO> reservations = reservationService.getTodayReservations(hotelId, today);
+        return ResponseEntity.ok(reservations);
     }
+
+
+}
