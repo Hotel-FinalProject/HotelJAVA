@@ -23,5 +23,5 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Vue 빌드 결과를 Nginx HTML 폴더로 복사
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Nginx 실행 
+# Nginx 실행
 CMD ["nginx", "-g", "daemon off;"]
