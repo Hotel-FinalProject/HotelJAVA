@@ -10,9 +10,7 @@
         @click="searchHotel"
       />
       <!-- 돋보기 버튼 -->
-      <button @click="searchHotel" class="search-button">
-        🔍
-      </button>
+      <button @click="searchHotel" class="search-button">🔍</button>
     </div>
 
     <!-- 자동 완성 목록 -->
@@ -23,25 +21,35 @@
         @click="goToHotelDetail(result.hotelId)"
         class="autocomplete-item"
       >
-        <span class="autocomplete-hotel-name">{{ result.name }}</span> <!-- 호텔 이름 표시 -->
-        <span class="hotel-address">{{ result.address || '주소 정보 없음' }}</span> <!-- 주소 표시 -->
+        <span class="autocomplete-hotel-name">{{ result.name }}</span>
+        <!-- 호텔 이름 표시 -->
+        <span class="hotel-address">{{
+          result.address || "주소 정보 없음"
+        }}</span>
+        <!-- 주소 표시 -->
       </li>
       <li v-if="noResults" class="no-results">연관된 검색어가 없습니다.</li>
     </ul>
 
     <!-- 새로고침 버튼 추가 -->
-    <button @click="fetchRandomHotels" class="refresh-button">
-        🔄
-    </button>
+    <button @click="fetchRandomHotels" class="refresh-button">🔄</button>
     <div class="hotel_list_container">
       <div class="hotel_grid">
-        <div v-for="hotel in randomHotels" :key="hotel.hotelId" class="hotel-container">
+        <div
+          v-for="hotel in randomHotels"
+          :key="hotel.hotelId"
+          class="hotel-container"
+        >
           <router-link :to="`/hotel-details/${hotel.hotelId}`">
-            <img :src="hotel.imageUrl || defaultImage" class="img-container" alt="Hotel Image" />
+            <img
+              :src="hotel.imageUrl || defaultImage"
+              class="img-container"
+              alt="Hotel Image"
+            />
           </router-link>
           <div class="hotel-name">{{ hotel.name }}</div>
           <div class="hotel-info">
-            <span class="rating">⭐4.5</span>
+            <span class="rating">⭐{{ hotel.rating || 0 }}</span>
             <span>(리뷰 갯수)</span>
           </div>
         </div>
@@ -49,28 +57,44 @@
 
       <h2 class="review-title">리뷰 Top 10</h2>
       <div class="hotel_grid">
-        <div class="hotel-container">
-          <img
-            class="img-container"
-            src="https://www.agoda.com/wp-content/uploads/2019/05/Best-hotels-in-Seoul-South-Korea-accommodations-The-Shilla-Seoul.jpg"
-          />
-          <div class="hotel-name">호텔명</div>
+        <div
+          v-for="hotel in topByReviewCount"
+          :key="hotel.hotelId"
+          class="hotel-container"
+        >
+          <router-link :to="`/hotel-details/${hotel.hotelId}`">
+            <img
+              :src="hotel.imageUrl || defaultImage"
+              class="img-container"
+              alt="Hotel Image"
+            />
+          </router-link>
+          <div class="hotel-name">{{ hotel.name }}</div>
           <div class="hotel-info">
-            <span class="rating">⭐4.5</span><span>(리뷰갯수)</span>
+            <span class="rating">⭐{{ hotel.rating || 0 }}</span>
+            <span>(리뷰 갯수)</span>
           </div>
         </div>
       </div>
 
       <h2 class="review-title">별점 Top 10</h2>
       <div class="hotel_grid">
-        <div class="hotel-container">
-          <img
-            class="img-container"
-            src="https://www.agoda.com/wp-content/uploads/2019/05/Best-hotels-in-Seoul-South-Korea-accommodations-The-Shilla-Seoul.jpg"
-          />
-          <div class="hotel-name">호텔명</div>
+        <div
+          v-for="hotel in topByRating"
+          :key="hotel.hotelId"
+          class="hotel-container"
+        >
+          <router-link :to="`/hotel-details/${hotel.hotelId}`">
+            <img
+              :src="hotel.imageUrl || defaultImage"
+              class="img-container"
+              alt="Hotel Image"
+            />
+          </router-link>
+          <div class="hotel-name">{{ hotel.name }}</div>
           <div class="hotel-info">
-            <span class="rating">⭐4.5</span><span>(리뷰갯수)</span>
+            <span class="rating">⭐{{ hotel.rating || 0 }}</span>
+            <span>(리뷰 갯수)</span>
           </div>
         </div>
       </div>
@@ -79,63 +103,87 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
+import { getHotelsReviewsTop } from "@/api/hotel";
 
 export default {
-  name: 'MainPage',
+  name: "MainPage",
   data() {
     return {
-      searchQuery: '',
+      searchQuery: "",
       autocompleteResults: [],
       randomHotels: [],
-      defaultImage: 'https://png.pngtree.com/png-vector/20240613/ourlarge/pngtree-modern-hotel-icon-with-palm-trees-black-isolated-on-white-background-vector-png-image_7010310.png',
-      noResults: false // 연관 검색어가 없는 경우를 표시하기 위한 변수
+      topByReviewCount: [],
+      topByRating: [],
+      defaultImage:
+        "https://png.pngtree.com/png-vector/20240613/ourlarge/pngtree-modern-hotel-icon-with-palm-trees-black-isolated-on-white-background-vector-png-image_7010310.png",
+      noResults: false, // 연관 검색어가 없는 경우를 표시하기 위한 변수
     };
   },
   created() {
     this.fetchRandomHotels();
+    this.fetchTopHotelList();
   },
   methods: {
     async fetchRandomHotels() {
       try {
-        const response = await axios.get('http://localhost:8081/api/hotels/random');
+        const response = await axios.get(
+          "http://localhost:8081/api/hotels/random"
+        );
         this.randomHotels = response.data; // 백엔드에서 가져온 랜덤 호텔 목록
       } catch (error) {
-        console.error('랜덤 호텔 데이터를 가져오는 중 오류 발생:', error);
+        console.error("랜덤 호텔 데이터를 가져오는 중 오류 발생:", error);
       }
     },
     fetchAutocompleteResults() {
-  this.autocompleteResults = []; // 입력 시 기존 결과 초기화
+      this.autocompleteResults = []; // 입력 시 기존 결과 초기화
 
-  if (this.searchQuery.length > 0) {
-    const queryWithoutSpaces = this.searchQuery.replace(/\s+/g, ''); // 공백 제거
-    axios.get(`http://localhost:8081/api/hotels/search?query=${queryWithoutSpaces}`)
-      .then(response => {
-        this.autocompleteResults = response.data;
-        this.noResults = this.autocompleteResults.length === 0;
-      })
-      .catch(error => {
-        console.error('자동 완성 결과를 가져오는 중 오류 발생:', error);
-        this.autocompleteResults = [];
-        this.noResults = true;
-      });
-  } else {
-    this.autocompleteResults = []; // 검색어가 없을 때 결과를 비우기
-    this.noResults = false;
-  }
-}
-,
+      if (this.searchQuery.length > 0) {
+        const queryWithoutSpaces = this.searchQuery.replace(/\s+/g, ""); // 공백 제거
+        axios
+          .get(
+            `http://localhost:8081/api/hotels/search?query=${queryWithoutSpaces}`
+          )
+          .then((response) => {
+            this.autocompleteResults = response.data;
+            this.noResults = this.autocompleteResults.length === 0;
+          })
+          .catch((error) => {
+            console.error("자동 완성 결과를 가져오는 중 오류 발생:", error);
+            this.autocompleteResults = [];
+            this.noResults = true;
+          });
+      } else {
+        this.autocompleteResults = []; // 검색어가 없을 때 결과를 비우기
+        this.noResults = false;
+      }
+    },
     searchHotel() {
       // 검색어가 입력된 상태에서 검색 페이지로 이동하며, 검색어를 쿼리 파라미터로 전달
       this.$router.push({
-        path: '/search-results',
-        query: { query: this.searchQuery }
+        path: "/search-results",
+        query: { query: this.searchQuery },
       });
     },
     goToSearchPage() {
-      this.$router.push({ path: '/search-page', query: { query: this.searchQuery } });
-    }
-  }
+      this.$router.push({
+        path: "/search-page",
+        query: { query: this.searchQuery },
+      });
+    },
+    async fetchTopHotelList(){
+        try {
+          const response = await getHotelsReviewsTop();
+
+          console.log("응답 객체 : ", response.data);
+          
+          this.topByReviewCount = response.data.topByReviewCount;
+          this.topByRating = response.data.topByRating;
+        } catch (error) {
+          console.error("목록 조회중 오류 발생 : ",error);
+        }
+    },
+  },
 };
 </script>
 
@@ -163,7 +211,7 @@ export default {
   padding-right: 40px; /* 돋보기 버튼 공간 확보 */
   padding-left: 10px;
   background-color: transparent;
-  margin-right: 10px; 
+  margin-right: 10px;
 }
 
 .search-button {
@@ -196,7 +244,7 @@ export default {
   max-height: 150px;
   overflow-y: auto;
   position: absolute;
-  width: 100%
+  width: 100%;
 }
 
 .autocomplete-item {
@@ -367,6 +415,4 @@ export default {
     height: 28px;
   }
 }
-
-
 </style>
