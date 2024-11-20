@@ -80,7 +80,7 @@ const routes = [
   {
     path: '/admin/hotel',
     component: HotelAdminPage,
-    meta: { requiresAuth: true, requiredRole: 'ROLE_HOTEL_MANAGER' }
+    meta: { requiresAuth: true, requiredRole: 'ROLE_HOTELADMIN' }
   },
   {
     path: '/admin/system', // 시스템 관리자 페이지
@@ -130,7 +130,7 @@ router.beforeEach((to, from, next) => {
     } else if (userRole === 'ROLE_ADMIN') {
       // ROLE_ADMIN인 경우 '/admin/system'으로 리다이렉트
       return next({ path: '/admin/system' });
-    } else if (userRole === 'ROLE_HOTEL_MANAGER') {
+    } else if (userRole === 'ROLE_HOTELADMIN') {
       // ROLE_HOTEL_MANAGER인 경우 '/admin/hotel'으로 리다이렉트
       return next({ path: '/admin/hotel' });
     } else {
@@ -144,7 +144,7 @@ router.beforeEach((to, from, next) => {
     return next({ path: '/admin/system' });
   }
 
-  if ((to.path === '/admin/system' || to.path.startsWith('/my_page')) && userRole === 'ROLE_HOTEL_MANAGER') {
+  if ((to.path === '/admin/system' || to.path.startsWith('/my_page')) && userRole === 'ROLE_HOTELADMIN') {
     return next({ path: '/admin/hotel' });
   }
 
