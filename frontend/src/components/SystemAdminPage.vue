@@ -163,7 +163,7 @@
             <span>{{ report.content }}</span>
             <span>{{ report.reporterName }}</span>
             <div class="user-activeBtn-container">
-              <button>숨김 처리</button>
+              <button @click="handleHideReport(report.reportId)">숨김 처리</button>
             </div>
           </div>
         </div>
@@ -174,7 +174,7 @@
 
 <script>
 import SidebarLayout from "@/layout/SidebarLayout.vue";
-import { getUserListByAdmin, getHotelManagerListByAdmin, getReportListByAdmin,  getAcountInfo, getReportInfo } from "@/api/admin";
+import { getUserListByAdmin, getHotelManagerListByAdmin, getReportListByAdmin,  getAcountInfo, getReportInfo, requestReportControl } from "@/api/admin";
 import { ref } from "vue";
 
 export default {
@@ -237,6 +237,16 @@ export default {
       incompleteReportCount.value = reportResponse.data.reportComplete;
     }
 
+    const handleHideReport = async (reportId) => {
+      try {
+        const response = await requestReportControl(token, reportId);
+        console.log(response.data);
+        fetchReportList();
+      } catch (error) {
+        console.error("리뷰 숨김처리 실패 ", error);
+      }
+    }
+
     return {
       userList,
       hotelManagerList,
@@ -254,6 +264,7 @@ export default {
       fetchHotelManagerList,
       fetchReportList,
       fetchDashboard,
+      handleHideReport,
     };
   },
   mounted() {

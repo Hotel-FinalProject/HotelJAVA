@@ -47,7 +47,7 @@ function getHotelAdminSearch(token, name){
 }
 
 function requestActiveStatus(token, userId){
-  return config.post('hotel', {
+  return config.post('hotel', null, {
     params: {
       userId : userId
     },
@@ -58,7 +58,7 @@ function requestActiveStatus(token, userId){
 }
 
 function requestReportControl(token, reportId){
-  return config.post('review-report', {
+  return config.post('review-report', null, {
     params: {
       reportId : reportId
     },
