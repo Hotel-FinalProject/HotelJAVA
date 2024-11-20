@@ -125,10 +125,8 @@ router.beforeEach((to, from, next) => {
   }
 
   if (to.path === '/admin') {
-    // '/admin' 경로로 접근할 때
     if (!token) {
-      // 토큰이 없는 경우 메인 페이지로 리다이렉트
-      return next({ path: '/' });
+      return next();
     } else if (userRole === 'ROLE_ADMIN') {
       // ROLE_ADMIN인 경우 '/admin/system'으로 리다이렉트
       return next({ path: '/admin/system' });
@@ -141,12 +139,12 @@ router.beforeEach((to, from, next) => {
     }
   }
 
-  if (to.path === '/admin/hotel' && userRole === 'ROLE_ADMIN') {
+  if ((to.path === '/admin/hotel' || to.path.startsWith('/my_page')) && userRole === 'ROLE_ADMIN') {
     // 어드민 유저가 '/admin/hotel'로 접근할 경우 '/admin/system'으로 리다이렉트
     return next({ path: '/admin/system' });
   }
-  
-  if (to.path === '/admin/system' && userRole === 'ROLE_HOTEL_MANAGER') {
+
+  if ((to.path === '/admin/system' || to.path.startsWith('/my_page')) && userRole === 'ROLE_HOTEL_MANAGER') {
     return next({ path: '/admin/hotel' });
   }
 

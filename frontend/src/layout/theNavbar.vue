@@ -28,7 +28,7 @@
             @mouseover="hover = true"
             @mouseleave="hover = false"
           >
-            {{ hover ? '마이페이지' : userName }}
+            {{ hover ? pageLabel : userName }}
           </span>
         </li>
       </ul>
@@ -39,6 +39,7 @@
 <script>
 import { useAuthStore } from '@/store/register_login';
 import { computed, ref } from 'vue';
+import { jwtDecode } from 'jwt-decode';
 
 export default {
   name: "theNavbar",
@@ -48,6 +49,27 @@ export default {
     // Pinia 스토어에서 로그인 상태를 반응형으로 가져오기 위해 computed 사용
     const isLoggedIn = computed(() => authStore.LoggedIn);
     const userName = computed(() => authStore.userName || '사용자'); // 사용자 이름 가져오기
+    
+    const userRole = computed(() => {
+      const token = sessionStorage.getItem("token");
+      if (token) {
+        try {
+          const decodedToken = jwtDecode(token);
+          return decodedToken.role;
+        } catch (error) {
+          console.error('토큰 디코딩 중 오류 발생: ', error);
+          return null;
+        }
+      }
+      return null;
+    });
+
+    const pageLabel = computed(() => {
+      if (userRole.value === 'ROLE_ADMIN' || userRole.value === 'ROLE_HOTEL_MANAGER') {
+        return '관리자 페이지';
+      }
+      return '마이페이지';
+    });
     
     // 마우스 오버 상태 관리
     const hover = ref(false);
@@ -61,7 +83,8 @@ export default {
       isLoggedIn,
       userName,
       hover,
-      logout
+      logout,
+      pageLabel
     }
   },
   methods: {
