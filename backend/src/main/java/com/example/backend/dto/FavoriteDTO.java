@@ -8,5 +8,6 @@ import lombok.Data;
 public class FavoriteDTO {
     String hotelName;
     String hotelImage;
+    Long hotelId;
     Boolean status;
 }

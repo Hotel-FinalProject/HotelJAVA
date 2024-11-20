@@ -14,12 +14,14 @@
     "axios": "^1.7.7",
     "core-js": "^3.8.3",
     "dayjs": "^1.11.13",
+    "jwt-decode": "^4.0.0",
     "pinia": "^2.2.4",
     "postcss": ">=8.4.31",
     "v-calendar": "^3.1.2",
     "vue": "^3.2.13",
     "vue-cli-service": "^5.0.10",
     "vue-router": "^4.4.5",
+    "vue3-star-ratings": "^3.0.5",
     "vuex": "^4.0.2"
   },
   "devDependencies": {

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.example.backend.dto.HotelReviewDTO;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
@@ -193,8 +194,8 @@ public class HotelService {
                 hotel.getHotelId(), 
                 hotel.getName(), 
                 hotel.getAddress(), 
-                hotel.getImageUrl(), 
-                hotel.getRating(), 
+                hotel.getImageUrl(),
+                calculateAverageRating(hotel),
                 hotel.getMapX(),
                 hotel.getMapY(),
                 null
@@ -203,23 +204,25 @@ public class HotelService {
     }
 
 
-    public List<HotelDTO> getRandomHotels(int count) {
+    public List<HotelReviewDTO> getRandomHotels(int count) {
         List<Hotel> allHotels = hotelRepository.findAll();
         Collections.shuffle(allHotels);
         return allHotels.subList(0, Math.min(count, allHotels.size())).stream()
-            .map(hotel -> new HotelDTO(
-                    hotel.getHotelId(), 
-                    hotel.getName(), 
-                    hotel.getAddress(), 
-                    hotel.getImageUrl(), 
-                    hotel.getRating(),
-                    hotel.getMapX(),  // mapX 추가
-                    hotel.getMapY(),   // mapY 추가
-                    null
+                .map(hotel -> new HotelReviewDTO(
+                        hotel.getHotelId(),
+                        hotel.getName(),
+                        hotel.getAddress(),
+                        hotel.getImageUrl(),
+                        calculateAverageRating(hotel),  // 호텔의 평균 평점 계산
+                        hotel.getMapX(),  // mapX 추가
+                        hotel.getMapY(),  // mapY 추가
+                        null,
+                        hotel.getReviews() != null ? hotel.getReviews().size() : 0  // 리뷰 개수 설정
                 ))
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
-    
+
+
     public List<HotelDTO> searchHotelsByLocation(String location) {
         if (location == null) {
             // 검색어가 없으면 전체 호텔 목록 조회
@@ -229,7 +232,7 @@ public class HotelService {
                     hotel.getName(),
                     hotel.getAddress(),
                     hotel.getImageUrl(),
-                    hotel.getRating(),
+                    calculateAverageRating(hotel),
                     hotel.getMapX(),
                     hotel.getMapY(),
                     null
@@ -243,7 +246,7 @@ public class HotelService {
                     hotel.getName(),
                     hotel.getAddress(),
                     hotel.getImageUrl(),
-                    hotel.getRating(),
+                    calculateAverageRating(hotel),
                     hotel.getMapX(),
                     hotel.getMapY(),
                     null
@@ -277,7 +280,8 @@ public class HotelService {
                 hotel.getName(),
                 hotel.getAddress(),
                 hotel.getImageUrl(),
-                hotel.getRating(),
+                calculateAverageRating(hotel),
+                hotel.getReviews().size(), // 리뷰 개수
                 hotel.getMapX(),
                 hotel.getMapY(),
                 hotel.getHotelnum(),
@@ -313,7 +317,7 @@ public class HotelService {
                     hotel.getName(),
                     hotel.getAddress(),
                     hotel.getImageUrl(),
-                    hotel.getRating(),
+                    calculateAverageRating(hotel),
                     hotel.getMapX(),
                     hotel.getMapY(),
                     null
@@ -336,4 +340,95 @@ public class HotelService {
         return roomCounts.stream().allMatch(roomCount -> roomCount.getRoomCount() > 0);
     }
 
+    public List<HotelReviewDTO> getTop10HotelsByReviewCount() {
+        List<HotelReviewDTO> hotelsWithReviews = hotelRepository.findAll().stream()
+                .filter(hotel -> hotel.getReviews() != null && !hotel.getReviews().isEmpty())
+                .sorted((h1, h2) -> Integer.compare(h2.getReviews().size(), h1.getReviews().size()))
+                .limit(10)
+                .map(hotel -> new HotelReviewDTO(
+                        hotel.getHotelId(),
+                        hotel.getName(),
+                        hotel.getAddress(),
+                        hotel.getImageUrl(),
+                        calculateAverageRating(hotel),  
+                        hotel.getMapX(),
+                        hotel.getMapY(),
+                        null,  // roomPrice는 null로 설정
+                        hotel.getReviews().size() // 리뷰 개수 추가
+                ))
+                .collect(Collectors.toList());
+
+        // 리뷰가 있는 호텔이 10개 미만인 경우, 리뷰가 없는 호텔로 추가 채움
+        if (hotelsWithReviews.size() < 10) {
+            List<HotelReviewDTO> hotelsWithoutReviews = hotelRepository.findAll().stream()
+                    .filter(hotel -> hotel.getReviews() == null || hotel.getReviews().isEmpty())
+                    .limit(10 - hotelsWithReviews.size())
+                    .map(hotel -> new HotelReviewDTO(
+                            hotel.getHotelId(),
+                            hotel.getName(),
+                            hotel.getAddress(),
+                            hotel.getImageUrl(),
+                            null,  // 리뷰가 없으므로 평점은 null
+                            hotel.getMapX(),
+                            hotel.getMapY(),
+                            null,  // roomPrice는 null로 설정
+                            0 // 리뷰 개수는 0
+                    ))
+                    .collect(Collectors.toList());
+            hotelsWithReviews.addAll(hotelsWithoutReviews);
+        }
+
+        return hotelsWithReviews;
+    }
+
+    public List<HotelReviewDTO> getTop10HotelsByRating() {
+        List<HotelReviewDTO> hotelsWithReviews = hotelRepository.findAll().stream()
+                .filter(hotel -> hotel.getReviews() != null && !hotel.getReviews().isEmpty())
+                .sorted((h1, h2) -> Double.compare(calculateAverageRating(h2), calculateAverageRating(h1)))
+                .limit(10)
+                .map(hotel -> new HotelReviewDTO(
+                        hotel.getHotelId(),
+                        hotel.getName(),
+                        hotel.getAddress(),
+                        hotel.getImageUrl(),
+                        calculateAverageRating(hotel),  
+                        hotel.getMapX(),
+                        hotel.getMapY(),
+                        null,  // roomPrice는 null로 설정
+                        hotel.getReviews().size() // 리뷰 개수 추가
+                ))
+                .collect(Collectors.toList());
+
+        // 평점이 있는 호텔이 10개 미만인 경우, 평점이 없는 호텔로 추가 채움
+        if (hotelsWithReviews.size() < 10) {
+            List<HotelReviewDTO> hotelsWithoutReviews = hotelRepository.findAll().stream()
+                    .filter(hotel -> hotel.getReviews() == null || hotel.getReviews().isEmpty())
+                    .limit(10 - hotelsWithReviews.size())
+                    .map(hotel -> new HotelReviewDTO(
+                            hotel.getHotelId(),
+                            hotel.getName(),
+                            hotel.getAddress(),
+                            hotel.getImageUrl(),
+                            null,  // 리뷰가 없으므로 평점은 null
+                            hotel.getMapX(),
+                            hotel.getMapY(),
+                            null,  // roomPrice는 null로 설정
+                            0 // 리뷰 개수는 0
+                    ))
+                    .collect(Collectors.toList());
+            hotelsWithReviews.addAll(hotelsWithoutReviews);
+        }
+
+        return hotelsWithReviews;
+    }
+
+    public Double calculateAverageRating(Hotel hotel) {
+        if (hotel.getReviews() == null || hotel.getReviews().isEmpty()) {
+            return 0.0;
+        }
+        return hotel.getReviews().stream()
+                .mapToDouble(review -> review.getRating())
+                .average()
+                .orElse(0.0);
+    }
 }

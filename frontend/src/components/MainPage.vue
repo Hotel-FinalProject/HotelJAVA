@@ -10,9 +10,7 @@
         @click="searchHotel"
       />
       <!-- 돋보기 버튼 -->
-      <button @click="searchHotel" class="search-button">
-        🔍
-      </button>
+      <button @click="searchHotel" class="search-button">🔍</button>
     </div>
 
     <!-- 자동 완성 목록 -->
@@ -23,12 +21,15 @@
         @click="goToHotelDetail(result.hotelId)"
         class="autocomplete-item"
       >
-        <span class="autocomplete-hotel-name">{{ result.name }}</span> <!-- 호텔 이름 표시 -->
-        <span class="hotel-address">{{ result.address || '주소 정보 없음' }}</span> <!-- 주소 표시 -->
+        <span class="autocomplete-hotel-name">{{ result.name }}</span>
+        <!-- 호텔 이름 표시 -->
+        <span class="hotel-address">{{
+          result.address || "주소 정보 없음"
+        }}</span>
+        <!-- 주소 표시 -->
       </li>
       <li v-if="noResults" class="no-results">연관된 검색어가 없습니다.</li>
     </ul>
-
     <div class="hotel-title-container">
       <h2 class="hotel_title">오늘의 추천 호텔</h2>
       <!-- 새로고침 버튼 -->
@@ -38,42 +39,66 @@
     </div>
     <div class="hotel_list_container">
       <div class="hotel_grid">
-        <div v-for="hotel in randomHotels" :key="hotel.hotelId" class="hotel-container">
+        <div
+          v-for="hotel in randomHotels"
+          :key="hotel.hotelId"
+          class="hotel-container"
+        >
           <router-link :to="`/hotel-details/${hotel.hotelId}`">
-            <img :src="hotel.imageUrl || defaultImage" class="img-container" alt="Hotel Image" />
+            <img
+              :src="hotel.imageUrl || defaultImage"
+              class="img-container"
+              alt="Hotel Image"
+            />
           </router-link>
           <div class="hotel-name">{{ hotel.name }}</div>
           <div class="hotel-info">
-            <span class="rating">⭐4.5</span>
-            <span>(리뷰 갯수)</span>
+            <span class="rating">⭐{{ hotel.rating || 0 }}</span>
+            <span>({{ hotel.reviewCount }})</span>
           </div>
         </div>
       </div>
 
       <h2 class="review-title">리뷰 Top 10</h2>
       <div class="hotel_grid">
-        <div class="hotel-container">
-          <img
-            class="img-container"
-            src="https://www.agoda.com/wp-content/uploads/2019/05/Best-hotels-in-Seoul-South-Korea-accommodations-The-Shilla-Seoul.jpg"
-          />
-          <div class="hotel-name">호텔명</div>
+        <div
+          v-for="hotel in topByReviewCount"
+          :key="hotel.hotelId"
+          class="hotel-container"
+        >
+          <router-link :to="`/hotel-details/${hotel.hotelId}`">
+            <img
+              :src="hotel.imageUrl || defaultImage"
+              class="img-container"
+              alt="Hotel Image"
+            />
+          </router-link>
+          <div class="hotel-name">{{ hotel.name }}</div>
           <div class="hotel-info">
-            <span class="rating">⭐4.5</span><span>(리뷰갯수)</span>
+            <span class="rating">⭐{{ hotel.rating || 0 }}</span>
+            <span>({{ hotel.reviewCount }})</span>
           </div>
         </div>
       </div>
 
       <h2 class="review-title">별점 Top 10</h2>
       <div class="hotel_grid">
-        <div class="hotel-container">
-          <img
-            class="img-container"
-            src="https://www.agoda.com/wp-content/uploads/2019/05/Best-hotels-in-Seoul-South-Korea-accommodations-The-Shilla-Seoul.jpg"
-          />
-          <div class="hotel-name">호텔명</div>
+        <div
+          v-for="hotel in topByRating"
+          :key="hotel.hotelId"
+          class="hotel-container"
+        >
+          <router-link :to="`/hotel-details/${hotel.hotelId}`">
+            <img
+              :src="hotel.imageUrl || defaultImage"
+              class="img-container"
+              alt="Hotel Image"
+            />
+          </router-link>
+          <div class="hotel-name">{{ hotel.name }}</div>
           <div class="hotel-info">
-            <span class="rating">⭐4.5</span><span>(리뷰갯수)</span>
+            <span class="rating">⭐{{ hotel.rating || 0 }}</span>
+            <span>({{ hotel.reviewCount }})</span>
           </div>
         </div>
       </div>
@@ -82,63 +107,107 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
+import { getHotelsReviewsTop } from "@/api/hotel";
 
 export default {
-  name: 'MainPage',
+  name: "MainPage",
   data() {
     return {
-      searchQuery: '',
+      searchQuery: "",
       autocompleteResults: [],
       randomHotels: [],
-      defaultImage: 'https://png.pngtree.com/png-vector/20240613/ourlarge/pngtree-modern-hotel-icon-with-palm-trees-black-isolated-on-white-background-vector-png-image_7010310.png',
-      noResults: false // 연관 검색어가 없는 경우를 표시하기 위한 변수
+      topByReviewCount: [],
+      topByRating: [],
+      defaultImage:
+        "https://png.pngtree.com/png-vector/20240613/ourlarge/pngtree-modern-hotel-icon-with-palm-trees-black-isolated-on-white-background-vector-png-image_7010310.png",
+      noResults: false, // 연관 검색어가 없는 경우를 표시하기 위한 변수
     };
   },
   created() {
     this.fetchRandomHotels();
+    this.fetchTopHotelList();
   },
   methods: {
     async fetchRandomHotels() {
       try {
-        const response = await axios.get('http://localhost:8081/api/hotels/random');
+        const response = await axios.get(
+          "http://localhost:8081/api/hotels/random"
+        );
         this.randomHotels = response.data; // 백엔드에서 가져온 랜덤 호텔 목록
       } catch (error) {
-        console.error('랜덤 호텔 데이터를 가져오는 중 오류 발생:', error);
+        console.error("랜덤 호텔 데이터를 가져오는 중 오류 발생:", error);
       }
     },
     fetchAutocompleteResults() {
-  this.autocompleteResults = []; // 입력 시 기존 결과 초기화
+      this.autocompleteResults = []; // 입력 시 기존 결과 초기화
 
-  if (this.searchQuery.length > 0) {
-    const queryWithoutSpaces = this.searchQuery.replace(/\s+/g, ''); // 공백 제거
-    axios.get(`http://localhost:8081/api/hotels/search?query=${queryWithoutSpaces}`)
-      .then(response => {
-        this.autocompleteResults = response.data;
-        this.noResults = this.autocompleteResults.length === 0;
-      })
-      .catch(error => {
-        console.error('자동 완성 결과를 가져오는 중 오류 발생:', error);
-        this.autocompleteResults = [];
-        this.noResults = true;
-      });
-  } else {
-    this.autocompleteResults = []; // 검색어가 없을 때 결과를 비우기
-    this.noResults = false;
-  }
-}
-,
+      if (this.searchQuery.length > 0) {
+        const queryWithoutSpaces = this.searchQuery.replace(/\s+/g, ""); // 공백 제거
+        axios
+          .get(
+            `http://localhost:8081/api/hotels/search?query=${queryWithoutSpaces}`
+          )
+          .then((response) => {
+            this.autocompleteResults = response.data;
+            this.noResults = this.autocompleteResults.length === 0;
+          })
+          .catch((error) => {
+            console.error("자동 완성 결과를 가져오는 중 오류 발생:", error);
+            this.autocompleteResults = [];
+            this.noResults = true;
+          });
+      } else {
+        this.autocompleteResults = []; // 검색어가 없을 때 결과를 비우기
+        this.noResults = false;
+      }
+    },
     searchHotel() {
       // 검색어가 입력된 상태에서 검색 페이지로 이동하며, 검색어를 쿼리 파라미터로 전달
       this.$router.push({
-        path: '/search-results',
-        query: { query: this.searchQuery }
+        path: "/search-results",
+        query: { query: this.searchQuery },
       });
     },
     goToSearchPage() {
-      this.$router.push({ path: '/search-page', query: { query: this.searchQuery } });
-    }
-  }
+      this.$router.push({
+        path: "/search-page",
+        query: { query: this.searchQuery },
+      });
+    },
+    async fetchTopHotelList() {
+      try {
+        // 데이터를 가져오기
+        const response = await getHotelsReviewsTop();
+
+        // 가져온 데이터를 변수에 저장
+        let topByReviewCount = response.data.topByReviewCount;
+        let topByRating = response.data.topByRating;
+
+        // 리뷰 개수가 많은 순으로 내림차순 정렬 (리뷰 개수 동일시 이름 오름차순으로 정렬)
+        topByReviewCount = topByReviewCount.sort((a, b) => {
+          if (b.reviewCount !== a.reviewCount) {
+            return b.reviewCount - a.reviewCount; // 리뷰 개수 내림차순: 큰 값이 상단에 위치
+          }
+          return a.name.localeCompare(b.name); // 리뷰 개수가 같으면 이름 오름차순
+        });
+
+        // 평점이 높은 순으로 내림차순 정렬 (평점 동일시 이름 오름차순으로 정렬)
+        topByRating = topByRating.sort((a, b) => {
+          if (b.rating !== a.rating) {
+            return b.rating - a.rating; // 평점 내림차순: 큰 값이 상단에 위치
+          }
+          return a.name.localeCompare(b.name); // 평점이 같으면 이름 오름차순
+        });
+
+        // 정렬된 데이터를 Vue 컴포넌트의 데이터에 저장
+        this.topByReviewCount = topByReviewCount;
+        this.topByRating = topByRating;
+      } catch (error) {
+        console.error("목록 조회 중 오류 발생: ", error);
+      }
+    },
+  },
 };
 </script>
 
@@ -166,6 +235,7 @@ export default {
   padding-right: 40px; /* 돋보기 버튼 공간 확보 */
   padding-left: 10px;
   background-color: transparent;
+  margin-right: 10px;
 }
 
 .search-button {
@@ -217,7 +287,7 @@ export default {
   max-height: 150px;
   overflow-y: auto;
   position: absolute;
-  width: 1000px;
+  width: 100%;
 }
 
 .autocomplete-item {
@@ -290,4 +360,102 @@ export default {
   margin-top: 20px;
 }
 
+@media (max-width: 1600px) {
+  .main-container {
+    width: 80%;
+  }
+  .hotel_grid {
+    grid-template-columns: repeat(4, 1fr); /* 4개의 열 */
+  }
+  .img-container,
+  .search-bar {
+    width: 200px; /* 이미지와 서치바 너비 동일 */
+  }
+  .img-container {
+    height: 150px;
+  }
+  .search-bar {
+    height: 35px;
+  }
+}
+
+/* 1200px 이하 화면 */
+@media (max-width: 1200px) {
+  .main-container {
+    width: 80%;
+  }
+  .hotel_grid {
+    grid-template-columns: repeat(3, 1fr); /* 3개의 열 */
+  }
+  .img-container,
+  .search-bar {
+    width: 200px; /* 이미지와 서치바 너비 동일 */
+  }
+  .img-container {
+    height: 150px;
+  }
+  .search-bar {
+    height: 35px;
+  }
+}
+
+/* 800px 이하 화면 */
+@media (max-width: 800px) {
+  .main-container {
+    width: 85%;
+  }
+  .hotel_grid {
+    grid-template-columns: repeat(2, 1fr); /* 2개의 열 */
+  }
+  .img-container,
+  .search-bar {
+    width: 200px; /* 이미지와 서치바 너비 동일 */
+  }
+  .img-container {
+    height: 150px;
+  }
+  .search-bar {
+    height: 30px;
+  }
+}
+
+/* 558px 이하 화면 */
+@media (max-width: 558px) {
+  .main-container {
+    width: 90%;
+  }
+  .hotel_grid {
+    grid-template-columns: repeat(1, 1fr); /* 1개의 열 */
+  }
+  .img-container,
+  .search-bar {
+    width: 200px; /* 이미지와 서치바 너비 동일 */
+  }
+  .img-container {
+    height: 150px;
+  }
+  .search-bar {
+    height: 28px;
+  }
+}
+
+/* 더 작은 화면 (모바일 전용) */
+@media (max-width: 375px) {
+  .main-container {
+    width: 95%;
+  }
+  .hotel_grid {
+    grid-template-columns: 1fr; /* 1개의 열 */
+  }
+  .img-container,
+  .search-bar {
+    width: 100%; /* 이미지와 서치바 너비 동일 */
+  }
+  .img-container {
+    height: 80px;
+  }
+  .search-bar {
+    height: 28px;
+  }
+}
 </style>

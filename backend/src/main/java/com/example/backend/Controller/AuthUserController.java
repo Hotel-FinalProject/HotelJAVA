@@ -133,9 +133,9 @@ public class AuthUserController {
 
     /** 회원 탈퇴 */
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authorizationToken) {
         try {
-            String token = authorizationHeader.replace("Bearer ", "");
+            String token = authorizationToken.replace("Bearer ", "");
             String email = jwtUtil.verifyJwt(token);
 
             return userService.deleteUser(email);

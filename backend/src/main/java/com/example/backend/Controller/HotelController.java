@@ -3,11 +3,10 @@ package com.example.backend.Controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.example.backend.dto.HotelReviewDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,7 +49,7 @@ public class HotelController {
     
  // 10개 랜덤 호텔 조회
     @GetMapping("/hotels/random")
-    public List<HotelDTO> getRandomHotels() {
+    public List<HotelReviewDTO> getRandomHotels() {
         return hotelService.getRandomHotels(10); // 10개 랜덤 호텔 반환
     }
 
@@ -103,7 +102,7 @@ public class HotelController {
                     hotel.getName(),
                     hotel.getAddress(),
                     hotel.getImageUrl(),
-                    hotel.getRating(),
+                    hotelService.calculateAverageRating(hotel),
                     hotel.getMapX(),
                     hotel.getMapY(),
                     null
@@ -142,4 +141,15 @@ public class HotelController {
     }
 
 
+    @GetMapping("/hotels/top10")
+    public Map<String, List<HotelReviewDTO>> getTop10Hotels() {
+        List<HotelReviewDTO> topHotelsByReviewCount = hotelService.getTop10HotelsByReviewCount();
+        List<HotelReviewDTO> topHotelsByRating = hotelService.getTop10HotelsByRating();
+
+        Map<String, List<HotelReviewDTO>> response = new HashMap<>();
+        response.put("topByReviewCount", topHotelsByReviewCount);
+        response.put("topByRating", topHotelsByRating);
+
+        return response;
+    }
 }
