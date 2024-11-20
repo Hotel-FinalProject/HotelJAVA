@@ -8,6 +8,7 @@ const config = axios.create({
   }
 });
 
+/** 유저 목록 */
 function getUserListByAdmin(token) {
   return config.get('user-read', {
     headers: {
@@ -16,6 +17,7 @@ function getUserListByAdmin(token) {
   })
 }
 
+/** 호텔 관리자 목록 */
 function getHotelManagerListByAdmin(token){
   return config.get('hotelAdmin-read', {
     headers: {
@@ -24,6 +26,7 @@ function getHotelManagerListByAdmin(token){
   })
 }
 
+/** 유저 검색 */
 function getUserSearch(token, name){
   return config.get('user-search', {
     params: {
@@ -35,8 +38,9 @@ function getUserSearch(token, name){
   })
 }
 
+/** 호텔 관리자 검색 */
 function getHotelAdminSearch(token, name){
-  return config.get('user-search', {
+  return config.get('hotelAdmin-search', {
     params: {
       search : name
     },
@@ -46,10 +50,11 @@ function getHotelAdminSearch(token, name){
   })
 }
 
+/** 유저 비활성화/활성화 */
 function requestActiveStatus(token, userId){
   return config.post('hotel', null, {
     params: {
-      userId : userId
+      userId: userId
     },
     headers: {
       'Authorization': `Bearer ${token}`
@@ -57,6 +62,7 @@ function requestActiveStatus(token, userId){
   })
 }
 
+/** 호텔 관리자 비활성화/활성화 */
 function requestReportControl(token, reportId){
   return config.post('review-report', null, {
     params: {
@@ -68,6 +74,7 @@ function requestReportControl(token, reportId){
   })
 }
 
+/** 신고 목록 */
 function getReportListByAdmin(token){
   return config.get('review-read', {
     headers: {
@@ -76,6 +83,7 @@ function getReportListByAdmin(token){
   })
 }
 
+/** 대시보드 유저 정보 */
 function getAcountInfo(token) {
   return config.get('userInfo', {
     headers: {
@@ -84,6 +92,7 @@ function getAcountInfo(token) {
   })
 }
 
+/** 대시보드 신고 수 */
 function getReportInfo(token) {
   return config.get('reviewReportInfo', {
     headers: {

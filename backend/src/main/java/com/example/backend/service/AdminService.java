@@ -150,6 +150,7 @@ public class AdminService {
 
         for (User u : users) {
             AdminUserDTO adminUserDTO = AdminUserDTO.builder()
+                    .userId(u.getUserId())
                     .name(u.getName())
                     .email(u.getEmail())
                     .phone(u.getPhone())
@@ -176,6 +177,7 @@ public class AdminService {
 
         for (User u : users) {
             AdminUserDTO adminUserDTO = AdminUserDTO.builder()
+                    .userId(u.getUserId())
                     .name(u.getName())
                     .email(u.getEmail())
                     .phone(u.getPhone())
@@ -206,6 +208,7 @@ public class AdminService {
 
         for (User u : users) {
             AdminUserDTO adminUserDTO = AdminUserDTO.builder()
+                    .userId(u.getUserId())
                     .name(u.getName())
                     .email(u.getEmail())
                     .phone(u.getPhone())
@@ -238,6 +241,7 @@ public class AdminService {
 
         for (User u : users) {
             AdminUserDTO adminUserDTO = AdminUserDTO.builder()
+                    .userId(u.getUserId())
                     .name(u.getName())
                     .email(u.getEmail())
                     .phone(u.getPhone())

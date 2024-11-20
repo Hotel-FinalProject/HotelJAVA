@@ -42,7 +42,7 @@
         <ul class="dashboard-summary">
           <li class="dashboard-item">
             <h3>🔍 사용자 관리</h3>
-            <p>총 사용자 수: {{ totalUserCount}}명</p>
+            <p>총 사용자 수: {{ totalUserCount }}명</p>
             <p>활성 계정: {{ activeUserCount }}명</p>
             <p>비활성 계정: {{ inactiveUserCount }}명</p>
           </li>
@@ -72,6 +72,8 @@
               class="search-input"
               type="text"
               placeholder="이름, 이메일로 검색해주세요."
+              v-model="searchKeyword"
+              @input="handleUserSearch"
             />
           </div>
         </div>
@@ -87,15 +89,17 @@
             <span>관리</span>
           </div>
           <!-- 테이블 내용 -->
-          <div v-for="(user) in userList" :key="user.id" class="user-table-row" >
-            <span :class="user.isActive ? 'user-active' : 'user-deactive'">{{ user.isActive }}</span>
+          <div v-for="user in userList" :key="user.id" class="user-table-row">
+            <span :class="user.isActive ? 'user-active' : 'user-deactive'">{{
+              user.isActive
+            }}</span>
             <span>{{ user.userId }}</span>
             <span>{{ user.name }}</span>
             <span>{{ user.email }}</span>
             <span>{{ user.phone }}</span>
             <div class="user-activeBtn-container">
-              <button>활성화</button>
-              <button>정지</button>
+              <button v-if="user.isActive" @click="handleUserStatusChange(user.userId)">정지</button>
+              <button v-else @click="handleUserStatusChange(user.userId)">활성화</button>
             </div>
           </div>
         </div>
@@ -112,6 +116,8 @@
               class="search-input"
               type="text"
               placeholder="이름, 이메일로 검색해주세요."
+              v-model="searchKeyword"
+              @input="handleHotelSearch"
             />
           </div>
         </div>
@@ -127,15 +133,21 @@
             <span>관리</span>
           </div>
           <!-- 테이블 내용 -->
-          <div v-for="(user) in hotelManagerList" :key="user.id" class="user-table-row">
-            <span :class="user.isActive ? 'user-active' : 'user-deactive'">{{ user.isActive }}</span>
+          <div
+            v-for="user in hotelManagerList"
+            :key="user.id"
+            class="user-table-row"
+          >
+            <span :class="user.isActive ? 'user-active' : 'user-deactive'">{{
+              user.isActive
+            }}</span>
             <span>{{ user.userId }}</span>
             <span>{{ user.name }}</span>
             <span>{{ user.email }}</span>
             <span>{{ user.phone }}</span>
             <div class="user-activeBtn-container">
-              <button>활성화</button>
-              <button>정지</button>
+              <button v-if="user.isActive" @click="handleAccountStatusChange(user.userId)">정지</button>
+              <button v-else @click="handleAccountStatusChange(user.userId)">활성화</button>
             </div>
           </div>
         </div>
@@ -156,14 +168,20 @@
             <span>관리</span>
           </div>
           <!-- 테이블 내용 -->
-          <div v-for="(report) in reportList" :key="report.id" class="user-table-row">
-            <span :class="report.status !== '신고 접수됨' ? 'review-active' : 'review-deactive'">{{ report.status === '신고 접수됨' ? '미처리' : '처리완료' }}</span>
+          <div
+            v-for="report in reportList"
+            :key="report.id"
+            class="user-table-row"
+          >
+            <span :class=" report.status !== '신고 접수됨' ? 'review-active' : 'review-deactive' ">{{ report.status === "신고 접수됨" ? "미처리" : "처리완료" }}</span>
             <span>{{ report.reportId }}</span>
             <span>{{ report.reportedName }}</span>
             <span>{{ report.content }}</span>
             <span>{{ report.reporterName }}</span>
             <div class="user-activeBtn-container">
-              <button @click="handleHideReport(report.reportId)">숨김 처리</button>
+              <button v-if="report.status === '신고 접수됨'" @click="handleHideReport(report.reportId)">
+                숨김 처리
+              </button>
             </div>
           </div>
         </div>
@@ -174,7 +192,17 @@
 
 <script>
 import SidebarLayout from "@/layout/SidebarLayout.vue";
-import { getUserListByAdmin, getHotelManagerListByAdmin, getReportListByAdmin,  getAcountInfo, getReportInfo, requestReportControl } from "@/api/admin";
+import {
+  getUserListByAdmin,
+  getHotelManagerListByAdmin,
+  getReportListByAdmin,
+  getAcountInfo,
+  getUserSearch,
+  getReportInfo,
+  requestReportControl,
+  requestActiveStatus,
+  getHotelAdminSearch,
+} from "@/api/admin";
 import { ref } from "vue";
 
 export default {
@@ -189,8 +217,9 @@ export default {
   },
   setup() {
     const userList = ref([]);
-    const hotelManagerList = ref([]);
     const reportList = ref([]);
+    const hotelManagerList = ref([]);
+    const searchKeyword = ref("");
     const totalUserCount = ref(0);
     const totalHotelCount = ref(0);
     const totalReportCount = ref(0);
@@ -200,7 +229,7 @@ export default {
     const inactiveHotelCount = ref(0);
     const completeReportCount = ref(0);
     const incompleteReportCount = ref(0);
-    
+
     const token = sessionStorage.getItem("token");
 
     const fetchUserList = async () => {
@@ -218,7 +247,7 @@ export default {
     const fetchReportList = async () => {
       const response = await getReportListByAdmin(token);
 
-      reportList.value = response.data
+      reportList.value = response.data;
     };
 
     const fetchDashboard = async () => {
@@ -235,22 +264,75 @@ export default {
       inactiveHotelCount.value = response.data.hotelUnActiveCount;
       completeReportCount.value = reportResponse.data.reportInComplete;
       incompleteReportCount.value = reportResponse.data.reportComplete;
-    }
+    };
 
     const handleHideReport = async (reportId) => {
       try {
         const response = await requestReportControl(token, reportId);
         console.log(response.data);
         fetchReportList();
+        fetchDashboard();
       } catch (error) {
         console.error("리뷰 숨김처리 실패 ", error);
+      }
+    };
+
+    const handleAccountStatusChange = async (userId) => {
+      try {
+        const response = await requestActiveStatus(token, userId);
+        console.log(response.data);
+        // 상태 변경 후 목록을 갱신합니다.
+        fetchHotelManagerList();
+        fetchDashboard();
+      } catch (error) {
+        console.error("계정 상태 변경 실패 ", error);
+      }
+    };
+
+    const handleUserStatusChange = async (userId) =>{
+      try {
+        const response = await requestActiveStatus(token, userId);
+        console.log(response.data);
+        // 상태 변경 후 목록을 갱신합니다.
+        fetchUserList();
+        fetchDashboard();
+      } catch (error) {
+        console.error("계정 상태 변경 실패 ", error);
+      }
+    }
+
+    const handleUserSearch = async () => {
+      try {
+        console.log("uuuuuuuuuuu")
+        if (searchKeyword.value.trim() === "") {
+          await fetchUserList(); // 검색어가 없으면 전체 목록을 다시 불러옴
+        } else {
+          const response = await getUserSearch(token, searchKeyword.value);
+          userList.value = response.data;
+        }
+      } catch (error) {
+        console.error("사용자 검색 실패", error);
+      }
+    }
+
+    const handleHotelSearch = async () => {
+      try{
+        console.log("hhhhhhh")
+        if(searchKeyword.value.trim() === ""){
+          await fetchHotelManagerList();
+        } else {
+          const response = await getHotelAdminSearch(token, searchKeyword.value);
+          hotelManagerList.value = response.data;
+        }
+      } catch (error) {
+        console.error("사용자 검색 실패", error);
       }
     }
 
     return {
       userList,
       hotelManagerList,
-      reportList, 
+      reportList,
       totalUserCount,
       totalHotelCount,
       totalReportCount,
@@ -260,11 +342,16 @@ export default {
       inactiveHotelCount,
       completeReportCount,
       incompleteReportCount,
+      searchKeyword,
       fetchUserList,
       fetchHotelManagerList,
       fetchReportList,
       fetchDashboard,
       handleHideReport,
+      handleAccountStatusChange,
+      handleUserStatusChange,
+      handleUserSearch,
+      handleHotelSearch,
     };
   },
   mounted() {
@@ -273,6 +360,15 @@ export default {
     this.fetchDashboard();
     this.fetchReportList();
   },
+  watch: {
+    searchKeyword(newValue){
+      if(this.currentView.valueOf === "UserManagement"){
+        this.handleUserSearch(newValue);
+      } else if(this.currentView.valueOf === "HotelAdminAccounts"){
+        this.handleHotelSearch(newValue);
+      }
+    }
+  }
 };
 </script>
 
