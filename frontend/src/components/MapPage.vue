@@ -49,7 +49,7 @@
       async fetchHotels() {
         try {
           const response = await axios.get(
-            `http://localhost:8081/api/hotels/search?location=${
+            `/api/hotels/search?location=${
               this.location || ""
             }`
           );

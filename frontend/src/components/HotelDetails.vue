@@ -241,7 +241,7 @@ export default {
     async fetchHotelDetails() {
       const hotelId = this.$route.params.id;
       try {
-        const response = await axios.get(`http://localhost:8081/api/hotels/${hotelId}`);
+        const response = await axios.get(`/api/hotels/${hotelId}`);
         this.hotel = response.data; // HotelDetailDTO 형태로 데이터 수신
         console.log(this.hotel);
 
@@ -315,7 +315,7 @@ export default {
       }
 
      try {
-        const response = await axios.get(`http://localhost:8081/api/auth/favorites/status/${hotelId}`, {
+        const response = await axios.get(`/api/auth/favorites/status/${hotelId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -333,8 +333,8 @@ export default {
         return;
       }
       const url = this.isFavorited
-        ? `http://localhost:8081/api/auth/favorites/cancel/${hotelId}`
-        : `http://localhost:8081/api/auth/favorites/${hotelId}`;
+        ? `/api/auth/favorites/cancel/${hotelId}`
+        : `/api/auth/favorites/${hotelId}`;
 
       try {
         await axios.post(url, {}, {

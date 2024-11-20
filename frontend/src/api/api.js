@@ -2,7 +2,7 @@ import axios from 'axios';
 
 /** axios 기본 url 및 헤더 설정 */
 const config = axios.create({
-  baseURL: 'http://localhost:8081/api',  // Spring Boot API 경로
+  baseURL: '/api',  // Spring Boot API 경로
   headers: {
     'Content-Type': 'application/json'
   }

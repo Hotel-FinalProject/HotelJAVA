@@ -128,7 +128,7 @@ export default {
     async fetchRandomHotels() {
       try {
         const response = await axios.get(
-          "http://localhost:8081/api/hotels/random"
+          "/api/hotels/random"
         );
         this.randomHotels = response.data; // 백엔드에서 가져온 랜덤 호텔 목록
       } catch (error) {
@@ -142,7 +142,7 @@ export default {
         const queryWithoutSpaces = this.searchQuery.replace(/\s+/g, ""); // 공백 제거
         axios
           .get(
-            `http://localhost:8081/api/hotels/search?query=${queryWithoutSpaces}`
+            `/api/hotels/search?query=${queryWithoutSpaces}`
           )
           .then((response) => {
             this.autocompleteResults = response.data;

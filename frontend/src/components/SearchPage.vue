@@ -126,7 +126,7 @@
   };
 
   try {
-    const response = await axios.get("http://localhost:8081/api/hotels/search-by-date-and-guest", { params });
+    const response = await axios.get("/api/hotels/search-by-date-and-guest", { params });
     this.hotels = response.data;
 
     // URL 업데이트 (검색 조건 유지)
@@ -147,7 +147,7 @@
       if (this.searchQuery.length > 0) {
         const queryWithoutSpaces = this.searchQuery.replace(/\s+/g, '');
         try {
-          const response = await axios.get(`http://localhost:8081/api/hotels/search?query=${queryWithoutSpaces}`);
+          const response = await axios.get(`/api/hotels/search?query=${queryWithoutSpaces}`);
           this.autocompleteResults = response.data;
           this.noResults = this.autocompleteResults.length === 0;
         } catch (error) {

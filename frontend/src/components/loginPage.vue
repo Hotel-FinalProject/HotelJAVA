@@ -43,10 +43,10 @@
     },
     methods: {
       async googleLogin() {
-        window.location.href = "http://localhost:8081/oauth2/authorization/google";
+        window.location.href = process.env.VUE_APP_API_URL+"/oauth2/authorization/google";
       },
       async naverLogin() {
-        window.location.href = "http://localhost:8081/oauth2/authorization/naver"
+        window.location.href = process.env.VUE_APP_API_URL+"/oauth2/authorization/naver"
       },
       async submitForm() {
         const payload = {

@@ -322,7 +322,7 @@ export default {
 
                  
             try {
-                    const reservationResponse = await axios.post(`http://localhost:8081/api/auth/reservation/${imp_uid}`, { 
+                    const reservationResponse = await axios.post(`/api/auth/reservation/${imp_uid}`, { 
                         userId: userId,
                         checkIn: userCheckIn,
                         checkOut: userCheckOut,

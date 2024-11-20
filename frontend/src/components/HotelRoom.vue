@@ -183,7 +183,7 @@ export default {
     async fetchRoomDetails() {
       const roomId = this.$route.params.roomId;
       try {
-        const response = await axios.get(`http://localhost:8081/api/rooms/${roomId}`);
+        const response = await axios.get(`/api/rooms/${roomId}`);
         this.room = response.data;
         console.log("객실 데이터:", this.room);
         this.selectedPersonCount = this.room.occupancy || 1;
