@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/rooms")
@@ -62,5 +63,18 @@ public class RoomController {
     public ResponseEntity<RoomDTO> getRoomById(@PathVariable("roomId") Long roomId) {
         RoomDTO room = roomService.getRoomById(roomId);
         return ResponseEntity.ok(room);
+    }
+    
+    // 객실 요약 정보
+    @GetMapping("/hotel/{hotelId}/room-summary")
+    public ResponseEntity<Map<String, Object>> getRoomSummaryByHotel(@PathVariable("hotelId") Long hotelId) {
+        Map<String, Object> roomSummary = roomService.getRoomSummaryByHotel(hotelId);
+        return ResponseEntity.ok(roomSummary);
+    }
+    
+    @PutMapping("/{roomId}")
+    public ResponseEntity<?> updateRoom(@PathVariable("roomId") Long roomId, @RequestBody RoomDTO roomDto) {
+        roomService.updateRoom(roomId, roomDto);
+        return ResponseEntity.ok("객실 정보가 수정되었습니다.");
     }
 }

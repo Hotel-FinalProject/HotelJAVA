@@ -6,7 +6,7 @@
         v-model="searchQuery"
         class="search-bar"
         type="text"
-        placeholder="호텔 검색"
+        placeholder="여행지를 검색해 보세요!"
         @click="searchHotel"
       />
       <!-- 돋보기 버튼 -->
@@ -29,10 +29,13 @@
       <li v-if="noResults" class="no-results">연관된 검색어가 없습니다.</li>
     </ul>
 
-    <!-- 새로고침 버튼 추가 -->
-    <button @click="fetchRandomHotels" class="refresh-button">
+    <div class="hotel-title-container">
+      <h2 class="hotel_title">오늘의 추천 호텔</h2>
+      <!-- 새로고침 버튼 -->
+      <button @click="fetchRandomHotels" class="refresh-button" title="호텔 정보를 새로고침합니다.">
         🔄
-    </button>
+      </button>
+    </div>
     <div class="hotel_list_container">
       <div class="hotel_grid">
         <div v-for="hotel in randomHotels" :key="hotel.hotelId" class="hotel-container">
@@ -176,13 +179,32 @@ export default {
   font-size: 20px;
 }
 
+.hotel-title-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* 왼쪽 정렬 */
+  margin-bottom: 20px; /* 아래 요소와의 간격 */
+}
+
+.hotel_title {
+  margin: 7; /* 기본 마진 제거 */
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
 .refresh-button {
   background: none;
   border: none;
   cursor: pointer;
+  font-size: 20px;
   padding: 5px;
-  font-size: 24px;
-  vertical-align: middle;
+  margin-left: 10px; /* 제목과 버튼 사이의 간격 */
+  color: #007bff;
+  transition: color 0.3s ease;
+}
+
+.refresh-button:hover {
+  color: #0056b3;
 }
 
 .autocomplete-list {

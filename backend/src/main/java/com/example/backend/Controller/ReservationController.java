@@ -2,8 +2,10 @@ package com.example.backend.Controller;
 
 import com.example.backend.dto.ReservationDTO;
 import com.example.backend.dto.ReservationDateDTO;
+import com.example.backend.dto.ReservationUpdateDTO;
 import com.example.backend.dto.RoomCountDTO;
 import com.example.backend.dto.UserReservationDTO;
+import com.example.backend.entity.Reservation;
 import com.example.backend.entity.Room;
 import com.example.backend.entity.User;
 import com.example.backend.service.PaymentService;
@@ -108,9 +110,46 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("오류: " + e.getMessage());
         }
     }
+    
+    // 예약 요약 정보 (D)
+    @GetMapping("/reservation-summary")
+    public ResponseEntity<?> getReservationSummary(@RequestHeader("Authorization") String token) {
+        try {
+            String actualToken = token.replace("Bearer ", "");
+            Long adminUserId = jwtUtil.verifyJwtAndGetUserId(actualToken);
 
+            if (adminUserId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
+            }
 
-
-
-
+            List<ReservationDateDTO> reservationSummary = reservationService.getReservationSummary(adminUserId);
+            return ResponseEntity.ok(reservationSummary);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("오류: " + e.getMessage());
+        }
     }
+    // 예약 수정 (D)
+    @PutMapping("/reservation/{reservationId}")
+    public ResponseEntity<?> updateReservation(
+            @PathVariable("reservationId") Long reservationId,
+            @RequestBody ReservationUpdateDTO reservationUpdateDTO,
+            @RequestHeader("Authorization") String token) {
+        try {
+            String actualToken = token.replace("Bearer ", "");
+            Long userId = jwtUtil.verifyJwtAndGetUserId(actualToken);
+
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
+            }
+
+            // ReservationService의 updateReservation 호출 (ReservationDTO 반환)
+            ReservationDTO updatedReservation = reservationService.updateReservation(reservationId, reservationUpdateDTO, userId);
+
+            return ResponseEntity.ok(updatedReservation);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("오류 발생: " + e.getMessage());
+        }
+    }
+
+
+}
