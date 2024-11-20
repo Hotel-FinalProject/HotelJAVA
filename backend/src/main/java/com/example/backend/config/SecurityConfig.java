@@ -87,6 +87,8 @@ package com.example.backend.config;
 import com.example.backend.service.CustomOAuth2UserService;
 //import com.example.backend.service.CustomUserDetailsService;
 import com.example.backend.util.LoginSuccessHandler;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -110,6 +112,9 @@ public class SecurityConfig {
     private final LoginSuccessHandler loginSuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
 
+    @Value("${spring.datasource.url}")
+    private String DATABASE_URL;
+
     // 생성자를 통해 LoginSuccessHandler와 CustomOAuth2UserService 의존성 주입
     public SecurityConfig(LoginSuccessHandler loginSuccessHandler, CustomOAuth2UserService customOAuth2UserService) {
         this.loginSuccessHandler = loginSuccessHandler;
@@ -123,6 +128,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        System.out.println("DATABASE_URL");
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 활성화
                 .csrf(csrf -> csrf.disable())  // CSRF 비활성화 (개발 중)
@@ -151,7 +157,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:8082"));
+        configuration.setAllowedOrigins(List.of("http://3.37.110.126"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
