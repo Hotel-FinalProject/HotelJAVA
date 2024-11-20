@@ -37,7 +37,6 @@ public class ReviewService {
         log.info("리뷰 생성 요청 DTO : {}", reviewDTO);
         log.info("리뷰 생성 요청 이미지 : {}", images);
 
-
         // 예약 정보 확인
 
         Reservation reservation = reservationRepository.findById(reviewDTO.getReservationId())
@@ -139,6 +138,7 @@ public class ReviewService {
         reviewResponseDTO.setUserId(review.getUser().getUserId());
         reviewResponseDTO.setUserName(review.getUser().getName());
         reviewResponseDTO.setHotelId(review.getHotel().getHotelId());
+        reviewResponseDTO.setHotelName(review.getHotel().getName());
         return reviewResponseDTO;
     }
 }

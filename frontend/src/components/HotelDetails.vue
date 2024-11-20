@@ -1,4 +1,3 @@
-
 <template>
   <div v-if="hotel" class="details-container">
     <!-- 호텔 이미지 -->
@@ -30,7 +29,7 @@
         </div>
       </div>
       <div class="hotel-info">
-        <span class="rating">⭐ {{ hotel.rating || "4.5" }}</span>
+        <span class="rating">⭐ {{ hotel.rating || "0" }}</span>
         <span>({{ hotel.reviewCount || 0 }} 리뷰)</span>
       </div>
       <div class="hotel-info-details">
@@ -48,38 +47,85 @@
     </div>
 
     <!-- 리뷰 섹션 -->
-    <div class="review-conatiner">
-      <div class="review-grid">
-        <div class="review-top">
-          <div class="review-racting">⭐⭐⭐⭐⭐</div>
-          <div class="review-date">2024.10.25</div>
-        </div>
-        <div class="review-content">
-          숙소도 전반적으로 깔끔했구요~ 고층이었는데 바다도 보이는 객실이라 좋았어요! 동향이었는지 아침마다 햇빛이 엄청 들어왔지만 ㅋㅋㅋㅋ 이중 커튼과 에어컨으로 충분히 커버 가능합니다.
-          무엇보다도 조식이 깔끔하면서도 맛있었어요 콩나물국과 죽이 제일 기억이 많이 남습니다 ㅎㅎㅎ 오는정김밥이 숙소 바로 옆이라 예약하기 쉬웠다는 메리트도 있었습니다.ㅋㅋㅋ 직원분들도 저희가 체크인을 늦게 하게 됐는데
-          바로 연락주셔서 주차 안내해주시고, 내내 친절하셔서 감사했어요.(전기차는 주차타워를 아예 못 쓰는 것 같아요!)
-        </div>
+    <div class="review-container">
+      <h3>리뷰</h3>
+
+      <!-- 리뷰가 없을 때 -->
+      <div v-if="hotelReviews && hotelReviews.length === 0">
+        <p>이 호텔에 대한 리뷰가 없습니다.</p>
       </div>
-      <div class="review-grid">
-        <div class="review-top">
-          <div class="review-racting">⭐⭐⭐⭐⭐</div>
-          <div class="review-date">2024.10.25</div>
-        </div>
-        <div class="review-content">
-          숙소도 전반적으로 깔끔했구요~ 고층이었는데 바다도 보이는 객실이라 좋았어요! 동향이었는지 아침마다 햇빛이 엄청 들어왔지만 ㅋㅋㅋㅋ 이중 커튼과 에어컨으로 충분히 커버 가능합니다.
-          무엇보다도 조식이 깔끔하면서도 맛있었어요 콩나물국과 죽이 제일 기억이 많이 남습니다 ㅎㅎㅎ 오는정김밥이 숙소 바로 옆이라 예약하기 쉬웠다는 메리트도 있었습니다.ㅋㅋㅋ 직원분들도 저희가 체크인을 늦게 하게 됐는데
-          바로 연락주셔서 주차 안내해주시고, 내내 친절하셔서 감사했어요.(전기차는 주차타워를 아예 못 쓰는 것 같아요!)
-        </div>
-      </div>
-      <div class="review-grid">
-        <div class="review-top">
-          <div class="review-racting">⭐⭐⭐⭐⭐</div>
-          <div class="review-date">2024.10.25</div>
-        </div>
-        <div class="review-content">
-          숙소도 전반적으로 깔끔했구요~ 고층이었는데 바다도 보이는 객실이라 좋았어요! 동향이었는지 아침마다 햇빛이 엄청 들어왔지만 ㅋㅋㅋㅋ 이중 커튼과 에어컨으로 충분히 커버 가능합니다.
-          무엇보다도 조식이 깔끔하면서도 맛있었어요 콩나물국과 죽이 제일 기억이 많이 남습니다 ㅎㅎㅎ 오는정김밥이 숙소 바로 옆이라 예약하기 쉬웠다는 메리트도 있었습니다.ㅋㅋㅋ 직원분들도 저희가 체크인을 늦게 하게 됐는데
-          바로 연락주셔서 주차 안내해주시고, 내내 친절하셔서 감사했어요.(전기차는 주차타워를 아예 못 쓰는 것 같아요!)
+
+      <!-- 리뷰가 있을 때 -->
+      <div v-else>
+        <transition-group name="fade" tag="div" class="review-list">
+          <div
+            v-for="(review, index) in visibleReviews"
+            :key="index"
+            class="review-grid"
+          >
+            <!-- 리뷰 상단 -->
+            <div class="review-top">
+              <div class="review-rating">
+                <span
+                  v-for="star in 5"
+                  :key="star"
+                  class="star"
+                  :class="{ filled: star <= review.rating }"
+                >
+                  ⭐
+                </span>
+              </div>
+              <div class="review-actions">
+                <div class="review-date">
+                  {{ reviewFormatDate(review.updateDate || review.writeDate) }}
+                </div>
+                <button
+                  v-if="review.userId === loggedInUserId"
+                  class="edit-button"
+                  @click="openEditModal(review)"
+                >
+                  수정하기
+                </button>
+                <button
+                  v-else
+                  class="report-button"
+                  @click="reportReviews(review.reviewId, review.userId)"
+                >
+                  신고하기
+                </button>
+              </div>
+            </div>
+
+            <!-- 작성자 및 객실 정보 -->
+            <div class="reviewer">{{ review.userName }}</div>
+
+            <!-- 리뷰 내용 -->
+            <div class="review-content">{{ review.content }}</div>
+
+            <!-- 이미지 갤러리 -->
+            <div
+              class="review-images"
+              v-if="review.imageUrl && review.imageUrl.length > 0"
+            >
+              <img
+                v-for="(image, imgIndex) in review.imageUrl"
+                :src="image"
+                :key="imgIndex"
+                class="review-image"
+                @click="openLightbox(image)"
+              />
+            </div>
+          </div>
+        </transition-group>
+
+        <!-- 더 보기 버튼 -->
+        <div
+          v-if="visibleReviewCount < hotelReviews.length"
+          class="load-more-container"
+        >
+          <button @click="expandReviews" class="load-more-btn">
+            ➕ 더 보기
+          </button>
         </div>
       </div>
     </div>
@@ -137,6 +183,7 @@
 <script>
 /* global kakao */
 import axios from "axios";
+import { getReviewsByHotel, reportReview } from "@/api/api";
 import { useAuthStore } from "@/store/register_login";
 
 export default {
@@ -144,12 +191,15 @@ export default {
   data() {
     return {
       hotel: null,
+      hotelReviews: [],
+      visibleReviews: [],
+      visibleReviewCount: 3,
       isFavorited: false,
       isLoggedIn: false,
     };
   },
   mounted() {
-    this.fetchFavoriteStatus(); 
+    this.fetchFavoriteStatus();
   },
   async created() {
     const authStore = useAuthStore();
@@ -167,7 +217,7 @@ export default {
     const kakaoScript = document.querySelector("script[src*='//dapi.kakao.com/v2/maps/sdk.js']");
     if (kakaoScript) {
       kakaoScript.remove();
-      delete window.kakao;  // 전역 kakao 객체 삭제
+      delete window.kakao; // 전역 kakao 객체 삭제
     }
   },
   watch: {
@@ -194,11 +244,13 @@ export default {
         const response = await axios.get(`http://localhost:8081/api/hotels/${hotelId}`);
         this.hotel = response.data; // HotelDetailDTO 형태로 데이터 수신
         console.log(this.hotel);
+
+        await this.fetchHotelReviews(hotelId);
       } catch (error) {
         console.error("호텔 상세 정보를 가져오는 중 오류 발생:", error);
       }
     },
-     move(room){
+    move(room) {
       this.$router.push({
         params: { roomId: room.roomId },
         name: 'HotelRoom',
@@ -206,10 +258,10 @@ export default {
           hotelName: this.hotel.name,
           roomName: room.roomType,
           roomPrice: room.roomPrice,
-          checkIn : this.hotel.checkIn,
-          checkOut : this.hotel.checkOut,
-          roomId : room.roomId
-        }
+          checkIn: this.hotel.checkIn,
+          checkOut: this.hotel.checkOut,
+          roomId: room.roomId,
+        },
       });
     },
     copyAddressToClipboard() {
@@ -231,7 +283,7 @@ export default {
         script.onload = this.initMap;  // 스크립트 로드 후 initMap 호출
         document.head.appendChild(script);
       } else {
-        this.initMap();  // kakao 객체가 이미 있으면 바로 지도 초기화
+        this.initMap(); // kakao 객체가 이미 있으면 바로 지도 초기화
       }
     },
     initMap() {
@@ -248,7 +300,7 @@ export default {
         // 마커를 생성하고 지도에 표시
         const markerPosition = new kakao.maps.LatLng(this.hotel.mapY || "좌표❌", this.hotel.mapX || "좌표❌");
         const marker = new kakao.maps.Marker({
-          position: markerPosition
+          position: markerPosition,
         });
         marker.setMap(map);
       });
@@ -272,7 +324,7 @@ export default {
         console.error("찜 상태 불러오기 실패", error);
       }
     },
-    async toggleFavorite(){
+    async toggleFavorite() {
       const token = this.token;
        const hotelId = this.$route.params.id;
        if (!this.isLoggedIn) {
@@ -280,8 +332,8 @@ export default {
         return;
       }
       const url = this.isFavorited
-        ? `http://localhost:8081/api/auth/favorites/cancel/${hotelId}`  
-        : `http://localhost:8081/api/auth/favorites/${hotelId}`;      
+        ? `http://localhost:8081/api/auth/favorites/cancel/${hotelId}`
+        : `http://localhost:8081/api/auth/favorites/${hotelId}`;
 
       try {
         await axios.post(url, {}, {
@@ -290,9 +342,74 @@ export default {
           }
         });
 
-        this.isFavorited = !this.isFavorited;  // 상태 변경 후 isFavorited 반영
+        this.isFavorited = !this.isFavorited; // 상태 변경 후 isFavorited 반영
       } catch (error) {
         console.error("찜 상태 변경 실패", error);
+      }
+    },
+    async fetchHotelReviews(hotelId) {
+      try {
+        const response = await getReviewsByHotel(hotelId); // API 호출
+        this.hotelReviews = response.data; // 리뷰 데이터를 저장
+
+        // 초기 visibleReviews 설정
+        this.visibleReviews = this.hotelReviews.slice(
+          0,
+          this.visibleReviewCount
+        );
+      } catch (error) {
+        console.error("호텔 리뷰 조회 중 오류 발생:", error);
+      }
+    },
+    reviewFormatDate(dateString) {
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Date(dateString).toLocaleDateString("ko-KR", options);
+    },
+    expandReviews() {
+      const newCount = this.visibleReviewCount + 3;
+      this.visibleReviewCount = newCount;
+      this.visibleReviews = this.hotelReviews.slice(0, newCount);
+    },
+    async reportReviews(reviewId, reviewUser) {
+      const authStore = useAuthStore();
+      const token = sessionStorage.getItem("token");
+
+      // 로그인 확인
+      if (!this.isLoggedIn) {
+        alert("로그인이 필요합니다");
+        this.$router.push("/login");
+        return;
+      }
+
+      // loggedInUserId와 reviewId 확인
+      if (!reviewId) {
+        alert("신고 정보를 확인할 수 없습니다.");
+        console.error("Missing userId or reviewId");
+        return;
+      }
+
+      console.log("리뷰 id : ", reviewId);
+      console.log("리뷰 유저 : ", reviewUser);
+
+      // 리퀘스트 바디 생성
+      const reportData = {
+        reporterId: authStore.userId, // 현재 로그인된 사용자 ID
+        reportedId: reviewUser, // 신고 대상 사용자 ID
+        reviewId: reviewId, // 신고 대상 리뷰 ID
+      };
+
+      try {
+        // Axios를 사용한 신고 요청
+        const response = await reportReview(reportData, token);
+
+        if (response.data) {
+          alert("신고되었습니다.");
+          console.log(response.data);
+
+        }
+      } catch (error) {
+        alert("신고 중 오류가 발생했습니다.");
+        console.error("Axios request error:", error.response || error.message);
       }
     },
   },
@@ -344,12 +461,12 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
 }
-.hotel-top{
-  display:flex;
-  justify-content:space-between;
+.hotel-top {
+  display: flex;
+  justify-content: space-between;
 }
-.fa-heart{
-  font-size:30px;
+.fa-heart {
+  font-size: 30px;
 }
 .favorite-container {
   display: flex;
@@ -399,20 +516,67 @@ export default {
 .review-conatiner {
   display: flex;
 }
+.review-list {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
 .review-grid {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  flex: 0 1 30%;
   width: 400px;
   height: 150px;
   border: 1px solid lightgray;
   border-radius: 5px;
   margin-top: 15px;
-  margin-right: 20px;
+  margin-right: 10px;
   padding: 5px;
 }
-.review-top {
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
+
+.review-rating {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffcc00;
 }
+
+.review-date {
+  font-size: 14px;
+  color: #999;
+}
+
+.reviewer {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.review-images {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.review-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.review-top {
+  display: flex;
+  justify-content: space-between; /* 좌우 정렬 */
+  align-items: center; /* 수직 정렬 */
+  margin-bottom: 10px;
+}
+
+.review-actions {
+  display: flex;
+  gap: 10px; /* 버튼 간격 설정 */
+}
+
 .review-date {
   color: rgb(109, 109, 109);
 }
@@ -424,6 +588,25 @@ export default {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
+
+.load-more-container {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.load-more-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.load-more-btn:hover {
+  background-color: #0056b3;
+}
+
 .room-list {
   margin-top: 30px;
 }
@@ -484,7 +667,6 @@ export default {
   color: gray;
   text-align: center;
 }
-
 
 .room-info {
   width: 60%;
@@ -549,5 +731,33 @@ export default {
   height: 400px !important;
   margin-top: 10px;
   margin-left: 30px;
+}
+
+.edit-button {
+  background-color: #007bff;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+.report-button {
+  background-color: #ff4d4d;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.report-button:hover {
+  background-color: #d32f2f;
 }
 </style>

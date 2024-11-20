@@ -66,17 +66,27 @@
             <div class="payment-info-detail">(세금 및 봉사료 포함)</div>
         </div>
         <div class="payment-info">
-            <div class ="payment-text">상품금액</div>
+            <div class ="payment-text">상품 기본 금액</div>
             <div class ="payment">{{ dataObj.roomPrice ? dataObj.roomPrice.toLocaleString() : '가격 정보 없음' }}원</div>
         </div>
         <div class="payment-info">
+            <div class ="payment-text">추가인원</div>
+            <div class ="payment">{{ dataObj.addPerson.toLocaleString()}}원</div>
+        </div>
+        <div class="payment-info">
+            <div class ="payment-text">숙박금액</div>
+            <div class ="payment">{{dataObj.addDate.toLocaleString()}}원</div>
+        </div>
+         <!--
+        <div class="payment-info">
             <div class ="payment-text">마일리지</div>
             <div class ="payment">10마일리지</div>
-        </div>
+        </div> -->
         <hr class="dot-line"/>
         <div class="payment-total-conatiner">
             <div class="payment-info-text">총 결제 금액</div>
-            <div class ="payment-total">{{ dataObj.roomPrice ? dataObj.roomPrice.toLocaleString() : '가격 정보 없음' }}원</div>
+            
+            <div class ="payment-total">{{ formattedTotal }}원</div>
         </div>
     </div>
 
@@ -121,7 +131,7 @@
                 </div>
                 <div class="user-name-container">
                     <div class="label">결제 금액</div>
-                    <div >{{ Number(dataObj.roomPrice). toLocaleString() }}원</div>
+                    <div >{{ formattedTotal }}원</div>
                 </div>
             </div>
             <div class="move-container">
@@ -144,9 +154,22 @@
 
     <div class="payment-method-conatiner">
         <h3>결제 수단</h3>
-        <div class="submit-button"><button @click="selectedPaymentMethod = 'html5_inicis'; canSubmit = true" class="btn-card">카드 결제</button></div>
-        <div class="submit-button"><button @click="selectedPaymentMethod = 'kakaopay'; canSubmit = true" class="btn-kakao" >카카오페이</button></div>
-        <div class="submit-button"><button @click="selectedPaymentMethod = 'tosspay'; canSubmit = true" class="btn-toss">토스페이</button></div>
+        <div class="pyment-btn-container">
+            <div class="submit-button">
+                <button class="btn-card" @click="selectPaymentMethod('html5_inicis')" :class="{'btn-card-selected': selectedPaymentMethod === 'html5_inicis', 
+                'btn-card': selectedPaymentMethod !== 'html5_inicis'}"> 카드 결제 </button>
+            </div>
+        
+            <div class="submit-button">
+                <button class="btn-kakao" @click="selectPaymentMethod('kakaopay')" :class="{'btn-kakao-selected': selectedPaymentMethod === 'kakaopay', 
+                'btn-kakao': selectedPaymentMethod !== 'kakaopay'}">카카오페이</button>
+            </div>
+
+            <div class="submit-button">
+                <button class="btn-toss" @click="selectPaymentMethod('tosspay')" :class="{'btn-toss-selected': selectedPaymentMethod === 'tosspay', 
+                'btn-toss': selectedPaymentMethod !== 'tosspay'}">토스페이</button>
+            </div>
+        </div>
     </div>
     <div class="payment-agree-conatiner">
         <div class ="payment-agree-top">
@@ -185,7 +208,7 @@
             </div>
         </div>
         <div><button :disabled="!canSubmit" class = "payment-btn" @click="submitReservationIfPossible">{{ Number(dataObj.roomPrice). toLocaleString() }}원 결제하기</button></div>
-        <div class="info"> (주) OO플랫폼은 통신판매 중개자로서 통신판매의 당사자가 아니며 상품 예약, 이용 및 환불과는 관련한 의무와 책임은 각 판매자에게 있습니다. </div>
+        <div class="info"> (주) HotelJava플랫폼은 통신판매 중개자로서 통신판매의 당사자가 아니며 상품 예약, 이용 및 환불과는 관련한 의무와 책임은 각 판매자에게 있습니다. </div>
     </div>
     
 </div>
@@ -213,7 +236,8 @@ export default {
       agree2: false,
       agree3: false,
       agree4: false,
-      agree5: false
+      agree5: false,
+      selectedPaymentMethod: null
     };
   },
   async created() {
@@ -244,8 +268,11 @@ export default {
  computed: {
     canSubmit() {
       // 모든 필수 항목이 동의되어야 결제 버튼을 활성화
-      return this.agreeAll || this.agree1 && this.agree2 && this.agree3;
-    }
+       return (this.agreeAll || (this.agree1 && this.agree2 && this.agree3)) && this.selectedPaymentMethod;
+    },
+    formattedTotal() {
+        return (this.dataObj.addPerson + this.dataObj.roomPrice + this.dataObj.addDate).toLocaleString('ko-KR');
+    } 
   },
 
   methods: {
@@ -348,6 +375,9 @@ export default {
         const formattedDate = new Date(date).toLocaleDateString('ko-KR', options);
         return formattedDate.replace(/\.$/, '').replace(' ', '');
     },
+    selectPaymentMethod(paymentMethod) {
+      this.selectedPaymentMethod = paymentMethod; // 결제 방식 변경
+    },
   },
 };
 
@@ -439,10 +469,12 @@ hr{
 .user-input{
     margin-top:10px;
     width: 97%;
+    border:none;
+    font-size:medium;
     
 }
 .request{
-    width: 97%;
+    width: 96%;
     height:100px;
     margin-top:10px;
 }
@@ -520,6 +552,10 @@ hr{
   width: 300px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+.pyment-btn-container{
+    display:flex;
+    justify-content:space-between;
+}
 
 .user-info-container{
     border: 1px solid lightgray;
@@ -558,7 +594,7 @@ hr{
 }
 
 .btn-card{
-    width: 100%;  
+    width: 350px;
     border-radius: 10px;
     height: 40px;
     background-color: white;
@@ -570,7 +606,7 @@ hr{
     cursor: pointer;
 }
 .btn-kakao{
-    width: 100%;  
+    width: 350px; 
     border-radius: 10px;
     height: 40px;
     background-color: #FFEB00;
@@ -582,7 +618,7 @@ hr{
     cursor: pointer;
 }
 .btn-toss{
-    width: 100%;  
+    width: 350px;  
     border-radius: 10px;
     height: 40px;
     background-color: #3183F6;
@@ -592,6 +628,9 @@ hr{
     border: none;
     font-size: 15px;
     cursor: pointer;
+}
+.btn-card-selected, .btn-kakao-selected, .btn-toss-selected {
+  border: 3px solid black;
 }
 .payment-btn{
     margin-top : 10px;
@@ -608,11 +647,10 @@ hr{
 }
 
 
-/* 비활성화된 버튼 */
 .payment-btn:disabled {
-  background-color: #cccccc; /* 비활성화된 상태 색상 (회색) */
+  background-color: #cccccc;
   color: #666666;
-  opacity: 0.6; /* 투명도 낮추기 */
+  opacity: 0.6; 
   cursor: not-allowed;
 }
 

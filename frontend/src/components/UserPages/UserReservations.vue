@@ -3,15 +3,10 @@
     <!-- 현재 예약 섹션 -->
     <h2>현재 예약</h2>
     <div class="reservation-list">
-      <!-- 현재 예약이 없는 경우 -->
-      <div v-if="!loading && visibleUpcomingReservations === 0">
+      <div v-if="!loading && visibleUpcomingReservations.length === 0">
         예약 내역이 없습니다.
       </div>
-
-      <!-- 예약 목록을 불러오는 중 -->
       <div v-if="loading">예약 목록을 불러오는 중입니다...</div>
-
-      <!-- 현재 예약 목록을 보여줌 -->
       <div
         v-for="(reservation, index) in visibleUpcomingReservations"
         :key="index"
@@ -25,8 +20,6 @@
           <p>투숙 인원: {{ reservation.guestNum }}</p>
           <p>요청 사항: {{ reservation.request }}</p>
           <p>예약 상태: {{ reservation.status }}</p>
-
-          <!-- 결제 취소 버튼 (체크인 이틀 전까지 가능) -->
           <button
             v-if="canCancel(reservation.checkIn)"
             @click="cancelReservation(reservation)"
@@ -36,22 +29,16 @@
           </button>
         </div>
       </div>
-
-      <!-- 더 보기 버튼 (현재 예약) -->
-      <div v-if="upcomingReservations > visibleUpcomingReservations">
+      <div v-if="upcomingReservations > visibleUpcomingReservations.length">
         <button @click="loadMoreUpcomingReservations">더 보기</button>
       </div>
     </div>
 
-    <!-- 지난 예약 섹션 -->
     <h2>예약 기록</h2>
     <div class="past-reservation-list">
-      <!-- 지난 예약이 없는 경우 -->
-      <div v-if="!loading && visiblePastReservations === 0">
+      <div v-if="!loading && visiblePastReservations.length === 0">
         지난 예약 내역이 없습니다.
       </div>
-
-      <!-- 지난 예약 목록을 보여줌 -->
       <div
         v-for="(reservation, index) in visiblePastReservations"
         :key="index"
@@ -65,33 +52,62 @@
           <p>투숙 인원: {{ reservation.guestNum }}</p>
           <p>요청 사항: {{ reservation.request }}</p>
           <p>예약 상태: {{ reservation.status }}</p>
+          <button
+            v-if="
+              canWriteReview(reservation.checkOut) &&
+              !hasReview(reservation.reservationId)
+            "
+            @click="openReviewModal(reservation.reservationId)"
+          >
+            리뷰 작성
+          </button>
         </div>
       </div>
-
-      <!-- 더 보기 버튼 (지난 예약) -->
-      <div v-if="pastReservations > visiblePastReservations">
+      <div v-if="pastReservations > visiblePastReservations.length">
         <button @click="loadMorePastReservations">더 보기</button>
       </div>
     </div>
+
+    <!-- ReviewModal 컴포넌트 -->
+    <ReviewModal
+      v-if="state.isModalOpen"
+      :reservationId="state.selectedReservationId"
+      @submit="handleReviewSubmit"
+      @close="closeModal"
+    />
   </div>
 </template>
 
 <script>
 import { useReservationStore } from "@/store/mypage_reservations";
-import { onMounted, computed } from "vue";
-import { cancelReservationPay } from "@/api/api";
+import { onMounted, computed, reactive } from "vue";
+import { createReview } from "@/api/api";
+import ReviewModal from "@/components/UserPages/reviewModal.vue";
 import dayjs from "dayjs";
 
 export default {
-  setup() {
+  components: {
+    ReviewModal,
+  },
+  props: {
+    reviews: {
+      type: Array,
+      required: true,
+    },
+  },
+  setup(props) {
     const reservationStore = useReservationStore();
 
-    // 컴포넌트가 마운트되면 예약 정보 불러오기
+    const state = reactive({
+      isModalOpen: false,
+      selectedReservationId: null,
+    });
+
+    // 예약 목록 가져오기
     onMounted(() => {
       reservationStore.fetchReservations();
     });
 
-    // 상태값을 computed로 정의해서 반응성을 보장
     const visibleUpcomingReservations = computed(
       () => reservationStore.visibleUpcomingReservations || []
     );
@@ -104,41 +120,115 @@ export default {
       const today = dayjs();
       const checkInDate = dayjs(checkIn);
       return checkInDate.diff(today, "day") >= 2;
-    }
+    };
 
-    const cancelReservation = async (reservation) => {
+    const canWriteReview = (checkOut) => {
+      const today = dayjs();
+      const checkOutDate = dayjs(checkOut);
+      const daysSinceCheckOut = today.diff(checkOutDate, "day");
+      return daysSinceCheckOut >= 0 && daysSinceCheckOut <= 7;
+    };
+
+    // 리뷰 작성 버튼 활성화 여부 확인
+    const hasReview = (reservationId) => {
+      // 현재 예약 번호(reservationId)가 리뷰 배열(props.reviews)에 있는지 확인
+      return props.reviews.some(
+        (review) => review.reservationId === reservationId
+      );
+    };
+
+    // 리뷰 작성 모달 열기
+    const openReviewModal = (reservationId) => {
+      console.log("openReviewModal called with reservationId:", reservationId);
+      if (!reservationId) {
+        alert("예약 정보를 불러오지 못했습니다. 다시 시도해주세요.");
+        return;
+      }
+      state.isModalOpen = true;
+      state.selectedReservationId = reservationId;
+    };
+
+    // 리뷰 작성 처리
+    const handleReviewSubmit = async (reviewData) => {
       try {
+        if (!reviewData) {
+          alert("리뷰 데이터가 전달되지 않았습니다.");
+          console.error("reviewData is undefined:", reviewData);
+          return;
+        }
+
+        console.log("받은 reviewData:", reviewData);
+
+        const { content, rating, images } = reviewData;
+
+        if (!content || !rating) {
+          alert("리뷰 내용과 별점은 필수입니다.");
+          return;
+        }
+
+        // 예약 ID가 없는 경우 에러 처리
+        if (!state.selectedReservationId) {
+          alert("예약 정보가 누락되었습니다. 다시 시도해주세요.");
+          return;
+        }
+
         const token = sessionStorage.getItem("token");
-        if(!token) {
+        if (!token) {
           alert("로그인이 필요합니다.");
           return;
         }
 
-        const imp_uid = reservation.imp_uid;
-        const roomId = reservation.roomId;
+        const formData = new FormData();
+        formData.append("content", content);
+        formData.append("rating", rating);
+        formData.append("reservationId", state.selectedReservationId); // 예약 ID 추가
 
-        const response = await cancelReservationPay(imp_uid, roomId, token);
-
-        if (response.status === 200){
-          console.log("결제 취소 결과 : ", response.data);
-          reservationStore.fetchReservations();
-        } else{
-          console.log("결제 취소 결과 : ", response.data);
+        // 이미지가 배열인지 확인
+        if (Array.isArray(images) && images.length > 0) {
+          images.forEach((image) => {
+            if (image.file) {
+              formData.append("images", image.file);
+            } else {
+              console.warn("유효하지 않은 이미지 데이터:", image);
+            }
+          });
+        } else {
+          console.log("이미지가 추가되지 않았습니다.");
         }
+
+        console.log("FormData entries before sending to server:");
+        for (let [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+        }
+
+        // API 요청
+        await createReview(formData, token);
+        alert("리뷰가 작성되었습니다.");
+        closeModal();
+        reservationStore.fetchReservations(); // 예약 목록 새로고침
       } catch (error) {
-        console.error("결제 취소 오류 : ", error);
-        alert("결제 취소 중 오류가 발생했습니다.");
+        console.error("리뷰 작성 중 오류 발생:", error);
+        alert("리뷰 작성 중 오류가 발생했습니다.");
       }
-    }
+    };
+
+    // 모달 닫기
+    const closeModal = () => {
+      state.isModalOpen = false;
+      state.selectedReservationId = null;
+    };
 
     return {
       visibleUpcomingReservations,
       visiblePastReservations,
       loading,
-      loadMoreUpcomingReservations: reservationStore.loadMoreUpcomingReservations,
-      loadMorePastReservations: reservationStore.loadMorePastReservations,
       canCancel,
-      cancelReservation,
+      canWriteReview,
+      hasReview,
+      openReviewModal,
+      handleReviewSubmit,
+      closeModal,
+      state,
     };
   },
 };

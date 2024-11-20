@@ -25,6 +25,7 @@ public class ReviewController {
     @PostMapping(value = "/api/auth/reviews", consumes = "multipart/form-data")
     public ResponseEntity<?> createReview(@RequestHeader("Authorization") String token, @ModelAttribute ReviewDTO review, @RequestParam(value = "images", required = false) List<MultipartFile> images) {
         try {
+            log.info("리뷰 작성 내용 DTO : {}", review);
             // Bearer 토큰에서 "Bearer " 부분 제거
             String actualToken = token.replace("Bearer ", "");
 

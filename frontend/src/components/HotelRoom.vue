@@ -51,8 +51,8 @@
       </div>
         <div class="reservation-person">
           <label for="personSelect">예약 인원:</label>
-          <select id="personSelect" v-model="selectedPersonCount">
-            <option v-for="n in 5" :key="n" :value="n">{{ n }}명</option>
+          <select id="personSelect" v-model="selectedPersonCount" class="pl">
+            <option v-for="n in 20" :key="n" :value="n">{{ n }}명</option>
           </select>
         </div>
 
@@ -65,10 +65,18 @@
           </p>
           <h2 class="price">{{ Number(room.price). toLocaleString() ? `${Number(room.price). toLocaleString()}원` : "가격 정보 없음"}}</h2>
           <div class="reservation-bottom">
-            <div class="room-count">{{ room.availableRooms ? `남은 객실 ${room.availableRooms}개` : "남은 객실 정보 없음" }}</div>
+            <div class="room-count">
+              남은 객실 {{ room.availableRooms || 0 }}개
+            </div>
 
-            <!-- 예약하기 버튼, 남은 객실이 없으면 비활성화 -->
-        <button @click="move" :disabled="room.availableRooms === 0" class="reservation_btn">예약하기</button>
+            <!-- 예약하기 버튼, 남은 객실이 없으면 "객실 마감" 표시 -->
+            <button
+              @click="move"
+              :disabled="room.availableRooms === 0"
+              class="reservation_btn"
+            >
+              {{ room.availableRooms === 0 ? "객실 마감" : "예약하기" }}
+            </button>
           </div>
         </div>
       </div>
@@ -192,9 +200,14 @@ export default {
     const userCheckOut = this.range.end ? this.range.end : new Date();
 
     const guestNum = this.selectedPersonCount;
-
+    const addPerson = this.selectedPersonCount > this.room.occupancy? (this.selectedPersonCount - this.room.occupancy) * 10000: 0;
+    
+    const oneDay = 1000 * 60 * 60 * 24;
+    const stayDuration = this.range.start && this.range.end? Math.ceil((this.range.end - this.range.start) / oneDay): 0;
+    const addDate = stayDuration > 1 ? (stayDuration - 1) * 20000 : 0;
     if (this.isLoggedIn) {
       if (hotelName && checkIn && checkOut && roomName && roomPrice) {
+         
         this.$router.push({
           name: 'paymentPage',
           state: {
@@ -207,6 +220,8 @@ export default {
             userCheckIn,
             userCheckOut,
             guestNum,
+            addPerson,
+            addDate,
           },
         });
       } else {
@@ -218,7 +233,7 @@ export default {
   },
   onDateSelect() {
       // 날짜가 선택되면 캘린더를 숨깁니다.
-       if (this.range.start && this.range.end) {
+       if (this.range.start && this.range.end ) {
       this.showCalendar = false;
     }
     },
@@ -304,6 +319,26 @@ export default {
   margin-right: 8px;
   gap: 8px;
 }
+
+.pl{
+    width: 200px;
+    border: 1px solid #C4C4C4;
+    box-sizing: border-box;
+    border-radius: 10px;
+    padding: 5px 5px;
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+}
+
+.pl:focus{
+    border: 1px solid lightgray;
+    box-sizing: border-box;
+    border-radius: 10px;
+    border-radius: 10px;
+}
 .details-bottom {
   margin-top: 30px;
   margin-bottom: 20px;
@@ -343,6 +378,8 @@ export default {
   text-align: center;
   border: none;
   font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 .reservation_btn[disabled] {
   background-color: grey;
