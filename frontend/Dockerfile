@@ -13,7 +13,8 @@ COPY . .
 
 # Vue 빌드 실행 (환경 변수를 빌드 시점에 전달)
 ARG VUE_APP_KAKAO_API_KEY
-ENV VUE_APP_KAKAO_API_KEY=${VUE_APP_KAKAO_API_KEY}
+ENV VUE_APP_KAKAO_API_KEY=d685c63d7eb74d08883cdb9e13b5fb6c
+
 RUN npm run build
 
 # Nginx 이미지
