@@ -109,7 +109,6 @@ public class ReviewService {
         Review existingReview = getReviewEntity(reviewId);
         existingReview.setContent(updatedReview.getContent());
         existingReview.setRating(updatedReview.getRating());
-        existingReview.setImageUrl(updatedReview.getImageUrl());
         existingReview.setUpdateDate(new Date()); // 수정 날짜 갱신
         return convertToDTO(existingReview);
     }
