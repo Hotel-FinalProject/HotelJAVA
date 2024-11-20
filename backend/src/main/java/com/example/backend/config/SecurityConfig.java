@@ -128,7 +128,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        System.out.println("DATABASE_URL");
+        System.out.println("DATDBASEtest = "+ DATABASE_URL);
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 활성화
                 .csrf(csrf -> csrf.disable())  // CSRF 비활성화 (개발 중)
