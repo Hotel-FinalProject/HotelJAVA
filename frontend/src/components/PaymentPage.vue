@@ -594,7 +594,7 @@ hr{
 }
 
 .btn-card{
-    width: 240px;
+    width: 350px;
     border-radius: 10px;
     height: 40px;
     background-color: white;
@@ -606,7 +606,7 @@ hr{
     cursor: pointer;
 }
 .btn-kakao{
-    width: 240px;  
+    width: 350px; 
     border-radius: 10px;
     height: 40px;
     background-color: #FFEB00;
@@ -618,7 +618,7 @@ hr{
     cursor: pointer;
 }
 .btn-toss{
-    width: 240px;  
+    width: 350px;  
     border-radius: 10px;
     height: 40px;
     background-color: #3183F6;

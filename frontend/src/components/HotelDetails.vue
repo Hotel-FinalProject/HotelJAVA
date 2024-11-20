@@ -29,7 +29,7 @@
         </div>
       </div>
       <div class="hotel-info">
-        <span class="rating">⭐ {{ hotel.rating || "4.5" }}</span>
+        <span class="rating">⭐ {{ hotel.rating || "0" }}</span>
         <span>({{ hotel.reviewCount || 0 }} 리뷰)</span>
       </div>
       <div class="hotel-info-details">
