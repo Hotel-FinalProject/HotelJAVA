@@ -300,6 +300,7 @@ public class AdminService {
 
         for (Report report : reports) {
             ReportInfoDTO reportInfoDTO = ReportInfoDTO.builder()
+                    .reportId(report.getReportId())
                     .content(report.getReview().getContent())
                     .imageUrl(report.getReview().getImageUrl())
                     .reporterName(report.getReporter().getName())
