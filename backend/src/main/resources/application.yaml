@@ -86,6 +86,7 @@ jwt:
 
 logging:
   level:
+    root: debug
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql.BasicBinder: trace
 hotel:
