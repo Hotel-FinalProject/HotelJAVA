@@ -113,19 +113,19 @@ jobs:
 
 
 
-create user 'admin'@'%' identified by 'test1234';
+# create user 'admin'@'%' identified by 'test1234';
 
-create database hoteldb;
-create database hotel;
-
-
- grant all privileges on hoteldb.* to 'admin'@'%' identified by 'test1234';
- grant all privileges on hoteldb.* to admin@'%' identified by 'test1234';
-
- grant all privileges on hoteldb.* to admin@'*';
-grant all privileges on hotel.* to admin@'*';
-
- flush privileges; 
+# create database hoteldb;
+# create database hotel;
 
 
- alter user "root"@"%" identified with mysql_native_password by "test1234";
+#  grant all privileges on hoteldb.* to 'admin'@'%' identified by 'test1234';
+#  grant all privileges on hoteldb.* to admin@'%' identified by 'test1234';
+
+#  grant all privileges on hoteldb.* to admin@'*';
+# grant all privileges on hoteldb.* to admin@'*';
+
+#  flush privileges; 
+
+
+#  alter user "root"@"%" identified with mysql_native_password by "test1234";
