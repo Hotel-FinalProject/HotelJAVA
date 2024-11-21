@@ -199,7 +199,7 @@
 <script>
 import SidebarLayout from "@/layout/SidebarLayout.vue";
 import HotelAdminModal from "@/components/SystemAdminPages/HotelAdminModal.vue";
-import PasswordVerification from "./SystemAdminPages/\bPasswordVerification.vue";
+import PasswordVerification from "./SystemAdminPages/PasswordVerification.vue";
 import {
   getUserListByAdmin,
   getHotelManagerListByAdmin,

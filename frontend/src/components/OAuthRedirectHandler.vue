@@ -25,7 +25,7 @@ export default {
 
         try {
           // 토큰을 이용하여 사용자 정보 가져오기
-          const response = await axios.get("http://localhost:8081/api/users/me", {
+          const response = await axios.get("http://localhost:8081/api/auth/users/me", {
             headers: {
               Authorization: `Bearer ${token}`
             }
