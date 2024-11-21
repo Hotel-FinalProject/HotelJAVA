@@ -10,16 +10,19 @@
   <!-- 리뷰 섹션 -->
   <div class="review-section">
     <h2>리뷰</h2>
-    <div class="review-list">
+    <div class="review-card-container">
       <div v-if="reviews.length === 0" class="no-reviews">
         작성한 리뷰가 없습니다.
       </div>
-      <div class="review" v-for="(review, index) in reviews" :key="index">
-        <h3 class="hotel-name" @click="goToHotel(review.hotelId)">
-          {{ review.hotelName }}
-        </h3>
-        <div class="review-header">
-          <!-- 별점 표시 -->
+      <div
+        v-for="(review, index) in reviews"
+        :key="index"
+        class="review-card"
+      >
+        <div class="review-top">
+          <h3 class="hotel-name" @click="goToHotel(review.hotelId)">
+            {{ review.hotelName }}
+          </h3>
           <div class="review-rating">
             <span
               v-for="star in 5"
@@ -30,7 +33,6 @@
               ★
             </span>
           </div>
-          <span class="review-date">{{ review.date }}</span>
         </div>
         <div class="review-content">{{ review.content }}</div>
 
@@ -155,15 +157,14 @@ export default {
     closeLightbox() {
       this.lightboxImage = null;
     },
-    goToHotel(hotelId){
+    goToHotel(hotelId) {
       this.$router.push(`/hotel-details/${hotelId}`);
-    }
+    },
   },
 };
 </script>
 
 <style scoped>
-/* 기존 스타일 그대로 사용 */
 .user-info {
   background: #f7f7f7;
   border-radius: 10px;
@@ -177,32 +178,69 @@ export default {
   padding: 20px;
 }
 
-.review-list {
+.review-card-container {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
 }
 
-.review {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
+.review-card {
+  flex: 1 1 calc(45% - 20px);
+  max-width: calc(45% - 20px);
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  transition: transform 0.3s;
 }
 
-.review-header {
+.review-card:hover {
+  transform: translateY(-5px);
+}
+
+@media (max-width: 1529px) {
+  .review-card {
+    flex: 1 1 calc(100% - 20px);
+    max-width: calc(100% - 20px);
+  }
+}
+
+.review-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
 }
 
-.review-rating .star {
+.hotel-name {
   font-size: 20px;
+  font-weight: bold;
+  color: #007bff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.review-rating {
+  display: flex;
+}
+
+.star {
+  font-size: 22px;
   color: #ddd;
 }
 
-.review-rating .star.filled {
+.star.filled {
   color: #ffcc00;
+}
+
+.review-content {
+  margin: 15px 0;
+  font-size: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #333;
 }
 
 .image-gallery {
@@ -220,12 +258,12 @@ export default {
 
 .review-actions {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   margin-top: 15px;
 }
 
 button {
-  padding: 10px 20px;
+  padding: 12px 25px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -241,15 +279,20 @@ button {
   color: white;
 }
 
-.hotel-name {
-  color: #007bff;
-  cursor: pointer;
-  text-decoration: none; /* 기본 밑줄 제거 */
-  font-size: 18px;
-  font-weight: bold;
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.hotel-name:hover {
-  text-decoration: underline; /* 마우스 오버 시 밑줄 추가 */
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
 }
 </style>
