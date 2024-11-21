@@ -2,13 +2,14 @@ package com.example.backend.service;
 
 import com.example.backend.dto.ReviewDTO;
 import com.example.backend.dto.ReviewResponseDTO;
+import com.example.backend.entity.Report;
 import com.example.backend.entity.Reservation;
 import com.example.backend.entity.Review;
 import com.example.backend.entity.User;
+import com.example.backend.repository.ReportRepository;
 import com.example.backend.repository.ReservationRepository;
 import com.example.backend.repository.ReviewRepository;
 import com.example.backend.repository.UserRepository;
-//import com.example.backend.util.S3Handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class ReviewService {
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
     private final S3Service s3Service;
+    private final ReportRepository reportRepository; // ReportRepository 추가
 
     public ReviewResponseDTO createReview(Long userId, ReviewDTO reviewDTO, List<MultipartFile> images) throws IOException {
         log.info("리뷰 생성 요청 유저 Id : {}", userId);
@@ -38,7 +40,6 @@ public class ReviewService {
         log.info("리뷰 생성 요청 이미지 : {}", images);
 
         // 예약 정보 확인
-
         Reservation reservation = reservationRepository.findById(reviewDTO.getReservationId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약을 찾을 수 없습니다."));
 
@@ -82,7 +83,7 @@ public class ReviewService {
 
         // 해당 리뷰 목록에서 요청된 리뷰 ID와 일치하는 리뷰를 찾아 반환
         Optional<Review> matchedReview = userReviews.stream()
-                .filter(review -> review.getReviewId().equals(reviewId))
+                .filter(review -> review.getReviewId().equals(reviewId) && isReviewValid(review.getReviewId())) // 신고된 리뷰 제외
                 .findFirst();
 
         // 리뷰가 존재하지 않을 경우 예외 처리
@@ -94,13 +95,58 @@ public class ReviewService {
     // 리뷰 목록 조회 (호텔 별)
     public List<ReviewResponseDTO> getReviewsByHotel(Long hotelId) {
         List<Review> reviews = reviewRepository.findByHotelHotelId(hotelId);
-        return reviews.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return reviews.stream()
+                .map(review -> {
+                    // 신고된 리뷰인지 확인
+                    if (isReviewReportedAndHandled(review.getReviewId())) {
+                        // 신고된 리뷰일 경우, 본문을 "신고된 글입니다"로 대체
+                        ReviewResponseDTO dto = convertToDTO(review);
+                        dto.setContent("신고된 글입니다");
+                        dto.setImageUrl(new ArrayList<>());
+                        return dto;
+                    } else {
+                        // 신고되지 않은 리뷰일 경우, 그대로 반환
+                        return convertToDTO(review);
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     // 유저별 리뷰 조회
     public List<ReviewResponseDTO> getReviewsByUserId(Long userId) {
         List<Review> reviews = reviewRepository.findByUserUserId(userId);
-        return reviews.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return reviews.stream()
+                .map(review -> {
+                    // 신고된 리뷰인지 확인
+                    if (isReviewReportedAndHandled(review.getReviewId())) {
+                        // 신고된 리뷰일 경우, 본문을 "신고된 글입니다"로 대체
+                        ReviewResponseDTO dto = convertToDTO(review);
+                        dto.setContent("신고된 글입니다");
+                        dto.setImageUrl(new ArrayList<>());
+                        return dto;
+                    } else {
+                        // 신고되지 않은 리뷰일 경우, 그대로 반환
+                        return convertToDTO(review);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+    // 신고된 리뷰를 확인하는 메서드 (내부 메서드)
+    private boolean isReviewReportedAndHandled(Long reviewId) {
+        boolean isReported = reportRepository.findByReview_ReviewId(reviewId).stream()
+                .anyMatch(report -> "신고처리 완료".equals(report.getStatus()));
+
+        log.info("리뷰 ID: {}, 신고된 상태: {}", reviewId, isReported ? "신고 처리 완료" : "정상");
+
+        return isReported;
+    }
+
+    // 리뷰 유효성 확인 메서드 (내부 메서드)
+    private boolean isReviewValid(Long reviewId) {
+        // 해당 리뷰에 대한 신고가 존재하며 상태가 "신고 처리 완료"인 경우 false를 반환하여 유효하지 않음을 나타냄
+        return reportRepository.findByReview_ReviewId(reviewId).stream()
+                .noneMatch(report -> "신고 처리 완료".equals(report.getStatus()));
     }
 
     // 리뷰 수정
