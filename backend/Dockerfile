@@ -38,7 +38,7 @@ ENV USE_PROFILE server
 
 # Spring Boot 애플리케이션 실행 시 환경 변수 사용
 ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=${USE_PROFILE}", \
-    "-Dserver.env=${ENV}"\
+    "-Dserver.env=${ENV}", \
     "-Dserver.port=8081", \
     "-Dspring.datasource.url=${DATABASE_URL}", \
     "-Dspring.datasource.username=${DB_USERNAME}", \
@@ -51,3 +51,4 @@ ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=${USE_PROFILE}", \
     "-Daws.access.key.id=${ACCESS_KEY_ID}", \
     "-Daws.secret.access.key=${ACCESS_SCRETKEY_ID}", \
     "/app.jar"]
+
