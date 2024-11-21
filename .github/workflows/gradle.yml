@@ -39,23 +39,23 @@ jobs:
           npm run build
 
       # Spring Boot 백엔드 도커 이미지 생성
-      - name: Docker image build (backend)
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/erppro-backend:${{ env.VERSION }} \
-          --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
-          --build-arg DB_NAME=${{ secrets.DB_NAME }} \
-          --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-          --build-arg MAIL_SECRET=${{ secrets.MAIL_SECRET }} \
-          --build-arg NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }} \
-          --build-arg NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }} \
-          --build-arg GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-          --build-arg GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-          --build-arg API_KEY=${{ secrets.API_KEY }} \
-          --build-arg IMPORT_KEY=${{ secrets.IMPORT_KEY }} \
-          --build-arg IMPORT_SECRET_KEY=${{ secrets.IMPORT_SECRET_KEY }} \
-          --build-arg ACCESS_KEY_ID=${{ secrets.ACCESS_KEY_ID }} \
-          --build-arg ACCESS_SCRETKEY_ID=${{ secrets.ACCESS_SCRETKEY_ID }} \
-          ./backend
+      name: Docker image build (backend)
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/erppro-backend:${{ env.VERSION }} \
+        --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
+        --build-arg DB_NAME=${{ secrets.DB_NAME }} \
+        --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+        --build-arg MAIL_SECRET=${{ secrets.MAIL_SECRET }} \
+        --build-arg NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }} \
+        --build-arg NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }} \
+        --build-arg GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+        --build-arg GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+        --build-arg API_KEY=${{ secrets.API_KEY }} \
+        --build-arg IMPORT_KEY=${{ secrets.IMPORT_KEY }} \
+        --build-arg IMPORT_SECRET_KEY=${{ secrets.IMPORT_SECRET_KEY }} \
+        --build-arg ACCESS_KEY_ID=${{ secrets.ACCESS_KEY_ID }} \
+        --build-arg ACCESS_SCRETKEY_ID=${{ secrets.ACCESS_SCRETKEY_ID }} \
+        ./backend
 
       # Vue 프론트엔드 도커 이미지 생성
       - name: Docker image build (frontend)
