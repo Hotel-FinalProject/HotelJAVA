@@ -51,57 +51,57 @@ public class OAuthController {
 //        response.sendRedirect(redirectUrl);
 //    }
 
-    /** OAuth 구글 로그인 */
-    @GetMapping("/oauth2/authorize/google")
-    public void redirectToGoogleOAuth(HttpServletResponse response) throws IOException {
-        ClientRegistration googleRegistration = clientRegistrationRepository.findByRegistrationId("google");
-
-        if (googleRegistration == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "구글 클라이언트 등록 정보가 없습니다.");
-            return;
-        }
-
-        // 구글로 리다이렉트 하기 위해 URL 생성
-        String authorizationUri = googleRegistration.getProviderDetails().getAuthorizationUri();
-        String redirectUri = googleRegistration.getRedirectUri().replace("{registrationId}", "google");
-
-        String redirectUrl = String.format(
-                "%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s",
-                authorizationUri,
-                googleRegistration.getClientId(),
-                redirectUri,
-                String.join(" ", googleRegistration.getScopes()),
-                "state"
-        );
-
-        // 서버 측에서 직접 구글로 리다이렉트
-        response.sendRedirect(redirectUrl);
-    }
-
-    /** OAuth 네이버 로그인 */
-    @GetMapping("/oauth2/authorize/naver")
-    public void redirectToNaverOAuth(HttpServletResponse response) throws IOException {
-        ClientRegistration naverRegistration = clientRegistrationRepository.findByRegistrationId("naver");
-
-        if (naverRegistration == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "네이버 클라이언트 등록 정보가 없습니다.");
-            return;
-        }
-
-        // 네이버로 리다이렉트 하기 위해 URL 생성
-        String authorizationUri = naverRegistration.getProviderDetails().getAuthorizationUri();
-        String redirectUri = naverRegistration.getRedirectUri().replace("{registrationId}", "naver");
-
-        String redirectUrl = String.format(
-//                "%s?client_id=%s&redirect_uri=%s&response_type=code&state=%s",
-                authorizationUri,
-                naverRegistration.getClientId(),
-                redirectUri,
-                "state"
-        );
-
-        // 서버 측에서 직접 네이버로 리다이렉트
-        response.sendRedirect(redirectUrl);
-    }
+//    /** OAuth 구글 로그인 */
+//    @GetMapping("/oauth2/authorize/google")
+//    public void redirectToGoogleOAuth(HttpServletResponse response) throws IOException {
+//        ClientRegistration googleRegistration = clientRegistrationRepository.findByRegistrationId("google");
+//
+//        if (googleRegistration == null) {
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "구글 클라이언트 등록 정보가 없습니다.");
+//            return;
+//        }
+//
+//        // 구글로 리다이렉트 하기 위해 URL 생성
+//        String authorizationUri = googleRegistration.getProviderDetails().getAuthorizationUri();
+//        String redirectUri = googleRegistration.getRedirectUri().replace("{registrationId}", "google");
+//
+//        String redirectUrl = String.format(
+//                "%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s",
+//                authorizationUri,
+//                googleRegistration.getClientId(),
+//                redirectUri,
+//                String.join(" ", googleRegistration.getScopes()),
+//                "state"
+//        );
+//
+//        // 서버 측에서 직접 구글로 리다이렉트
+//        response.sendRedirect(redirectUrl);
+//    }
+//
+//    /** OAuth 네이버 로그인 */
+//    @GetMapping("/oauth2/authorize/naver")
+//    public void redirectToNaverOAuth(HttpServletResponse response) throws IOException {
+//        ClientRegistration naverRegistration = clientRegistrationRepository.findByRegistrationId("naver");
+//
+//        if (naverRegistration == null) {
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "네이버 클라이언트 등록 정보가 없습니다.");
+//            return;
+//        }
+//
+//        // 네이버로 리다이렉트 하기 위해 URL 생성
+//        String authorizationUri = naverRegistration.getProviderDetails().getAuthorizationUri();
+//        String redirectUri = naverRegistration.getRedirectUri().replace("{registrationId}", "naver");
+//
+//        String redirectUrl = String.format(
+////                "%s?client_id=%s&redirect_uri=%s&response_type=code&state=%s",
+//                authorizationUri,
+//                naverRegistration.getClientId(),
+//                redirectUri,
+//                "state"
+//        );
+//
+//        // 서버 측에서 직접 네이버로 리다이렉트
+//        response.sendRedirect(redirectUrl);
+//    }
 
 }
