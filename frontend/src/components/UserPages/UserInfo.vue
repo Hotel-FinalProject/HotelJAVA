@@ -14,11 +14,7 @@
       <div v-if="reviews.length === 0" class="no-reviews">
         작성한 리뷰가 없습니다.
       </div>
-      <div
-        v-for="(review, index) in reviews"
-        :key="index"
-        class="review-card"
-      >
+      <div v-for="(review, index) in reviews" :key="index" class="review-card">
         <div class="review-top">
           <h3 class="hotel-name" @click="goToHotel(review.hotelId)">
             {{ review.hotelName }}
@@ -47,8 +43,11 @@
           />
         </div>
 
-        <!-- 수정/삭제 버튼 -->
+        <!-- 수정/삭제/상세 보기 버튼 -->
         <div class="review-actions">
+          <button class="detail-button" @click="openDetailModal(review)">
+            리뷰 상세 보기
+          </button>
           <button class="edit-button" @click="openEditModal(review)">
             수정하기
           </button>
@@ -64,19 +63,28 @@
       <img :src="lightboxImage" alt="Review Image" />
     </div>
 
-    <!-- 리뷰 작성/수정 모달 -->
-    <ReviewModal
-      v-if="isModalOpen"
+    <!-- 리뷰 작성/수정 모달 (UserPages 폴더에서 가져옴) -->
+    <UserReviewModal
+      v-show="isEditModalOpen"
       :isEdit="isEditMode"
       :initialData="selectedReviewData"
       @submit="handleReviewSubmit"
+      @close="closeModal"
+    />
+
+    <!-- 리뷰 상세 보기 모달 (components 폴더에서 가져옴) -->
+    <ReviewModal
+      v-show="isDetailModalOpen"
+      :isOpen="isDetailModalOpen"
+      :review="selectedReviewData"
       @close="closeModal"
     />
   </div>
 </template>
 
 <script>
-import ReviewModal from "@/components/UserPages/reviewModal.vue";
+import UserReviewModal from "@/components/UserPages/reviewModal"; // 작성 및 수정 용
+import ReviewModal from "@/components/reviewViewModal.vue"; // 상세 보기 용
 import { updateReview, deleteReview } from "@/api/api";
 
 export default {
@@ -97,11 +105,13 @@ export default {
     loggedInUserId: Number,
   },
   components: {
+    UserReviewModal,
     ReviewModal,
   },
   data() {
     return {
-      isModalOpen: false, // 모달 표시 여부
+      isEditModalOpen: false, // 작성/수정 모달 표시 여부
+      isDetailModalOpen: false, // 상세 보기 모달 표시 여부
       isEditMode: false, // 작성/수정 모드 구분
       selectedReviewData: null, // 선택된 리뷰 데이터
       lightboxImage: null, // 라이트박스 이미지
@@ -109,12 +119,17 @@ export default {
   },
   methods: {
     openEditModal(review) {
-      this.isModalOpen = true; // 모달 열기
+      this.isEditModalOpen = true; // 작성/수정 모달 열기
       this.isEditMode = true; // 수정 모드로 설정
       this.selectedReviewData = { ...review }; // 선택된 리뷰 데이터 설정
     },
+    openDetailModal(review) {
+      this.isDetailModalOpen = true; // 상세 보기 모달 열기
+      this.selectedReviewData = { ...review }; // 선택된 리뷰 데이터 설정
+    },
     closeModal() {
-      this.isModalOpen = false; // 모달 닫기
+      this.isEditModalOpen = false; // 작성/수정 모달 닫기
+      this.isDetailModalOpen = false; // 상세 보기 모달 닫기
       this.isEditMode = false; // 수정 모드 초기화
       this.selectedReviewData = null; // 선택된 리뷰 데이터 초기화
     },
@@ -128,11 +143,9 @@ export default {
             token
           );
           alert("리뷰가 수정되었습니다.");
-        } else {
-          alert("새로운 리뷰가 작성되었습니다.");
         }
         this.closeModal();
-        this.$emit("update"); // 상위 컴포넌트에 업데이트 이벤트 전달
+        this.$emit("update-reviews"); // 상위 컴포넌트에 업데이트 이벤트 전달
       } catch (error) {
         console.error("리뷰 처리 중 오류 발생:", error);
         alert("리뷰 처리 중 오류가 발생했습니다.");
@@ -144,7 +157,7 @@ export default {
           const token = sessionStorage.getItem("token");
           await deleteReview(reviewId, token);
           alert("리뷰가 삭제되었습니다.");
-          this.$emit("update"); // 상위 컴포넌트에 업데이트 이벤트 전달
+          this.$emit("update-reviews"); // 상위 컴포넌트에 업데이트 이벤트 전달
         } catch (error) {
           console.error("리뷰 삭제 중 오류 발생:", error);
           alert("리뷰 삭제 중 오류가 발생했습니다.");
@@ -267,6 +280,11 @@ button {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.detail-button {
+  background-color: #6c757d;
+  color: white;
 }
 
 .edit-button {

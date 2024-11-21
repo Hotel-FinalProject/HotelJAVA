@@ -123,6 +123,9 @@ export default {
         images: this.uploadedImages,
       });
     },
+    closeModal() {
+      this.$emit("close");
+    },
   },
   watch: {
     initialData: {

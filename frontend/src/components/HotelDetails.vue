@@ -164,7 +164,7 @@
 import axios from "axios";
 import { getReviewsByHotel, reportReview } from "@/api/api";
 import { useAuthStore } from "@/store/register_login";
-import ReviewModal from "./ReviewModal.vue";
+import ReviewModal from "./reviewViewModal.vue";
 
 export default {
   name: "HotelDetails",

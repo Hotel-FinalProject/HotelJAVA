@@ -12,8 +12,8 @@ export const useReservationStore = defineStore('reservations', {
         loading: false,
         pageUpcoming: 1,
         pagePast: 1,
-        itemsPerPageUpcoming: 5, // 현재 예약은 한 번에 5개씩 보여줌
-        itemsPerPagePast: 10, // 지난 예약은 한 번에 10개씩 보여줌
+        itemsPerPageUpcoming: 6, // 현재 예약은 한 번에 6개씩 보여줌
+        itemsPerPagePast: 6, // 지난 예약은 한 번에 6개씩 보여줌
     }),
 
     actions: {
@@ -43,14 +43,16 @@ export const useReservationStore = defineStore('reservations', {
                 );
 
                 // 예약 목록을 날짜 순으로 정렬 (최근 예약이 먼저)
-                this.reservations = this.reservations.sort(
-                    (a, b) => new Date(b.checkIn) - new Date(a.checkIn)
-                );
+                this.reservations = this.reservations.sort((a, b) => {
+                    const dateA = dayjs(a.checkIn);
+                    const dateB = dayjs(b.checkIn);
+                    return dateB.diff(dateA);
+                });
 
-                // 현재 예약 및 지난 예약 분리
-                const today = dayjs();
-                this.upcomingReservations = this.reservations.filter(reservation => dayjs(reservation.checkIn).isAfter(today));
-                this.pastReservations = this.reservations.filter(reservation => dayjs(reservation.checkIn).isBefore(today));
+                // 현재 예약 및 지난 예약 분리 (시간까지 고려하여 구분)
+                const now = dayjs();
+                this.upcomingReservations = this.reservations.filter(reservation => dayjs(reservation.checkIn).isAfter(now) || dayjs(reservation.checkIn).isSame(now));
+                this.pastReservations = this.reservations.filter(reservation => dayjs(reservation.checkIn).isBefore(now));
 
                 // 보여줄 예약 초기화 (페이지 번호 초기화)
                 this.pageUpcoming = 1;
