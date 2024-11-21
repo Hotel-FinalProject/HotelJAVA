@@ -101,6 +101,15 @@ function getReportInfo(token) {
   })
 }
 
+/** 호텔 관리자 계정 생성 */
+function requestCreateHotelAdmin(token, userInfo, hotelId){
+  return config.post(`hotelAdmin-create/${hotelId}`, userInfo, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+}
+
 export {
   getUserListByAdmin,
   getHotelManagerListByAdmin,
@@ -111,4 +120,5 @@ export {
   getReportListByAdmin,
   getAcountInfo,
   getReportInfo,
+  requestCreateHotelAdmin
 }

@@ -113,12 +113,14 @@
           </div>
           <div class="search-container">
             <input
-              class="search-input"
-              type="text"
-              placeholder="이름, 이메일로 검색해주세요."
-              v-model="searchKeyword"
-              @input="handleHotelSearch"
+            class="search-input"
+            type="text"
+            placeholder="이름, 이메일로 검색해주세요."
+            v-model="searchKeyword"
+            @input="handleHotelSearch"
             />
+            <button class="styled-button" @click="openModal">호텔 관리자 계정 생성</button>
+            <HotelAdminModal :isOpen="isModalOpen" :adminToken="adminToken" @close="closeModal" />
           </div>
         </div>
         <hr />
@@ -192,6 +194,7 @@
 
 <script>
 import SidebarLayout from "@/layout/SidebarLayout.vue";
+import HotelAdminModal from "@/components/SystemAdminPages/HotelAdminModal.vue";
 import {
   getUserListByAdmin,
   getHotelManagerListByAdmin,
@@ -209,10 +212,13 @@ export default {
   name: "SystemAdminPage",
   components: {
     SidebarLayout,
+    HotelAdminModal,
   },
   data() {
     return {
       currentView: "Dashboard", // 초기 화면 설정
+      isModalOpen: false,
+      adminToken: sessionStorage.getItem("token"),
     };
   },
   setup() {
@@ -303,7 +309,6 @@ export default {
 
     const handleUserSearch = async () => {
       try {
-        console.log("uuuuuuuuuuu")
         if (searchKeyword.value.trim() === "") {
           await fetchUserList(); // 검색어가 없으면 전체 목록을 다시 불러옴
         } else {
@@ -317,7 +322,6 @@ export default {
 
     const handleHotelSearch = async () => {
       try{
-        console.log("hhhhhhh")
         if(searchKeyword.value.trim() === ""){
           await fetchHotelManagerList();
         } else {
@@ -367,6 +371,14 @@ export default {
       } else if(this.currentView.valueOf === "HotelAdminAccounts"){
         this.handleHotelSearch(newValue);
       }
+    }
+  },
+  methods: {
+    openModal(){
+      this.isModalOpen = true;
+    },
+    closeModal() {
+      this.isModalOpen = false;
     }
   }
 };
@@ -437,6 +449,7 @@ export default {
 .search-container {
   display: flex;
   padding: 20px;
+  gap: 20px
 }
 .search-input {
   width: 300px;
@@ -527,5 +540,16 @@ export default {
 .dashboard-item p {
   margin: 5px 0;
   color: #555;
+}
+
+.styled-button {
+  background-color: #004b8d;
+  color: #ffffff;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 </style>
