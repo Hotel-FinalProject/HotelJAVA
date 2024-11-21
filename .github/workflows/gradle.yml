@@ -39,29 +39,27 @@ jobs:
           npm run build
 
       # Spring Boot 백엔드 도커 이미지 생성
-      name: Docker image build (backend)
-      uses: docker/build-push-action@v2
-       with:
+      - name: Docker image build (backend)
+        uses: docker/build-push-action@v2
+        with:
           context: .
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/erppro-backend:${{ env.VERSION }}
           build-args: |
-            DATABASE_URL=${{ secrets.DATABASE_URL }} 
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
             DB_NAME=${{ secrets.DB_NAME }}
             DB_USERNAME=${{ secrets.DB_USERNAME }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            MAIL_SECRET=${{ secrets.MAIL_SECRET }}
             MAIL_SECRET=${{ secrets.MAIL_SECRET }}
             NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
             NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
             GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
             API_KEY=${{ secrets.API_KEY }}
-            IMPORT_KEY=${{ secrets.IMPORT_KEY }} 
+            IMPORT_KEY=${{ secrets.IMPORT_KEY }}
             IMPORT_SECRET_KEY=${{ secrets.IMPORT_SECRET_KEY }}
             ACCESS_KEY_ID=${{ secrets.ACCESS_KEY_ID }}
             ACCESS_SCRETKEY_ID=${{ secrets.ACCESS_SCRETKEY_ID }}
-    
 
       # Vue 프론트엔드 도커 이미지 생성
       - name: Docker image build (frontend)
