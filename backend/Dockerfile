@@ -24,7 +24,7 @@ ENV ACCESS_SCRETKEY_ID=${ACCESS_SCRETKEY_ID}
 # Spring Boot 애플리케이션 실행 시 환경 변수 사용
 ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=${USE_PROFILE}", \
     "-Dserver.port=8081", \
-    "-Dspring.datasource.url=jdbc:mysql://${DATABASE_URL}/${DB_NAME}", \
+    "-Dspring.datasource.url=${DATABASE_URL}", \
     "-Dspring.datasource.username=${DB_USERNAME}", \
     "-Dspring.datasource.password=${DB_PASSWORD}", \
     "-Dspring.mail.username=sudongtaemsa6th@gmail.com", \
