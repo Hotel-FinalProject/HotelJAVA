@@ -134,18 +134,18 @@ public class SecurityConfig {
                         .requestMatchers("/api/**", "/oauth2/**", "/login/**").permitAll()  // 특정 경로 허용
                         .requestMatchers("/api/users/test").authenticated()
                         .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(authorization -> authorization
-                                .baseUri("/oauth2/authorization")
-                        )
-                        .redirectionEndpoint(redirection ->
-                                redirection.baseUri("/login/oauth2/code/*")
-                        )
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService) // CustomOAuth2UserService를 통해 유저 정보 처리
-                        )
-                        .successHandler(loginSuccessHandler) // 로그인 성공 시 사용자 정의 핸들러 지정
+//                )
+//                .oauth2Login(oauth2 -> oauth2
+//                        .authorizationEndpoint(authorization -> authorization
+//                                .baseUri("/oauth2/authorization")
+//                        )
+//                        .redirectionEndpoint(redirection ->
+//                                redirection.baseUri("/login/oauth2/code/*")
+//                        )
+//                        .userInfoEndpoint(userInfo -> userInfo
+//                                .userService(customOAuth2UserService) // CustomOAuth2UserService를 통해 유저 정보 처리
+//                        )
+//                        .successHandler(loginSuccessHandler) // 로그인 성공 시 사용자 정의 핸들러 지정
                 );
 
         return http.build();

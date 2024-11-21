@@ -3,9 +3,9 @@ package com.example.backend.Controller;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+//import org.springframework.security.oauth2.client.registration.ClientRegistration;
+//import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+//import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +22,7 @@ import java.util.Map;
 @RequestMapping("/login")
 public class OAuthController {
 
-    private final ClientRegistrationRepository clientRegistrationRepository;
+//    private final ClientRegistrationRepository clientRegistrationRepository;
 
 //    /** OAuth 로그인 시도 */
 //    @GetMapping("/oauth2/authorize/{provider}")
