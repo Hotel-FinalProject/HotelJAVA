@@ -40,14 +40,14 @@ public class HotelController {
     public List<Hotel> getAllHotels() {
         return hotelService.getAllHotels();
     }
-    
+
     // 특정 호텔 조회
 //    @GetMapping("/hotels/{id}")
 //    public Hotel getHotelById(@PathVariable("id") Long id) {
 //        return hotelService.getHotelById(id);
 //    }
-    
- // 10개 랜덤 호텔 조회
+
+    // 10개 랜덤 호텔 조회
     @GetMapping("/hotels/random")
     public List<HotelReviewDTO> getRandomHotels() {
         return hotelService.getRandomHotels(10); // 10개 랜덤 호텔 반환
@@ -67,12 +67,12 @@ public class HotelController {
 //        // 검색어가 있으면 해당 구에 맞는 호텔 목록 반환
 //        return hotelService.searchHotelsByLocation(query);
 //    }
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
 //    @GetMapping("/hotels/search")
 //    public List<HotelDTO> searchHotels(@RequestParam(value = "query", required = false) String query) {
 //        if (query == null || query.isEmpty()) {
@@ -92,22 +92,22 @@ public class HotelController {
 //        // 검색어가 있으면 해당 구에 맞는 호텔 목록 반환
 //        return hotelService.searchHotelsByName(query);
 //    }
-    
+
     @GetMapping("/hotels/search")
     public List<HotelDTO> searchHotels(@RequestParam(value = "query", required = false) String query) {
         if (query == null || query.isEmpty()) {
             return hotelService.getAllHotels().stream()
-                .map(hotel -> new HotelDTO(
-                    hotel.getHotelId(),
-                    hotel.getName(),
-                    hotel.getAddress(),
-                    hotel.getImageUrl(),
-                    hotelService.calculateAverageRating(hotel),
-                    hotel.getMapX(),
-                    hotel.getMapY(),
-                    null
-                ))
-                .collect(Collectors.toList());
+                    .map(hotel -> new HotelDTO(
+                            hotel.getHotelId(),
+                            hotel.getName(),
+                            hotel.getAddress(),
+                            hotel.getImageUrl(),
+                            hotelService.calculateAverageRating(hotel),
+                            hotel.getMapX(),
+                            hotel.getMapY(),
+                            null
+                    ))
+                    .collect(Collectors.toList());
         }
         return hotelService.searchHotelsByNameOrAddress(query);
     }
@@ -119,18 +119,18 @@ public class HotelController {
 //    public HotelRoomDTO getHotelDetailById(@PathVariable("id") Long id) {
 //        return hotelService.getHotelDetailById(id);
 //    }
-    
+
     // 특정 호텔 상세 정보 조회 (HotelRoomDTO로 반환)
 //    @GetMapping("/hotels/{id}")
 //    public HotelRoomDTO getHotelDetailById(@PathVariable("id") Long id) {
 //        return hotelService.getHotelDetailById(id);
 //    }
-    
+
     @GetMapping("/hotels/{id}")
     public HotelRoomDTO getHotelDetailById(@PathVariable("id") Long id) {
         return hotelService.getHotelDetailById(id);
     }
-    
+
     @GetMapping("/hotels/search-by-date-and-guest")
     public List<HotelDTO> searchHotelsByDateAndGuest(
             @RequestParam(value = "checkInDate", required = false) LocalDate checkInDate,
