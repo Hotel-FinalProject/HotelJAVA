@@ -128,7 +128,7 @@ export default {
     async fetchRandomHotels() {
       try {
         const response = await axios.get(
-          "${process.env.VUE_APP_API_URL}/api/hotels/random"
+          "/api/hotels/random"
         );
         this.randomHotels = response.data; // 백엔드에서 가져온 랜덤 호텔 목록
       } catch (error) {
