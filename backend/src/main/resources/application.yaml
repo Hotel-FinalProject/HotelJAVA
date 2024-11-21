@@ -2,8 +2,8 @@ server:
   port: 8081
 
 spring:
-  application:
-    name: backend
+#  application:
+#    name: backend
 
   datasource:
     url: ${DATABASE_URL}
