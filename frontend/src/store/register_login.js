@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { signupUser, loginUser, checkEmail, sendVerificationEmailAPI, verifyEmailToken, updateUserInfoAPI, verifyPasswordAPI, changePasswordAPI, deactivateUserAPI, getUserInfo } from '@/api/api';
+import router from '@/router';
 
 /** 로그인/아웃, 회원가입 로직 */
 export const useAuthStore = defineStore('auth', {
@@ -134,6 +135,7 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('userInfo');
       localStorage.removeItem('verificationToken');
       localStorage.removeItem('verifiedEmail');
+      router.push({path: '/'});
       console.log('로그아웃 성공');
     },
 
