@@ -27,11 +27,13 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -296,96 +298,32 @@ public class RoomService {
         return roomDTO;
     }
     
-    // 객실 요약 정보
-//    @Transactional(readOnly = true)
-//    public Map<String, Object> getRoomSummaryByHotel(Long hotelId) {
-//        // 호텔 정보 가져오기
-//        Hotel hotel = hotelRepository.findById(hotelId)
-//                .orElseThrow(() -> new IllegalArgumentException("해당 호텔이 존재하지 않습니다. ID: " + hotelId));
-//
-//        // 호텔의 객실 정보 가져오기
-//        List<Room> rooms = roomRepository.findByHotel(hotel);
-//
-//        // 총 객실 수 계산
-//        int totalRooms = rooms.stream().mapToInt(Room::getTotal).sum();
-//
-//        // 유형별 객실 수 계산
-//        Map<String, Integer> roomTypeCounts = rooms.stream()
-//                .collect(Collectors.groupingBy(Room::getName, Collectors.summingInt(Room::getTotal)));
-//
-//        // 결과 반환
-//        Map<String, Object> summary = new HashMap<>();
-//        summary.put("totalRooms", totalRooms);
-//        summary.put("roomTypeCounts", roomTypeCounts);
-//
-//        return summary;
-//    }
-    // + 예약 반영하여 객실 수 표시
-    @Transactional(readOnly = true)
-    public Map<String, Object> getRoomSummaryByHotel(Long hotelId) {
-        // 호텔 정보 가져오기
-        Hotel hotel = hotelRepository.findById(hotelId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 호텔이 존재하지 않습니다. ID: " + hotelId));
+    public Map<String, Object> getRoomSummary(Principal principal) {
+        if (principal == null) {
+            throw new IllegalArgumentException("User is not authenticated");
+        }
 
-        // 호텔의 객실 정보 가져오기
+        String email = principal.getName();
+        Hotel hotel = hotelRepository.findByManagerEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("No hotel found for the logged-in user"));
+
         List<Room> rooms = roomRepository.findByHotel(hotel);
 
-        // 오늘 날짜 기준으로 남은 객실 수 계산
-        LocalDate today = LocalDate.now();
+        // Room 요약 정보 생성
+        Map<String, Long> roomTypeCounts = rooms.stream()
+                .collect(Collectors.groupingBy(
+                        room -> Optional.ofNullable(room.getType()).orElse("Unknown"),
+                        Collectors.counting()
+                ));
 
-        // 총 객실 수 및 유형별 객실 수 계산
-        int totalAvailableRooms = 0;
-        Map<String, Integer> roomTypeCounts = new HashMap<>();
+        Map<String, Object> roomSummary = new HashMap<>();
+        roomSummary.put("totalRooms", rooms.size());
+        roomSummary.put("roomTypes", roomTypeCounts);
 
-        for (Room room : rooms) {
-            // RoomCount에서 오늘 기준으로 남은 객실 수 가져오기
-            RoomCount roomCount = roomCountRepository.findByRoomAndDate(room, today).orElse(null);
-
-            int availableRooms = (roomCount != null) ? roomCount.getRoomCount() : room.getTotal();
-            totalAvailableRooms += availableRooms;
-
-            // 유형별 객실 수 업데이트
-            roomTypeCounts.put(
-                    room.getName(),
-                    roomTypeCounts.getOrDefault(room.getName(), 0) + availableRooms
-            );
-        }
-
-        // 결과 반환
-        Map<String, Object> summary = new HashMap<>();
-        summary.put("totalRooms", totalAvailableRooms); // 오늘 기준 총 객실 수
-        summary.put("roomTypeCounts", roomTypeCounts); // 오늘 기준 유형별 객실 수
-
-        return summary;
+        return roomSummary;
     }
-    
-    // 수정
-    public void updateRoom(Long roomId, RoomDTO roomDto) {
-        if (roomDto.getName() == null || roomDto.getName().isEmpty()) {
-            throw new IllegalArgumentException("Room name cannot be null or empty");
-        }
 
-        Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("Room not found with ID: " + roomId));
 
-        room.setName(roomDto.getName());
-        room.setPrice(roomDto.getPrice());
-        room.setDescription(roomDto.getDescription());
-        room.setOccupancy(roomDto.getOccupancy());
-        room.setBathFacility(roomDto.isBathFacility());
-        room.setBath(roomDto.isBath());
-        room.setAirCondition(roomDto.isAirCondition());
-        room.setTv(roomDto.isTv());
-        room.setCable(roomDto.isCable());
-        room.setInternet(roomDto.isInternet());
-        room.setRefrigerator(roomDto.isRefrigerator());
-        room.setToiletries(roomDto.isToiletries());
-        room.setSofa(roomDto.isSofa());
-        room.setTableYn(roomDto.isTableYn());
-        room.setHairdryer(roomDto.isHairdryer());
-
-        roomRepository.save(room); // 변경된 내용 저장
-    }
 
 
 }

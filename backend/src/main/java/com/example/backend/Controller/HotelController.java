@@ -2,12 +2,15 @@
 package com.example.backend.Controller;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.example.backend.dto.HotelReviewDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -93,23 +96,47 @@ public class HotelController {
 //        return hotelService.searchHotelsByName(query);
 //    }
     
+//    @GetMapping("/hotels/search")
+//    public List<HotelDTO> searchHotels(@RequestParam(value = "query", required = false) String query) {
+//        if (query == null || query.isEmpty()) {
+//            return hotelService.getAllHotels().stream()
+//                .map(hotel -> new HotelDTO(
+//                    hotel.getHotelId(),
+//                    hotel.getName(),
+//                    hotel.getAddress(),
+//                    hotel.getImageUrl(),
+//                    hotelService.calculateAverageRating(hotel),
+//                    hotel.getMapX(),
+//                    hotel.getMapY(),
+//                    null
+//                ))
+//                .collect(Collectors.toList());
+//        }
+//        return hotelService.searchHotelsByNameOrAddress(query);
+//    }
+    // 관리자 로그인 위해 개선
     @GetMapping("/hotels/search")
     public List<HotelDTO> searchHotels(@RequestParam(value = "query", required = false) String query) {
-        if (query == null || query.isEmpty()) {
-            return hotelService.getAllHotels().stream()
-                .map(hotel -> new HotelDTO(
-                    hotel.getHotelId(),
-                    hotel.getName(),
-                    hotel.getAddress(),
-                    hotel.getImageUrl(),
-                    hotelService.calculateAverageRating(hotel),
-                    hotel.getMapX(),
-                    hotel.getMapY(),
-                    null
-                ))
-                .collect(Collectors.toList());
-        }
-        return hotelService.searchHotelsByNameOrAddress(query);
+//        if (query == null || query.isEmpty()) {
+//            throw new IllegalArgumentException("검색어는 필수 입력값입니다.");
+//        }
+//        return hotelService.searchHotelsByNameOrAddress(query);
+    	if (query == null || query.isEmpty()) {
+    	    return hotelService.getAllHotels().stream()
+    	        .map(hotel -> new HotelDTO(
+    	            hotel.getHotelId(),
+    	            hotel.getName(),
+    	            hotel.getAddress(),
+    	            hotel.getImageUrl(),
+    	            hotelService.calculateAverageRating(hotel),
+    	            hotel.getMapX(),
+    	            hotel.getMapY(),
+    	            null
+    	        ))
+    	        .collect(Collectors.toList());
+    	}
+    	return hotelService.searchHotelsByNameOrAddress(query);
+
     }
 
 
@@ -139,8 +166,10 @@ public class HotelController {
             @RequestParam(value = "query", required = false) String query) {
         return hotelService.searchHotelsByDateAndGuest(checkInDate, checkOutDate, guests, query);
     }
+    
 
-
+    ////////////////////////////////////////////////////////////////////////////////
+    // (T)
     @GetMapping("/hotels/top10")
     public Map<String, List<HotelReviewDTO>> getTop10Hotels() {
         List<HotelReviewDTO> topHotelsByReviewCount = hotelService.getTop10HotelsByReviewCount();

@@ -23,6 +23,12 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
 	
 	List<Hotel> findByLocation(String location);
 	
+	@Query("SELECT h FROM Hotel h WHERE h.manager.userId = :managerId")
+	Optional<Hotel> findByManagerId(@Param("managerId") Long managerId);
 	
+//	@Query("SELECT h FROM Hotel h WHERE h.manager.email = :email")
+//	Optional<Hotel> findByManagerEmail(@Param("email") String email);
+	
+	Optional<Hotel> findByManagerEmail(String email);
 }
 

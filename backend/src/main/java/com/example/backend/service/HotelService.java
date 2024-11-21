@@ -339,7 +339,10 @@ public class HotelService {
         List<RoomCount> roomCounts = roomCountRepository.findByRoomAndDateBetween(room, checkInDate, checkOutDate);
         return roomCounts.stream().allMatch(roomCount -> roomCount.getRoomCount() > 0);
     }
-
+    
+    
+    //////////////////////////////////////////////////////////////////////////////////////
+    // (T)
     public List<HotelReviewDTO> getTop10HotelsByReviewCount() {
         List<HotelReviewDTO> hotelsWithReviews = hotelRepository.findAll().stream()
                 .filter(hotel -> hotel.getReviews() != null && !hotel.getReviews().isEmpty())
