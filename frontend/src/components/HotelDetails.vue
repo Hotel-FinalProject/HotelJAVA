@@ -524,14 +524,12 @@ export default {
   font-size: 16px;
   color: #666;
 }
-.review-conatiner {
-  display: flex;
-}
+
 .review-list {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 .review-grid {
