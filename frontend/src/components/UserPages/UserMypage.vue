@@ -12,7 +12,7 @@
           :email="email"
           :phone="phone"
           :reviews="reviews"
-          @update="handleReviewUpdated"
+          @update-reviews="handleReviewUpdated"
           :logged-in-user-id="loggedInUserId"
         />
       </router-view>
@@ -103,7 +103,9 @@ export default {
       }
     },
     handleReviewUpdated() {
-    this.fetchUserReviews();
+      this.fetchUserReviews().then(() => {
+      this.$emit("refresh-reservations");
+    });
   },
   },
 };

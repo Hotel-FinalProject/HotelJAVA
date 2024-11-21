@@ -95,7 +95,7 @@ export default {
       required: true,
     },
   },
-  setup(props) {
+  setup(props, { emit }) {
     const reservationStore = useReservationStore();
 
     const state = reactive({
@@ -131,7 +131,6 @@ export default {
 
     // 리뷰 작성 버튼 활성화 여부 확인
     const hasReview = (reservationId) => {
-      // 현재 예약 번호(reservationId)가 리뷰 배열(props.reviews)에 있는지 확인
       return props.reviews.some(
         (review) => review.reservationId === reservationId
       );
@@ -139,7 +138,6 @@ export default {
 
     // 리뷰 작성 모달 열기
     const openReviewModal = (reservationId) => {
-      console.log("openReviewModal called with reservationId:", reservationId);
       if (!reservationId) {
         alert("예약 정보를 불러오지 못했습니다. 다시 시도해주세요.");
         return;
@@ -157,8 +155,6 @@ export default {
           return;
         }
 
-        console.log("받은 reviewData:", reviewData);
-
         const { content, rating, images } = reviewData;
 
         if (!content || !rating) {
@@ -166,7 +162,6 @@ export default {
           return;
         }
 
-        // 예약 ID가 없는 경우 에러 처리
         if (!state.selectedReservationId) {
           alert("예약 정보가 누락되었습니다. 다시 시도해주세요.");
           return;
@@ -181,9 +176,8 @@ export default {
         const formData = new FormData();
         formData.append("content", content);
         formData.append("rating", rating);
-        formData.append("reservationId", state.selectedReservationId); // 예약 ID 추가
+        formData.append("reservationId", state.selectedReservationId);
 
-        // 이미지가 배열인지 확인
         if (Array.isArray(images) && images.length > 0) {
           images.forEach((image) => {
             if (image.file) {
@@ -192,27 +186,21 @@ export default {
               console.warn("유효하지 않은 이미지 데이터:", image);
             }
           });
-        } else {
-          console.log("이미지가 추가되지 않았습니다.");
         }
 
-        console.log("FormData entries before sending to server:");
-        for (let [key, value] of formData.entries()) {
-          console.log(`${key}: ${value}`);
-        }
-
-        // API 요청
         await createReview(formData, token);
         alert("리뷰가 작성되었습니다.");
         closeModal();
         reservationStore.fetchReservations(); // 예약 목록 새로고침
+
+        // 상위 컴포넌트에 리뷰가 업데이트되었음을 알림
+        emit('update-reviews');
       } catch (error) {
         console.error("리뷰 작성 중 오류 발생:", error);
         alert("리뷰 작성 중 오류가 발생했습니다.");
       }
     };
 
-    // 모달 닫기
     const closeModal = () => {
       state.isModalOpen = false;
       state.selectedReservationId = null;
