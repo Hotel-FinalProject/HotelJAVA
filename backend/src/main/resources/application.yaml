@@ -10,8 +10,7 @@ spring:
     active: server
 
   datasource:
-    url: jdbc:mysql://localhost:3306/hotel?useSSL=false
-
+    url: jdbc:mysql://localhost:3306/hotel
     username: admin
     password: test1234
     driver-class-name: com.mysql.cj.jdbc.Driver
