@@ -10,7 +10,8 @@ spring:
     active: server
 
   datasource:
-    url: ${DATABASE_URL}
+    url: jdbc:mysql://hoteldb.cyzrnn6eoqnk.ap-northeast-2.rds.amazonaws.com:3306/hotel?useSSL=false&serverTimezone=Asia%2FSeoul&allowPublicKeyRetrieval=true
+
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver

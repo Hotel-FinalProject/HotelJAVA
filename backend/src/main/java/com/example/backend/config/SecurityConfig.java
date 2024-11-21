@@ -112,8 +112,6 @@ public class SecurityConfig {
     private final LoginSuccessHandler loginSuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
 
-    @Value("${spring.datasource.url}")
-    private String DATABASE_URL;
 
     // 생성자를 통해 LoginSuccessHandler와 CustomOAuth2UserService 의존성 주입
     public SecurityConfig(LoginSuccessHandler loginSuccessHandler, CustomOAuth2UserService customOAuth2UserService) {
@@ -128,7 +126,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        System.out.println("DATDBASEtest = "+ DATABASE_URL);
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 활성화
                 .csrf(csrf -> csrf.disable())  // CSRF 비활성화 (개발 중)
