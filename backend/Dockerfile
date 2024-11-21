@@ -5,7 +5,7 @@ VOLUME /tmp
 COPY build/libs/backend-0.0.1-SNAPSHOT.jar app.jar
 
 # 기본 환경 변수 설정 (필요한 값들은 실행 시 주입)
-ENV USE_PROFILE=server  
+ENV USE_PROFILE=server
 ENV DATABASE_URL=${DATABASE_URL}
 ENV DB_NAME=${DB_NAME}
 ENV DB_USERNAME=${DB_USERNAME}
