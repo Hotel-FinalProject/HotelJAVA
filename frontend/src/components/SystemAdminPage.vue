@@ -62,100 +62,102 @@
       </div>
 
       <!--사용자 관리사용자 -->
-      <div v-if="currentView === 'UserManagement'">
-        <div class="top-container">
-          <div class="title">
-            <h2>사용자 관리</h2>
+      <div v-if="currentView === 'UserManagement' && isVerified">
+          <!-- 비밀번호 인증이 완료된 경우 -->
+          <div class="top-container">
+            <div class="title">
+              <h2>사용자 관리</h2>
+            </div>
+            <div class="search-container">
+              <input
+                class="search-input"
+                type="text"
+                placeholder="이름, 이메일로 검색해주세요."
+                v-model="searchKeyword"
+                @input="handleUserSearch"
+              />
+            </div>
           </div>
-          <div class="search-container">
-            <input
-              class="search-input"
-              type="text"
-              placeholder="이름, 이메일로 검색해주세요."
-              v-model="searchKeyword"
-              @input="handleUserSearch"
-            />
-          </div>
-        </div>
-        <hr />
-        <div class="user-table-container">
-          <!-- 테이블 헤더 -->
-          <div class="user-table-header">
-            <span>계정 상태</span>
-            <span>Index</span>
-            <span>이름</span>
-            <span>이메일</span>
-            <span>전화번호</span>
-            <span>관리</span>
-          </div>
-          <!-- 테이블 내용 -->
-          <div v-for="user in userList" :key="user.id" class="user-table-row">
-            <span :class="user.isActive ? 'user-active' : 'user-deactive'">{{
-              user.isActive
-            }}</span>
-            <span>{{ user.userId }}</span>
-            <span>{{ user.name }}</span>
-            <span>{{ user.email }}</span>
-            <span>{{ user.phone }}</span>
-            <div class="user-activeBtn-container">
-              <button v-if="user.isActive" @click="handleUserStatusChange(user.userId)">정지</button>
-              <button v-else @click="handleUserStatusChange(user.userId)">활성화</button>
+          <hr />
+          <div class="user-table-container">
+            <!-- 테이블 헤더 -->
+            <div class="user-table-header">
+              <span>계정 상태</span>
+              <span>Index</span>
+              <span>이름</span>
+              <span>이메일</span>
+              <span>전화번호</span>
+              <span>관리</span>
+            </div>
+            <!-- 테이블 내용 -->
+            <div v-for="user in userList" :key="user.id" class="user-table-row">
+              <span :class="user.isActive ? 'user-active' : 'user-deactive'">{{
+                user.isActive
+              }}</span>
+              <span>{{ user.userId }}</span>
+              <span>{{ user.name }}</span>
+              <span>{{ user.email }}</span>
+              <span>{{ user.phone }}</span>
+              <div class="user-activeBtn-container">
+                <button v-if="user.isActive" @click="handleUserStatusChange(user.userId)">정지</button>
+                <button v-else @click="handleUserStatusChange(user.userId)">활성화</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
       <!-- 호텔 관리 -->
-      <div v-if="currentView === 'HotelAdminAccounts'">
-        <div class="top-container">
-          <div class="title">
-            <h2>호텔 관리자 계정 관리</h2>
-          </div>
-          <div class="search-container">
-            <input
-            class="search-input"
-            type="text"
-            placeholder="이름, 이메일로 검색해주세요."
-            v-model="searchKeyword"
-            @input="handleHotelSearch"
-            />
-            <button class="styled-button" @click="openModal">호텔 관리자 계정 생성</button>
-            <HotelAdminModal :isOpen="isModalOpen" :adminToken="adminToken" @close="closeModal" />
-          </div>
-        </div>
-        <hr />
-        <div class="user-table-container">
-          <!-- 테이블 헤더 -->
-          <div class="user-table-header">
-            <span>계정 상태</span>
-            <span>Index</span>
-            <span>호텔명</span>
-            <span>이메일</span>
-            <span>전화번호</span>
-            <span>관리</span>
-          </div>
-          <!-- 테이블 내용 -->
-          <div
-            v-for="user in hotelManagerList"
-            :key="user.id"
-            class="user-table-row"
-          >
-            <span :class="user.isActive ? 'user-active' : 'user-deactive'">{{
-              user.isActive
-            }}</span>
-            <span>{{ user.userId }}</span>
-            <span>{{ user.name }}</span>
-            <span>{{ user.email }}</span>
-            <span>{{ user.phone }}</span>
-            <div class="user-activeBtn-container">
-              <button v-if="user.isActive" @click="handleAccountStatusChange(user.userId)">정지</button>
-              <button v-else @click="handleAccountStatusChange(user.userId)">활성화</button>
+      <div v-if="currentView === 'HotelAdminAccounts' && isVerified">
+          <!-- 비밀번호 인증이 완료된 경우 -->
+          <div class="top-container">
+            <div class="title">
+              <h2>호텔 관리자 계정 관리</h2>
+            </div>
+            <div class="search-container">
+              <input
+                class="search-input"
+                type="text"
+                placeholder="이름, 이메일로 검색해주세요."
+                v-model="searchKeyword"
+                @input="handleHotelSearch"
+              />
+              <button class="styled-button" @click="openModal">호텔 관리자 계정 생성</button>
+              <HotelAdminModal :isOpen="isModalOpen" :adminToken="adminToken" @close="closeModal" />
             </div>
           </div>
-        </div>
+          <hr />
+          <div class="user-table-container">
+            <!-- 테이블 헤더 -->
+            <div class="user-table-header">
+              <span>계정 상태</span>
+              <span>Index</span>
+              <span>호텔명</span>
+              <span>이메일</span>
+              <span>전화번호</span>
+              <span>관리</span>
+            </div>
+            <!-- 테이블 내용 -->
+            <div
+              v-for="user in hotelManagerList"
+              :key="user.id"
+              class="user-table-row"
+            >
+              <span :class="user.isActive ? 'user-active' : 'user-deactive'">{{
+                user.isActive
+              }}</span>
+              <span>{{ user.userId }}</span>
+              <span>{{ user.name }}</span>
+              <span>{{ user.email }}</span>
+              <span>{{ user.phone }}</span>
+              <div class="user-activeBtn-container">
+                <button v-if="user.isActive" @click="handleAccountStatusChange(user.userId)">정지</button>
+                <button v-else @click="handleAccountStatusChange(user.userId)">활성화</button>
+              </div>
+            </div>
+          </div>
       </div>
 
-      <!-- 리뷰 관리 -->
+      <!-- 리뷰 관리: 인증 필요 없음 -->
       <div v-if="currentView === 'ReviewReports'">
         <h2>리뷰 관리</h2>
         <hr />
@@ -189,12 +191,15 @@
         </div>
       </div>
     </div>
+    <!-- 비밀번호 인증 모달 -->
+    <PasswordVerification :isOpen="isPasswordModalOpen" :adminToken="adminToken" @close="closePasswordModal" @verified="handleVerified" />
   </SidebarLayout>
 </template>
 
 <script>
 import SidebarLayout from "@/layout/SidebarLayout.vue";
 import HotelAdminModal from "@/components/SystemAdminPages/HotelAdminModal.vue";
+import PasswordVerification from "./SystemAdminPages/\bPasswordVerification.vue";
 import {
   getUserListByAdmin,
   getHotelManagerListByAdmin,
@@ -213,11 +218,13 @@ export default {
   components: {
     SidebarLayout,
     HotelAdminModal,
+    PasswordVerification,
   },
   data() {
     return {
       currentView: "Dashboard", // 초기 화면 설정
       isModalOpen: false,
+      isVerified: false,
       adminToken: sessionStorage.getItem("token"),
     };
   },
@@ -363,6 +370,7 @@ export default {
     this.fetchHotelManagerList();
     this.fetchDashboard();
     this.fetchReportList();
+    this.checkSessionValidity();
   },
   watch: {
     searchKeyword(newValue){
@@ -370,6 +378,13 @@ export default {
         this.handleUserSearch(newValue);
       } else if(this.currentView.valueOf === "HotelAdminAccounts"){
         this.handleHotelSearch(newValue);
+      }
+    },
+    currentView(newView) {
+      if ((newView === 'UserManagement' || newView === 'HotelAdminAccounts') && !this.isVerified) {
+        this.openPasswordModal();
+      } else if (newView === 'Dashboard' || newView === 'ReviewReports') {
+        this.isPasswordModalOpen = false;
       }
     }
   },
@@ -379,8 +394,66 @@ export default {
     },
     closeModal() {
       this.isModalOpen = false;
+    },
+    openPasswordModal() {
+      this.isPasswordModalOpen = true;
+    },
+    closePasswordModal() {
+      this.isPasswordModalOpen = false;
+    },
+    handleVerified() {
+      this.isVerified = true; // 비밀번호 인증 성공 시 플래그 변경
+      this.isPasswordModalOpen = false; // 모달 닫기
+
+      const currentTime = new Date().getTime();
+      sessionStorage.setItem("isVerified", "true");
+      sessionStorage.setItem("verifiedTime", currentTime.toString());
+
+      // 세션 만료 타이머 시작 (예: 15분 후 만료)
+      this.startSessionTimeout(15); // 15분
+    },
+    startSessionTimeout(minutes) {
+      const timeoutDuration = minutes * 60 * 1000; // 분을 밀리초로 변환
+      setTimeout(() => {
+        this.expireSession();
+      }, timeoutDuration);
+    },
+    expireSession() {
+      this.isVerified = false;
+      sessionStorage.removeItem("isVerified");
+      sessionStorage.removeItem("verifiedTime");
+      alert("인증이 만료되었습니다. 다시 인증해주세요.");
+      this.openPasswordModal(); // 인증이 만료되면 다시 비밀번호 모달 열기
+    },
+    handleBeforeUnload() {
+      sessionStorage.removeItem("isVerified");
+      sessionStorage.removeItem("verifiedTime");
+    },
+    checkSessionValidity() {
+      const verifiedTime = sessionStorage.getItem("verifiedTime");
+      if (verifiedTime) {
+        const currentTime = new Date().getTime();
+        const timeElapsed = currentTime - parseInt(verifiedTime, 10);
+        const sessionDuration = 15 * 60 * 1000; // 15분
+
+        if (timeElapsed <= sessionDuration) {
+          // 세션이 유효한 경우
+          this.isVerified = true;
+          this.startSessionTimeout((sessionDuration - timeElapsed) / (60 * 1000)); // 남은 시간으로 타이머 시작
+        } else {
+          // 세션이 만료된 경우
+          this.expireSession();
+        }
+      }
     }
-  }
+  },
+  beforeRouteLeave() {
+    sessionStorage.removeItem("isVerified");
+    sessionStorage.removeItem("verifiedTime");
+  },
+  beforeUnmount() {
+    window.removeEventListener("beforeunload", this.handleBeforeUnload);
+  },
 };
 </script>
 
