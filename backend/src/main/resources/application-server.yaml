@@ -1,7 +1,5 @@
-spring:
-  profiles:
-    active: server
 
+spring:
   datasource:
     url: ${DATABASE_URL}  # .env 파일 또는 Docker 환경 변수에 설정된 DATABASE_URL 사용
     username: ${DATABASE_USER}  # .env 파일 또는 Docker 환경 변수에 설정된 DATABASE_USER 사용
