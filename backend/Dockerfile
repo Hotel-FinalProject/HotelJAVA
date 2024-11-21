@@ -3,7 +3,7 @@ FROM eclipse-temurin:17-jdk-jammy as builder
 
 # JAR 파일 복사
 VOLUME /tmp
-COPY backend/build/libs/backend-0.0.1-SNAPSHOT.jar app.jar
+COPY /build/libs/backend-0.0.1-SNAPSHOT.jar app.jar
 
 # ARG 설정 (빌드 시 환경 변수로 주입됨)
 ARG DATABASE_URL
@@ -34,6 +34,7 @@ ENV IMPORT_KEY=${IMPORT_KEY}
 ENV IMPORT_SECRET_KEY=${IMPORT_SECRET_KEY}
 ENV ACCESS_KEY_ID=${ACCESS_KEY_ID}
 ENV ACCESS_SCRETKEY_ID=${ACCESS_SCRETKEY_ID}
+ENV USE_PROFILE server
 
 # Spring Boot 애플리케이션 실행 시 환경 변수 사용
 ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=${USE_PROFILE}", \
