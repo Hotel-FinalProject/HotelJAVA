@@ -276,13 +276,12 @@ export default {
       }
     },
     loadKakaoMap() {
-      const apiKey = process.env.VUE_APP_KAKAO_API_KEY;
+      //const apiKey = process.env.VUE_APP_KAKAO_API_KEY;
       if (typeof kakao === "undefined") {
         const script = document.createElement("script");
-        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`;
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=8e08ae88fe732a2c4cfd5d4e46ee2fe5&autoload=false`;
         script.onload = this.initMap;  // 스크립트 로드 후 initMap 호출
         document.head.appendChild(script);
-        console.log(apiKey);
       } else {
         this.initMap(); // kakao 객체가 이미 있으면 바로 지도 초기화
       }

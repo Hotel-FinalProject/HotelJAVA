@@ -67,8 +67,8 @@ jobs:
         #   ACCESS_SCRETKEY_ID: ${{ secrets.ACCESS_SCRETKEY_ID }}
       
       # Vue 프론트엔드 도커 이미지 생성
-      - name: Docker image build (frontend)
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/erppro-frontend:${{ env.VERSION }} ./frontend
+      # - name: Docker image build (frontend)
+      #   run: docker build -t ${{ secrets.DOCKER_USERNAME }}/erppro-frontend:${{ env.VERSION }} ./frontend
 
       - name: Docker login
         uses: docker/login-action@v3
