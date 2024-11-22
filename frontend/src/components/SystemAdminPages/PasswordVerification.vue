@@ -4,11 +4,13 @@
         <h2>비밀번호 인증</h2>
         <form @submit.prevent="handleSubmit">
           <div>
-            <label for="password">비밀번호:</label>
+            <label for="password" class = "text">비밀번호:</label>
             <input type="password" id="password" v-model="password" required />
           </div>
-          <button type="submit">확인</button>
-          <button type="button" @click="closeModal">취소</button>
+          <div class = "btn-container">
+            <button type="submit" class="comfirm-btn">확인</button>
+            <button type="button" @click="closeModal" class="cancel-btn" >취소</button>
+          </div>
         </form>
         <div v-if="errorMessage" class="error-message">
           {{ errorMessage }}
@@ -95,5 +97,28 @@
   .error-message {
     color: red;
     margin-top: 10px;
+  }
+  .text{
+    margin-right : 10px;
+  }
+  .btn-container{
+    margin-top : 20px;
+    display:flex;
+    margin-left: 60px;
+  }
+  .comfirm-btn{
+    margin-right: 20px;
+  }
+  .comfirm-btn, .cancel-btn{
+    width: 70px;
+  height: 30px;
+  background-color: #00aef0;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
   }
   </style>

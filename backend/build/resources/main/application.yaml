@@ -11,7 +11,7 @@ spring:
     active: server
 
   datasource:
-    url: jdbc:mysql://43.200.45.122:3306/hotel
+    url: jdbc:mysql://43.200.45.122:3306/hotel?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
     username: admin
     password: test1234
     driver-class-name: com.mysql.cj.jdbc.Driver

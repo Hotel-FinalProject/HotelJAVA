@@ -213,7 +213,7 @@ public class UserService {
             helper.setSubject("[수동태] 이메일 인증 요청");
 
             // 로컬
-            //String link = "http://localhost:8082/verify-email?token=" + token + "&mode=" + mode;
+//            String link = "http://localhost:8082/verify-email?token=" + token + "&mode=" + mode;
 
             // 배포
             String link = "http://43.200.45.122/verify-email?token=" + token + "&mode=" + mode;

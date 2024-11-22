@@ -268,7 +268,7 @@ export default {
   methods: {
     async fetchHotelId() {
       try {
-        // const response = await axios.get("http://localhost:8081/api/manager-hotel-id", { //로컬
+        //const response = await axios.get("http://localhost:8081/api/manager-hotel-id", { //로컬
         const response = await axios.get("http://43.200.45.122/api/manager-hotel-id", { // 배포
           
           headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
@@ -302,7 +302,7 @@ export default {
     },
     async fetchReservationSummary() {
         try {
-            // const response = await axios.get(`http://localhost:8081/api/auth/reservation-summary`, {  //로컬
+             //const response = await axios.get(`http://localhost:8081/api/auth/reservation-summary`, {  //로컬
             const response = await axios.get(`http://43.200.45.122/api/auth/reservation-summary`, { // 배포
             
                 headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
@@ -319,7 +319,7 @@ export default {
           console.error("호텔 ID가 설정되지 않았습니다.");
           return;
         }
-        // const response = await axios.get(`http://localhost:8081/api/rooms/hotel/${this.hotelId}`); //로컬
+        //const response = await axios.get(`http://localhost:8081/api/rooms/hotel/${this.hotelId}`); //로컬
         const response = await axios.get(`http://43.200.45.122/api/rooms/hotel/${this.hotelId}`); // 배포
         this.rooms = response.data;
       } catch (error) {
@@ -388,7 +388,7 @@ export default {
           ...this.editingRoom,
           amenities: (this.editingRoom.amenities || "").split(",").map((item) => item.trim()),
         };
-        // await axios.put(`http://localhost:8081/api/rooms/${updatedRoom.roomId}`, updatedRoom); //로컬
+        //await axios.put(`http://localhost:8081/api/rooms/${updatedRoom.roomId}`, updatedRoom); //로컬
         await axios.put(`http://43.200.45.122/api/rooms/${updatedRoom.roomId}`, updatedRoom); //배포
         
         alert("객실 정보가 수정되었습니다.");
@@ -406,7 +406,7 @@ export default {
           console.error("호텔 ID가 설정되지 않았습니다.");
           return;
         }
-        // const response = await axios.get(`http://localhost:8081/api/auth/reservation-summary?hotelId=${this.hotelId}`, { //로컬
+        //const response = await axios.get(`http://localhost:8081/api/auth/reservation-summary?hotelId=${this.hotelId}`, { //로컬
         const response = await axios.get(`http://43.200.45.122/api/auth/reservation-summary?hotelId=${this.hotelId}`, {
           
           headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
@@ -460,7 +460,7 @@ export default {
 
     // PUT 요청
     const response = await axios.put(
-      // `http://localhost:8081/api/auth/reservation/${this.editingReservation.reservationId}`, //로컬
+      //`http://localhost:8081/api/auth/reservation/${this.editingReservation.reservationId}`, //로컬
       `http://43.200.45.122/api/auth/reservation/${this.editingReservation.reservationId}`,
       
       requestData,
