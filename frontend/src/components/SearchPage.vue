@@ -320,7 +320,7 @@
   
   .map-button {
     padding: 10px 20px;
-    background-color: #007bff;
+    background-color: #00aef0;
     color: white;
     border: none;
     border-radius: 5px;

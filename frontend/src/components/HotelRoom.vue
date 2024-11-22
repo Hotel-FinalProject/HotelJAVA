@@ -33,6 +33,7 @@
           <div class="modal-content">
             <VDatePicker v-model.range="range" :min-date="minDate" />
             <button @click="onDateSelect">확인</button>
+            <button @click="onCancelSelect">취소</button>
           </div>
         </div>
 

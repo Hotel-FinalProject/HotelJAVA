@@ -152,12 +152,7 @@ public class ReservationController {
         }
     }
 
-
-
-
-
-
-    // D
+    // 예약 전체 조회 (D)
     @GetMapping("/all-reservations")
     public ResponseEntity<List<ReservationSummaryDTO>> getAllReservations(@RequestHeader("Authorization") String token) {
         try {
@@ -174,9 +169,5 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-
-
-
 
 }

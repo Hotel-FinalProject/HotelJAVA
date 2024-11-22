@@ -193,7 +193,7 @@
           <td>{{ reservation.request || '없음' }}</td>
           <td>{{ reservation.status }}</td>
           <td>
-            <button @click="openEditReservation(reservation)">수정</button>
+            <button class="reservation-edit-button" @click="openEditReservation(reservation)">수정</button>
           </td>
         </tr>
       </tbody>
@@ -663,6 +663,21 @@ export default {
   background-color: #cccccc;
   cursor: not-allowed;
 }
+
+.reservation-edit-button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.reservation-edit-button:hover {
+  background-color: #0056b3;
+}
+
 
 /* 객실유형 */
 .room-table th:nth-child(1),

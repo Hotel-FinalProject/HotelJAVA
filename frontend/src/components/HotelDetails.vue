@@ -124,7 +124,7 @@
           class="load-more-container"
         >
           <button @click="expandReviews" class="load-more-btn">
-            ➕ 더 보기
+            더 보기
           </button>
         </div>
       </div>
@@ -484,18 +484,17 @@ export default {
 }
 
 .copy-button {
-  margin-left: 10px;
-  padding: 5px 10px;
-  font-size: 14px;
-  background-color: #00aef0;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  background-color: #00aef0; /* 기본 파란색 배경 */
+  color: white; /* 텍스트 색상 */
+  padding: 5px 10px; /* 여백 */
+  font-size: 14px; /* 글자 크기 */
+  border: none; /* 테두리 제거 */
+  border-radius: 5px; /* 모서리 둥글게 */
+  cursor: pointer; /* 포인터 커서 */
 }
 
 .copy-button:hover {
-  background-color: #008dc0;
+  background-color: #0056b3; /* 호버 시 어두운 파란색 */
 }
 
 .hotel-name {
@@ -594,7 +593,7 @@ export default {
 }
 
 .load-more-btn {
-  background-color: #007bff;
+  background-color: #00aef0;
   color: white;
   padding: 10px 20px;
   border: none;
@@ -725,6 +724,11 @@ export default {
   font-size: 15px;
   cursor: pointer;
 }
+
+.reservation_btn:hover{
+  background-color: #0056b3;
+}
+
 #map {
   width: auto !important;
   height: 400px !important;
@@ -733,7 +737,7 @@ export default {
 }
 
 .edit-button {
-  background-color: #007bff;
+  background-color: #00aef0;
   color: white;
   padding: 5px 10px;
   border: none;
