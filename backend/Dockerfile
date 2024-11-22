@@ -34,7 +34,7 @@ COPY /build/libs/backend-0.0.1-SNAPSHOT.jar app.jar
 # ENV IMPORT_SECRET_KEY=${IMPORT_SECRET_KEY}
 # ENV ACCESS_KEY_ID=${ACCESS_KEY_ID}
 # ENV ACCESS_SCRETKEY_ID=${ACCESS_SCRETKEY_ID}
-# ENV USE_PROFILE server
+ENV USE_PROFILE server
 
 # Spring Boot 애플리케이션 실행 시 환경 변수 사용
 #   "-Dspring.datasource.url=${DATABASE_URL}", \
@@ -42,7 +42,8 @@ COPY /build/libs/backend-0.0.1-SNAPSHOT.jar app.jar
 #    "-Dspring.datasource.password=${DB_PASSWORD}", \
 
 ENTRYPOINT ["java", "-jar",
-# "-Dspring.profiles.active=${USE_PROFILE}", \
+
+        "-Dspring.profiles.active=${USE_PROFILE}", \
 #     "-Dserver.env=${ENV}", \
 #     "-Dserver.port=8081", \
 #     "-Dspring.mail.username=sudongtaemsa6th@gmail.com", \
