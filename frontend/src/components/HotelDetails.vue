@@ -48,7 +48,12 @@
 
     <!-- 리뷰 섹션 -->
     <div class="review-container">
-      <h3>리뷰</h3>
+      <h3>
+        리뷰
+        <button class="toggle-review-btn" @click="toggleReviewMode">
+          {{ isAllReviewsMode ? '일부 보기' : '전체 보기' }}
+        </button>
+      </h3>
 
       <!-- 리뷰가 없을 때 -->
       <div v-if="hotelReviews && hotelReviews.length === 0">
@@ -57,78 +62,52 @@
 
       <!-- 리뷰가 있을 때 -->
       <div v-else>
-        <transition-group name="fade" tag="div" class="review-list">
+        <div class="review-list">
           <div
             v-for="(review, index) in visibleReviews"
             :key="index"
             class="review-grid"
+            @click="openReviewModal(review)"
           >
-            <!-- 리뷰 상단 -->
+            <!-- 리뷰 간략 내용 표시 -->
             <div class="review-top">
               <div class="review-rating">
                 <span
                   v-for="star in 5"
                   :key="star"
                   class="star"
-                  :class="{ filled: star <= review.rating }"
+                  :class="star <= review.rating ? 'filled' : 'empty'"
                 >
-                  ⭐
+                  ★
                 </span>
               </div>
-              <div class="review-actions">
-                <div class="review-date">
-                  {{ reviewFormatDate(review.updateDate || review.writeDate) }}
-                </div>
-                <button
-                  v-if="review.userId === loggedInUserId"
-                  class="edit-button"
-                  @click="openEditModal(review)"
-                >
-                  수정하기
-                </button>
-                <button
-                  v-else
-                  class="report-button"
-                  @click="reportReviews(review.reviewId, review.userId)"
-                >
-                  신고하기
-                </button>
+              <div class="review-date">
+                {{ reviewFormatDate(review.updateDate || review.writeDate) }}
+                <button v-if="review.content !== '신고된 글입니다'" class="report-button" @click.stop="reportReviews(review.reviewId, review.userId)">신고</button>
               </div>
             </div>
-
-            <!-- 작성자 및 객실 정보 -->
             <div class="reviewer">{{ review.userName }}</div>
-
-            <!-- 리뷰 내용 -->
             <div class="review-content">{{ review.content }}</div>
-
-            <!-- 이미지 갤러리 -->
-            <div
-              class="review-images"
-              v-if="review.imageUrl && review.imageUrl.length > 0"
-            >
+            <div v-if="review.imageUrl && review.imageUrl.length > 0" class="review-images">
               <img
                 v-for="(image, imgIndex) in review.imageUrl"
-                :src="image"
                 :key="imgIndex"
+                :src="image"
+                alt="Review Image"
                 class="review-image"
-                @click="openLightbox(image)"
               />
             </div>
           </div>
-        </transition-group>
-
-        <!-- 더 보기 버튼 -->
-        <div
-          v-if="visibleReviewCount < hotelReviews.length"
-          class="load-more-container"
-        >
-          <button @click="expandReviews" class="load-more-btn">
-            ➕ 더 보기
-          </button>
         </div>
       </div>
     </div>
+
+    <!-- 리뷰 모달 컴포넌트 -->
+    <ReviewModal
+      :isOpen="isReviewModalOpen"
+      :review="selectedReview"
+      @close="closeReviewModal"
+    />
 
     <div class="room-list">
       <h3>객실 정보</h3>
@@ -185,9 +164,13 @@
 import axios from "axios";
 import { getReviewsByHotel, reportReview } from "@/api/api";
 import { useAuthStore } from "@/store/register_login";
+import ReviewModal from "./reviewViewModal.vue";
 
 export default {
   name: "HotelDetails",
+  components: {
+    ReviewModal,
+  },
   data() {
     return {
       hotel: null,
@@ -196,6 +179,9 @@ export default {
       visibleReviewCount: 3,
       isFavorited: false,
       isLoggedIn: false,
+      isReviewModalOpen: false,
+      isAllReviewsMode: false,
+      selectedReview: null,
     };
   },
   mounted() {
@@ -234,9 +220,15 @@ export default {
   },
   formattedCheckOut() {
     return this.hotel.checkOut ? this.hotel.checkOut.replace(/<br\s*\/?>/gi, '<br>') : "정보없음";
-  }
-},
-
+  },
+  chunkedVisibleReviews() {
+      const chunks = [];
+      for (let i = 0; i < this.visibleReviews.length; i += 3) {
+        chunks.push(this.visibleReviews.slice(i, i + 3));
+      }
+      return chunks;
+    },
+  },
   methods: {
     async fetchHotelDetails() {
       const hotelId = this.$route.params.id;
@@ -276,11 +268,10 @@ export default {
       }
     },
     loadKakaoMap() {
-      //const apiKey = process.env.VUE_APP_KAKAO_API_KEY;
       if (typeof kakao === "undefined") {
         const script = document.createElement("script");
         script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=8e08ae88fe732a2c4cfd5d4e46ee2fe5&autoload=false`;
-        script.onload = this.initMap;  // 스크립트 로드 후 initMap 호출
+        script.onload = this.initMap; // 스크립트 로드 후 initMap 호출
         document.head.appendChild(script);
       } else {
         this.initMap(); // kakao 객체가 이미 있으면 바로 지도 초기화
@@ -349,17 +340,23 @@ export default {
     },
     async fetchHotelReviews(hotelId) {
       try {
-        const response = await getReviewsByHotel(hotelId); // API 호출
-        this.hotelReviews = response.data; // 리뷰 데이터를 저장
+        const response = await getReviewsByHotel(hotelId);
+        this.hotelReviews = response.data;
 
-        // 초기 visibleReviews 설정
-        this.visibleReviews = this.hotelReviews.slice(
-          0,
-          this.visibleReviewCount
-        );
+        // 초기 visibleReviews 설정 (처음에는 일부만 표시)
+        this.updateVisibleReviews();
       } catch (error) {
         console.error("호텔 리뷰 조회 중 오류 발생:", error);
       }
+    },
+    updateVisibleReviews() {
+      this.visibleReviews = this.isAllReviewsMode
+        ? this.hotelReviews
+        : this.hotelReviews.slice(0, this.visibleReviewCount);
+    },
+    toggleReviewMode() {
+      this.isAllReviewsMode = !this.isAllReviewsMode;
+      this.updateVisibleReviews();
     },
     reviewFormatDate(dateString) {
       const options = { year: "numeric", month: "2-digit", day: "2-digit" };
@@ -411,6 +408,20 @@ export default {
         alert("신고 중 오류가 발생했습니다.");
         console.error("Axios request error:", error.response || error.message);
       }
+    },
+     openReviewModal(review) {
+      this.selectedReview = review; // 선택된 리뷰 설정
+      this.isReviewModalOpen = true; // 모달 열기
+    },
+    closeReviewModal() {
+      this.isReviewModalOpen = false; // 모달 닫기
+      this.selectedReview = null; // 선택된 리뷰 초기화
+    },
+    openAllReviewsModal() {
+      this.isAllReviewsModalOpen = true; 
+    },
+    closeAllReviewsModal() {
+      this.isAllReviewsModalOpen = false;
     },
   },
 };
@@ -513,26 +524,27 @@ export default {
   font-size: 16px;
   color: #666;
 }
-.review-conatiner {
-  display: flex;
-}
+
 .review-list {
   display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start;
 }
 
 .review-grid {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  flex: 0 1 30%;
-  width: 400px;
-  height: 150px;
+  flex: 0 1 calc(33.333% - 20px); 
+  box-sizing: border-box; 
   border: 1px solid lightgray;
   border-radius: 5px;
-  margin-top: 15px;
-  margin-right: 10px;
-  padding: 5px;
+  padding: 10px;
+  height: 200px;
+  background-color: #ffffff;
+  transition: transform 0.2s ease-in-out; 
+}
+
+.review-grid:last-child {
+  margin-right: 0; 
 }
 
 .review-rating {
@@ -570,6 +582,12 @@ export default {
   justify-content: space-between; /* 좌우 정렬 */
   align-items: center; /* 수직 정렬 */
   margin-bottom: 10px;
+}
+
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 .review-actions {
@@ -759,5 +777,33 @@ export default {
 
 .report-button:hover {
   background-color: #d32f2f;
+}
+
+.star {
+  font-size: 20px;
+  color: lightgray; /* 기본적으로 비워진 별은 연한 회색 */
+}
+
+.filled {
+  color: #ffcc00; /* 채워진 별의 색상 */
+}
+
+.empty {
+  color: lightgray; /* 비워진 별의 색상 */
+}
+
+.toggle-review-btn {
+  margin-left: 10px;
+  padding: 5px 10px;
+  font-size: 14px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.toggle-review-btn:hover {
+  background-color: #0056b3;
 }
 </style>

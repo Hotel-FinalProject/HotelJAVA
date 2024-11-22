@@ -65,7 +65,11 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:8082"));
+
+        // 로컬용 IP
+        //configuration.setAllowedOrigins(List.of("http://localhost:8082"));
+
+        //배포용 IP
         configuration.setAllowedOrigins(List.of("http://43.200.45.122"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

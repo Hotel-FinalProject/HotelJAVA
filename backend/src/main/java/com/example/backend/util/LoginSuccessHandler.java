@@ -65,8 +65,8 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String token = jwtUtil.createJwt(user.getEmail(), user.getUserId(), user.getName(), user.getRole());
 
                 // 리다이렉트로 토큰 전달
-                //response.sendRedirect("http://localhost:8082/oauth2/success?token=" + token);
-                response.sendRedirect("http://43.200.45.122/oauth2/success?token=" + token);
+                response.sendRedirect("http://localhost:8082/oauth2/success?token=" + token);
+                //response.sendRedirect("http://43.200.45.122/oauth2/success?token=" + token);
 
 
             } catch (JOSEException e) {

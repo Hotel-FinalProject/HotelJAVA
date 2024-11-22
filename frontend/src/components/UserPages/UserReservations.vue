@@ -2,7 +2,7 @@
   <div class="reservation-container">
     <!-- 현재 예약 섹션 -->
     <h2>현재 예약</h2>
-    <div class="reservation-list">
+    <div class="reservation-card-container">
       <div v-if="!loading && visibleUpcomingReservations.length === 0">
         예약 내역이 없습니다.
       </div>
@@ -10,15 +10,17 @@
       <div
         v-for="(reservation, index) in visibleUpcomingReservations"
         :key="index"
-        class="reservation"
+        class="reservation-card"
       >
         <div class="reservation-info">
-          <p>호텔 이름: {{ reservation.hotelName }}</p>
+          <h3 class="hotel-name" @click="goToHotel(reservation.hotelId)">
+            {{ reservation.hotelName }}
+          </h3>
           <p>객실 이름: {{ reservation.roomName }}</p>
           <p>체크인: {{ reservation.checkIn }}</p>
           <p>체크아웃: {{ reservation.checkOut }}</p>
           <p>투숙 인원: {{ reservation.guestNum }}</p>
-          <p>요청 사항: {{ reservation.request }}</p>
+          <p class="request">요청 사항: {{ reservation.request }}</p>
           <p>예약 상태: {{ reservation.status }}</p>
           <button
             v-if="canCancel(reservation.checkIn)"
@@ -35,22 +37,24 @@
     </div>
 
     <h2>예약 기록</h2>
-    <div class="past-reservation-list">
+    <div class="reservation-card-container">
       <div v-if="!loading && visiblePastReservations.length === 0">
         지난 예약 내역이 없습니다.
       </div>
       <div
         v-for="(reservation, index) in visiblePastReservations"
         :key="index"
-        class="reservation"
+        class="reservation-card"
       >
         <div class="reservation-info">
-          <p>호텔 이름: {{ reservation.hotelName }}</p>
+          <h3 class="hotel-name" @click="goToHotel(reservation.hotelId)">
+            {{ reservation.hotelName }}
+          </h3>
           <p>객실 이름: {{ reservation.roomName }}</p>
           <p>체크인: {{ reservation.checkIn }}</p>
           <p>체크아웃: {{ reservation.checkOut }}</p>
           <p>투숙 인원: {{ reservation.guestNum }}</p>
-          <p>요청 사항: {{ reservation.request }}</p>
+          <p class="request">요청 사항: {{ reservation.request }}</p>
           <p>예약 상태: {{ reservation.status }}</p>
           <button
             v-if="
@@ -82,7 +86,7 @@
 import { useReservationStore } from "@/store/mypage_reservations";
 import { onMounted, computed, reactive } from "vue";
 import { createReview } from "@/api/api";
-import ReviewModal from "@/components/UserPages/reviewModal.vue";
+import ReviewModal from "@/components/UserPages/reviewModal";
 import dayjs from "dayjs";
 
 export default {
@@ -95,7 +99,7 @@ export default {
       required: true,
     },
   },
-  setup(props) {
+  setup(props, { emit }) {
     const reservationStore = useReservationStore();
 
     const state = reactive({
@@ -131,7 +135,6 @@ export default {
 
     // 리뷰 작성 버튼 활성화 여부 확인
     const hasReview = (reservationId) => {
-      // 현재 예약 번호(reservationId)가 리뷰 배열(props.reviews)에 있는지 확인
       return props.reviews.some(
         (review) => review.reservationId === reservationId
       );
@@ -139,7 +142,6 @@ export default {
 
     // 리뷰 작성 모달 열기
     const openReviewModal = (reservationId) => {
-      console.log("openReviewModal called with reservationId:", reservationId);
       if (!reservationId) {
         alert("예약 정보를 불러오지 못했습니다. 다시 시도해주세요.");
         return;
@@ -157,8 +159,6 @@ export default {
           return;
         }
 
-        console.log("받은 reviewData:", reviewData);
-
         const { content, rating, images } = reviewData;
 
         if (!content || !rating) {
@@ -166,7 +166,6 @@ export default {
           return;
         }
 
-        // 예약 ID가 없는 경우 에러 처리
         if (!state.selectedReservationId) {
           alert("예약 정보가 누락되었습니다. 다시 시도해주세요.");
           return;
@@ -181,9 +180,8 @@ export default {
         const formData = new FormData();
         formData.append("content", content);
         formData.append("rating", rating);
-        formData.append("reservationId", state.selectedReservationId); // 예약 ID 추가
+        formData.append("reservationId", state.selectedReservationId);
 
-        // 이미지가 배열인지 확인
         if (Array.isArray(images) && images.length > 0) {
           images.forEach((image) => {
             if (image.file) {
@@ -192,27 +190,21 @@ export default {
               console.warn("유효하지 않은 이미지 데이터:", image);
             }
           });
-        } else {
-          console.log("이미지가 추가되지 않았습니다.");
         }
 
-        console.log("FormData entries before sending to server:");
-        for (let [key, value] of formData.entries()) {
-          console.log(`${key}: ${value}`);
-        }
-
-        // API 요청
         await createReview(formData, token);
         alert("리뷰가 작성되었습니다.");
         closeModal();
         reservationStore.fetchReservations(); // 예약 목록 새로고침
+
+        // 상위 컴포넌트에 리뷰가 업데이트되었음을 알림
+        emit('update-reviews');
       } catch (error) {
         console.error("리뷰 작성 중 오류 발생:", error);
         alert("리뷰 작성 중 오류가 발생했습니다.");
       }
     };
 
-    // 모달 닫기
     const closeModal = () => {
       state.isModalOpen = false;
       state.selectedReservationId = null;
@@ -236,26 +228,61 @@ export default {
 
 <style scoped>
 .reservation-container {
-  max-width: 600px;
-  margin: 0 auto;
   background: #f7f7f7;
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-.reservation-list,
-.past-reservation-list {
+.reservation-card-container {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
 }
 
-.reservation {
-  background: #ffffff;
+.reservation-card {
+  flex: 1 1 calc(45% - 20px);
+  max-width: calc(45% - 20px);
+  background-color: #ffffff;
   border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  transition: transform 0.3s;
+}
+
+.reservation-card:hover {
+  transform: translateY(-5px);
+}
+
+@media (max-width: 1529px) {
+  .reservation-card {
+    flex: 1 1 calc(100% - 20px);
+    max-width: calc(100% - 20px);
+  }
+}
+
+.hotel-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #007bff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* 요청 사항 스타일 수정 */
+.request {
+  margin: 15px 0;
+  font-size: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* 최대 4줄까지 표시 */
+  -webkit-box-orient: vertical;
+  line-height: 1.5em;
+  max-height: 6em; /* 줄 간격 * 최대 줄 수 */
+  white-space: pre-line; /* 줄 바꿈을 유지하면서 텍스트를 출력 */
+  color: #333;
 }
 
 button {

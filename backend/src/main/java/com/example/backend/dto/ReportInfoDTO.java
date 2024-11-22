@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 @Builder
 public class ReportInfoDTO {
+    Long reportId;
     String content;
     List<String> imageUrl;
     String reporterName; // 신고자

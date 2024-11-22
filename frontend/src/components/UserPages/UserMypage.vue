@@ -12,7 +12,7 @@
           :email="email"
           :phone="phone"
           :reviews="reviews"
-          @update="handleReviewUpdated"
+          @update-reviews="handleReviewUpdated"
           :logged-in-user-id="loggedInUserId"
         />
       </router-view>
@@ -92,7 +92,9 @@ export default {
       try {
         const token = sessionStorage.getItem("token");
         const response = await getFavoriteInfo(token);
-        this.favoriteHotels = response.data;
+        console.log(response.data);
+        
+        this.favoriteHotels = response.data.filter(hotel => hotel.status !== false);
       } catch (error) {
         console.error(
           "찜한 호텔 목록 데이터를 가져오는 데 실패했습니다:",
@@ -101,7 +103,9 @@ export default {
       }
     },
     handleReviewUpdated() {
-    this.fetchUserReviews();
+      this.fetchUserReviews().then(() => {
+      this.$emit("refresh-reservations");
+    });
   },
   },
 };
