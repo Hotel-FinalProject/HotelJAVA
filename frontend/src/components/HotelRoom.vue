@@ -29,14 +29,15 @@
     <div class="details-reservation">
       <div class="details-middle">
         <div class="reservation-cal">
-        <div v-if="showCalendar" class="calendar-modal">
-          <div class="modal-content">
-            <VDatePicker v-model.range="range" :min-date="minDate" />
-            <button @click="onDateSelect">확인</button>
-            <button @click="onCancelSelect">취소</button>
+          <div v-if="showCalendar" class="calendar-modal">
+            <div class="modal-content">
+              <VDatePicker v-model.range="range" :min-date="minDate" />
+              <div class="modal-buttons">
+                <button @click="onDateSelect">확인</button>
+                <button @click="onCancelSelect">취소</button>
+              </div>
+            </div>
           </div>
-        </div>
-
         <div @click="showCalendar = !showCalendar">
           <div>
             {{ range.start ? `${range.start.getFullYear()}.${(range.start.getMonth() + 1).toString().padStart(2, '0')}.${range.start.getDate().toString().padStart(2, '0')} (${range.start.toLocaleDateString('ko-KR', { weekday: 'short' })})`
@@ -238,6 +239,10 @@ export default {
       this.showCalendar = false;
     }
     },
+    onCancelSelect() {
+    // 취소 버튼 클릭 시 모달을 닫습니다.
+    this.showCalendar = false;
+  },
   },
   computed: {
     formattedDescription() {
@@ -522,4 +527,31 @@ hr {
   flex-direction: column;
   align-items: center;
 }
+
+.modal-buttons {
+  display: flex;
+  justify-content: center; /* 버튼들이 가운데 정렬되도록 설정 */
+  gap: 10px; /* 버튼 간격 설정 */
+  margin-top: 10px; /* 버튼 그룹의 상단 여백 */
+}
+
+.modal-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.modal-buttons button:first-child {
+  background-color: #00aef0;
+  color: white;
+}
+
+.modal-buttons button:last-child {
+  background-color: #f5f5f5;
+  color: black;
+}
+
+
 </style>
