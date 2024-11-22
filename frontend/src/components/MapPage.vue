@@ -65,7 +65,7 @@
         if (typeof kakao === "undefined") {
           const script = document.createElement("script");
           //const apiKey = process.env.VUE_APP_KAKAO_API_KEY;
-          script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=f300564fb3593ce3670ebbb6ccfb7151&autoload=false`;
+          script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=8e08ae88fe732a2c4cfd5d4e46ee2fe5&autoload=false`;
           script.onload = this.initMap;
           document.head.appendChild(script);
         } else {

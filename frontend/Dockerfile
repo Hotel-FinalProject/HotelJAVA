@@ -11,9 +11,6 @@ RUN npm install
 # 소스 파일 전체 복사
 COPY . .
 
-# Vue 빌드 실행 (환경 변수를 빌드 시점에 전달)
-ARG VUE_APP_KAKAO_API_KEY
-ENV VUE_APP_KAKAO_API_KEY=${VUE_APP_KAKAO_API_KEY}
 RUN npm run build
 
 # Nginx 이미지
