@@ -2,6 +2,7 @@ package com.example.backend.Controller;
 
 import com.example.backend.dto.ReservationDTO;
 import com.example.backend.dto.ReservationDateDTO;
+import com.example.backend.dto.ReservationSummaryDTO;
 import com.example.backend.dto.ReservationUpdateDTO;
 import com.example.backend.dto.RoomCountDTO;
 import com.example.backend.dto.UserReservationDTO;
@@ -122,13 +123,15 @@ public class ReservationController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
             }
 
-            List<ReservationDateDTO> reservationSummary = reservationService.getReservationSummary(adminUserId);
+            // ReservationService에서 ReservationSummaryDTO 반환
+            List<ReservationSummaryDTO> reservationSummary = reservationService.getReservationSummary(adminUserId);
             return ResponseEntity.ok(reservationSummary);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("오류: " + e.getMessage());
         }
     }
-    // 예약 수정 (D)
+
+    // 예약 관리 수정 (D)
     @PutMapping("/reservation/{reservationId}")
     public ResponseEntity<?> updateReservation(
             @PathVariable("reservationId") Long reservationId,
@@ -136,20 +139,44 @@ public class ReservationController {
             @RequestHeader("Authorization") String token) {
         try {
             String actualToken = token.replace("Bearer ", "");
-            Long userId = jwtUtil.verifyJwtAndGetUserId(actualToken);
+            Long adminUserId = jwtUtil.verifyJwtAndGetUserId(actualToken);
 
-            if (userId == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자입니다.");
+            if (adminUserId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 관리자입니다.");
             }
 
-            // ReservationService의 updateReservation 호출 (ReservationDTO 반환)
-            ReservationDTO updatedReservation = reservationService.updateReservation(reservationId, reservationUpdateDTO, userId);
-
+            ReservationUpdateDTO updatedReservation = reservationService.updateReservation(reservationId, reservationUpdateDTO, adminUserId);
             return ResponseEntity.ok(updatedReservation);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("오류 발생: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("오류: " + e.getMessage());
         }
     }
+
+
+
+
+
+
+    // D
+    @GetMapping("/all-reservations")
+    public ResponseEntity<List<ReservationSummaryDTO>> getAllReservations(@RequestHeader("Authorization") String token) {
+        try {
+            String actualToken = token.replace("Bearer ", "");
+            Long adminUserId = jwtUtil.verifyJwtAndGetUserId(actualToken);
+
+            if (adminUserId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            List<ReservationSummaryDTO> reservations = reservationService.getAllReservations(adminUserId);
+            return ResponseEntity.ok(reservations);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+
 
 
 }

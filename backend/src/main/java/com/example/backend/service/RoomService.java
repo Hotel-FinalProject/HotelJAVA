@@ -7,6 +7,7 @@ import com.example.backend.entity.Room;
 import com.example.backend.entity.RoomCount;
 import com.example.backend.entity.RoomImage;
 import com.example.backend.repository.HotelRepository;
+import com.example.backend.repository.ReservationRepository;
 import com.example.backend.repository.RoomCountRepository;
 import com.example.backend.repository.RoomRepository;
 import com.example.backend.repository.RoomImageRepository;
@@ -41,6 +42,7 @@ public class RoomService {
     private final RoomImageRepository roomImageRepository;
     private final HotelRepository hotelRepository;
     private final RoomCountRepository roomCountRepository;
+    private final ReservationRepository reservationRepository;
     private final String API_URL = "http://apis.data.go.kr/B551011/KorService1/detailInfo1";
     //private final String SERVICE_KEY = ""; // API 키 입력
 
@@ -321,43 +323,38 @@ public class RoomService {
 //        return summary;
 //    }
     // + 예약 반영하여 객실 수 표시
-    @Transactional(readOnly = true)
     public Map<String, Object> getRoomSummaryByHotel(Long hotelId) {
-        // 호텔 정보 가져오기
+        // 예약 상태를 반영한 객실 수 업데이트
+        updateRoomCountBasedOnReservations(hotelId, LocalDate.now());
+
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 호텔이 존재하지 않습니다. ID: " + hotelId));
 
-        // 호텔의 객실 정보 가져오기
         List<Room> rooms = roomRepository.findByHotel(hotel);
 
-        // 오늘 날짜 기준으로 남은 객실 수 계산
         LocalDate today = LocalDate.now();
-
-        // 총 객실 수 및 유형별 객실 수 계산
         int totalAvailableRooms = 0;
         Map<String, Integer> roomTypeCounts = new HashMap<>();
 
         for (Room room : rooms) {
-            // RoomCount에서 오늘 기준으로 남은 객실 수 가져오기
             RoomCount roomCount = roomCountRepository.findByRoomAndDate(room, today).orElse(null);
-
-            int availableRooms = (roomCount != null) ? roomCount.getRoomCount() : room.getTotal();
+            int availableRooms = roomCount != null
+                    ? roomCount.getRoomCount()
+                    : room.getTotal();
             totalAvailableRooms += availableRooms;
-
-            // 유형별 객실 수 업데이트
             roomTypeCounts.put(
                     room.getName(),
                     roomTypeCounts.getOrDefault(room.getName(), 0) + availableRooms
             );
         }
 
-        // 결과 반환
         Map<String, Object> summary = new HashMap<>();
-        summary.put("totalRooms", totalAvailableRooms); // 오늘 기준 총 객실 수
-        summary.put("roomTypeCounts", roomTypeCounts); // 오늘 기준 유형별 객실 수
+        summary.put("totalRooms", totalAvailableRooms);
+        summary.put("roomTypeCounts", roomTypeCounts);
 
         return summary;
     }
+
     
     // 수정
     public void updateRoom(Long roomId, RoomDTO roomDto) {
@@ -387,5 +384,29 @@ public class RoomService {
         roomRepository.save(room); // 변경된 내용 저장
     }
 
+    @Transactional
+    public void updateRoomCountBasedOnReservations(Long hotelId, LocalDate date) {
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 호텔이 존재하지 않습니다. ID: " + hotelId));
+
+        List<Room> rooms = roomRepository.findByHotel(hotel);
+
+        for (Room room : rooms) {
+            // 해당 날짜의 예약 수를 계산
+            long reservedCount = reservationRepository.countByRoomAndDate(room, date);
+
+            // RoomCount 업데이트
+            RoomCount roomCount = roomCountRepository.findByRoomAndDate(room, date)
+                    .orElseGet(() -> {
+                        RoomCount newRoomCount = new RoomCount();
+                        newRoomCount.setRoom(room);
+                        newRoomCount.setDate(date);
+                        return newRoomCount;
+                    });
+
+            roomCount.setRoomCount((int) (room.getTotal() - reservedCount)); // 남은 객실 수 = 총 객실 수 - 예약 수
+            roomCountRepository.save(roomCount);
+        }
+    }
 
 }

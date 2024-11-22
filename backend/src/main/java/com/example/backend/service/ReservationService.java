@@ -2,6 +2,7 @@ package com.example.backend.service;
 
 import com.example.backend.dto.ReservationDTO;
 import com.example.backend.dto.ReservationDateDTO;
+import com.example.backend.dto.ReservationSummaryDTO;
 import com.example.backend.dto.ReservationUpdateDTO;
 import com.example.backend.dto.UserReservationDTO;
 import com.example.backend.entity.Hotel;
@@ -101,7 +102,7 @@ public class ReservationService {
     }
     
     // 예약 요약 정보 (D)
-    public List<ReservationDateDTO> getReservationSummary(Long adminUserId) throws IllegalAccessException {
+    public List<ReservationSummaryDTO> getReservationSummary(Long adminUserId) throws IllegalAccessException {
         User adminUser = userRepository.findById(adminUserId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid admin user ID"));
 
@@ -114,31 +115,88 @@ public class ReservationService {
             throw new IllegalAccessException("호텔 관리자 계정이 아닙니다.");
         }
 
-        // 해당 호텔에 대한 모든 예약 조회
-//        List<Reservation> reservations = reservationRepository.findByRooms_Hotel(hotel);
-        
-        // 오늘 날짜만
         LocalDate today = LocalDate.now();
 
-        // 예약 요약 정보 생성
-//        return reservations.stream().map(reservation -> ReservationDateDTO.builder()
-//                .roomName(reservation.getRooms().getName())
-//                .userName(reservation.getUser().getName())
-//                .checkIn(reservation.getCheckIn())
-//                .checkOut(reservation.getCheckOut())
-//                .request(reservation.getRequest())
-//                .guest(reservation.getGuestNum())
-//                .status(reservation.getStatus())
-//                .build()).collect(Collectors.toList());
-        
-        // 오늘 날짜에 해당하는 예약만 필터링
-        return reservationRepository.findByRooms_Hotel(hotel).stream()
+        // 예약 요약 정보를 새로운 DTO로 생성
+        List<Reservation> reservations = reservationRepository.findByRooms_Hotel(hotel);
+        return reservations.stream()
                 .filter(reservation -> 
                     !reservation.getCheckIn().isAfter(today) && !reservation.getCheckOut().isBefore(today)
                 )
-                .map(reservation -> ReservationDateDTO.builder()
-                        .roomName(reservation.getRooms().getName())
-                        .userName(reservation.getUser().getName())
+                .<ReservationSummaryDTO>map(reservation -> ReservationSummaryDTO.builder()
+                        .roomName(reservation.getRooms() != null ? reservation.getRooms().getName() : "N/A")
+                        .userName(reservation.getUser() != null ? reservation.getUser().getName() : "Unknown")
+                        .userPhone(reservation.getUser() != null ? reservation.getUser().getPhone() : "없음")
+                        .checkIn(reservation.getCheckIn())
+                        .checkOut(reservation.getCheckOut())
+                        .request(reservation.getRequest())
+                        .guest(reservation.getGuestNum())
+                        .status(reservation.getStatus())
+                        .build()
+                )
+                .collect(Collectors.toList());
+    }
+
+    
+    // 예약 관리 수정 (D)
+    public ReservationUpdateDTO updateReservation(Long reservationId, ReservationUpdateDTO reservationUpdateDTO, Long adminUserId) {
+        // 예약 조회
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("예약을 찾을 수 없습니다."));
+
+        // 관리자 권한 확인
+        User adminUser = userRepository.findById(adminUserId)
+                .orElseThrow(() -> new RuntimeException("관리자를 찾을 수 없습니다."));
+
+        if (!"ROLE_HOTELADMIN".equals(adminUser.getRole())) {
+            throw new RuntimeException("이 작업을 수행할 권한이 없습니다.");
+        }
+
+        // 예약 상태 및 요청 사항 업데이트
+        reservation.setStatus(reservationUpdateDTO.getStatus());
+        reservation.setRequest(reservationUpdateDTO.getRequest());
+
+        // 체크인, 체크아웃 날짜 검증 및 업데이트
+        if (reservationUpdateDTO.getCheckIn() != null && reservationUpdateDTO.getCheckOut() != null) {
+            if (reservationUpdateDTO.getCheckIn().isAfter(reservationUpdateDTO.getCheckOut())) {
+                throw new RuntimeException("체크인 날짜는 체크아웃 날짜보다 이전이어야 합니다.");
+            }
+            reservation.setCheckIn(reservationUpdateDTO.getCheckIn());
+            reservation.setCheckOut(reservationUpdateDTO.getCheckOut());
+        }
+
+        // 저장
+        reservationRepository.save(reservation);
+
+        // 수정된 예약 데이터를 반환
+        return new ReservationUpdateDTO(
+                reservation.getStatus(),
+                reservation.getCheckIn(),
+                reservation.getCheckOut(),
+                reservation.getRequest()
+        );
+    }
+
+
+
+
+
+    // D
+    public List<ReservationSummaryDTO> getAllReservations(Long adminUserId) {
+        User adminUser = userRepository.findById(adminUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid admin user ID"));
+
+        Hotel hotel = adminUser.getHotel();
+        if (hotel == null) {
+            throw new RuntimeException("이 관리자에게 연결된 호텔이 없습니다.");
+        }
+
+        List<Reservation> reservations = reservationRepository.findByRooms_Hotel(hotel);
+        return reservations.stream()
+                .map(reservation -> ReservationSummaryDTO.builder()
+                        .roomName(reservation.getRooms() != null ? reservation.getRooms().getName() : "N/A")
+                        .userName(reservation.getUser() != null ? reservation.getUser().getName() : "Unknown")
+                        .userPhone(reservation.getUser() != null ? reservation.getUser().getPhone() : "없음")
                         .checkIn(reservation.getCheckIn())
                         .checkOut(reservation.getCheckOut())
                         .request(reservation.getRequest())
@@ -147,36 +205,9 @@ public class ReservationService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+
     
-    // 예약 관리 수정 (D)
-    public ReservationDTO updateReservation(Long reservationId, ReservationUpdateDTO reservationUpdateDTO, Long userId) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("예약을 찾을 수 없습니다."));
-
-        // 유효성 검사: 요청한 사용자가 예약 소유자인지 확인
-        if (!reservation.getUser().getUserId().equals(userId)) {
-            throw new IllegalArgumentException("본인의 예약만 수정할 수 있습니다.");
-        }
-
-        // 예약 정보 업데이트
-        reservation.setStatus(reservationUpdateDTO.getStatus());
-        reservation.setCheckIn(reservationUpdateDTO.getCheckIn());
-        reservation.setCheckOut(reservationUpdateDTO.getCheckOut());
-        reservation.setRequest(reservationUpdateDTO.getRequest());
-
-        Reservation updatedReservation = reservationRepository.save(reservation);
-
-        // DTO로 변환하여 반환
-        return new ReservationDTO(
-            updatedReservation.getReservationId(),
-            updatedReservation.getGuestNum(),
-            updatedReservation.getCheckIn(),
-            updatedReservation.getCheckOut(),
-            updatedReservation.getRequest(),
-            updatedReservation.getCreateDate(),
-            updatedReservation.getUpdateDate(),
-            updatedReservation.getRooms().getRoomId()
-        );
-    }
+    
 
 }

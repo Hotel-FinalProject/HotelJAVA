@@ -65,6 +65,7 @@
                     <th>예약자 이름</th>
                     <th>휴대폰 번호</th>
                     <th>요청 사항</th>
+                    <th>예약 상태</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -73,6 +74,7 @@
                     <td>{{ reservation.userName }}</td>
                     <td>{{ reservation.userPhone }}</td>
                     <td>{{ reservation.request || '없음' }}</td>
+                    <td>{{ reservation.status }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -164,73 +166,74 @@
         </div>
       </div>
       <div v-if="currentView === 'ReservationManagement'">
-        <h2>예약 관리</h2>
-        <p>예약 상태를 확인하고 수정할 수 있습니다.</p>
-        <div v-if="reservations.length > 0">
-          <table class="reservation-table">
-            <thead>
-              <tr>
-                <th>객실 이름</th>
-                <th>예약자 이름</th>
-                <th>체크인</th>
-                <th>체크아웃</th>
-                <th>요청 사항</th>
-                <th>상태</th>
-                <th>수정</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="reservation in reservations" :key="reservation.reservationId">
-                <td>{{ reservation.roomName }}</td>
-                <td>{{ reservation.userName }}</td>
-                <td>{{ reservation.checkIn }}</td>
-                <td>{{ reservation.checkOut }}</td>
-                <td>{{ reservation.request || "없음" }}</td>
-                <td>{{ reservation.status }}</td>
-                <td>
-                  <button @click="openEditReservation(reservation)">수정</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div v-else>
-          <p>예약 정보가 없습니다.</p>
-        </div>
+  <h2>예약 관리</h2>
+  <p>예약 상태를 확인하고 수정할 수 있습니다.</p>
 
-        <!-- 수정 모달 -->
-        <div v-if="editingReservation" class="modal">
-          <div class="modal-content">
-            <h3>예약 정보 수정</h3>
-            <form @submit.prevent="updateReservation">
-              <label>
-                상태:
-                <select v-model="editingReservation.status">
-                  <option value="예약 완료">예약 완료</option>
-                  <option value="취소됨">취소됨</option>
-                  <option value="변경 요청">변경 요청</option>
-                </select>
-              </label>
-              <label>
-                체크인 날짜:
-                <input type="date" v-model="editingReservation.checkIn" />
-              </label>
-              <label>
-                체크아웃 날짜:
-                <input type="date" v-model="editingReservation.checkOut" />
-              </label>
-              <label>
-                요청 사항:
-                <textarea v-model="editingReservation.request"></textarea>
-              </label>
-            <!-- 저장 버튼 -->
-            <button type="submit" class="save-button">저장</button>
-            <!-- 예약 수정 모달 닫기 -->
-            <button type="button" class="cancel-button" @click="cancelEdit('reservation')">취소</button>
-            </form>
-          </div>
-        </div>
-      </div>
+  <!-- 예약 테이블 -->
+  <div v-if="reservations.length > 0">
+    <table class="reservation-table">
+      <thead>
+        <tr>
+          <th>객실 이름</th>
+          <th>예약자 이름</th>
+          <th>체크인</th>
+          <th>체크아웃</th>
+          <th>요청 사항</th>
+          <th>상태</th>
+          <th>수정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="reservation in reservations" :key="reservation.reservationId">
+          <td>{{ reservation.roomName }}</td>
+          <td>{{ reservation.userName }}</td>
+          <td>{{ reservation.checkIn }}</td>
+          <td>{{ reservation.checkOut }}</td>
+          <td>{{ reservation.request || '없음' }}</td>
+          <td>{{ reservation.status }}</td>
+          <td>
+            <button @click="openEditReservation(reservation)">수정</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div v-else>
+    <p>예약 정보가 없습니다.</p>
+  </div>
+
+  <!-- 수정 모달 -->
+  <div v-if="editingReservation" class="modal">
+    <div class="modal-content">
+      <h3>예약 정보 수정</h3>
+      <form @submit.prevent="updateReservation">
+        <label>
+          상태:
+          <select v-model="editingReservation.status">
+            <option value="예약 완료">예약 완료</option>
+            <option value="취소됨">취소됨</option>
+            <option value="변경 요청">변경 요청</option>
+          </select>
+        </label>
+        <label>
+          체크인 날짜:
+          <input type="date" v-model="editingReservation.checkIn" />
+        </label>
+        <label>
+          체크아웃 날짜:
+          <input type="date" v-model="editingReservation.checkOut" />
+        </label>
+        <label>
+          요청 사항:
+          <textarea v-model="editingReservation.request"></textarea>
+        </label>
+        <button type="submit" class="save-button">저장</button>
+        <button type="button" class="cancel-button" @click="cancelEdit('reservation')">취소</button>
+      </form>
+    </div>
+  </div>
+</div>
+
       <div v-if="currentView === 'Analytics'">
         <h2>호텔 분석</h2>
         <p>호텔 관련 데이터를 분석합니다.</p>
@@ -257,24 +260,45 @@ export default {
       editingRoom: null, // 수정 중인 객실 정보
       reservations: [], // 예약 데이터를 저장할 배열
       editingReservation: null, // 수정 중인 예약 데이터
-      hotelId: 17, // 임의로 지정한 호텔 ID (테스트용)
+      hotelId: null, // 임의로 지정한 호텔 ID (테스트용)
 
     };
   },
   methods: {
+    async fetchHotelId() {
+      try {
+        const response = await axios.get("http://localhost:8081/api/manager-hotel-id", {
+          headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
+        });
+        this.hotelId = response.data; // 호텔 ID 저장
+        console.log("받아온 호텔 ID:", this.hotelId);
+        // hotelId를 받아온 후 다른 데이터 호출
+        this.fetchRoomSummary();
+        this.fetchRooms();
+        this.fetchReservations();
+        
+      } catch (error) {
+        console.error("호텔 ID를 가져오는 중 오류 발생:", error);
+        alert("호텔 ID를 가져오지 못했습니다. 다시 로그인해주세요.");
+      }
+    },
     async fetchRoomSummary() {
-        try {
-            const response = await axios.get(`http://localhost:8081/api/rooms/hotel/${this.hotelId}/room-summary`);
-            this.roomSummary = response.data;
-        } catch (error) {
-            console.error("객실 요약 정보를 가져오는 중 오류 발생:", error);
-            this.roomSummary = { totalRooms: 0, roomTypeCounts: {} }; // 기본값 설정
+      try {
+        if (!this.hotelId) {
+          console.error("호텔 ID가 설정되지 않았습니다.");
+          return;
         }
+        const response = await axios.get(`http://localhost:8081/api/rooms/hotel/${this.hotelId}/room-summary`);
+        this.roomSummary = response.data;
+      } catch (error) {
+        console.error("객실 요약 정보를 가져오는 중 오류 발생:", error);
+        this.roomSummary = { totalRooms: 0, roomTypeCounts: {} }; // 기본값 설정
+      }
     },
     async fetchReservationSummary() {
         try {
             const response = await axios.get(`http://localhost:8081/api/auth/reservation-summary`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
             });
             this.reservationSummary = response.data; // 백엔드에서 필터링된 데이터 사용
         } catch (error) {
@@ -284,6 +308,10 @@ export default {
     },
     async fetchRooms() {
       try {
+        if (!this.hotelId) {
+          console.error("호텔 ID가 설정되지 않았습니다.");
+          return;
+        }
         const response = await axios.get(`http://localhost:8081/api/rooms/hotel/${this.hotelId}`);
         this.rooms = response.data;
       } catch (error) {
@@ -360,61 +388,95 @@ export default {
       }
     },
     // 예약 데이터 가져오기
-  async fetchReservations() {
+    async fetchReservations() {
+      try {
+        if (!this.hotelId) {
+          console.error("호텔 ID가 설정되지 않았습니다.");
+          return;
+        }
+        const response = await axios.get(`http://localhost:8081/api/auth/reservation-summary?hotelId=${this.hotelId}`, {
+          headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
+        });
+        this.reservationSummary = response.data;
+      } catch (error) {
+        console.error("예약 요약 정보를 가져오는 중 오류 발생:", error);
+        this.reservationSummary = [];
+      }
+    },
+    async fetchAllReservations() {
     try {
-      const response = await axios.get(`http://localhost:8081/api/auth/reservationInfo-Date`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      const response = await axios.get("http://localhost:8081/api/auth/all-reservations", {
+        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
       });
-      this.reservations = response.data; // API에서 가져온 예약 데이터 저장
+      console.log("Reservations Response:", response.data); // 응답 데이터 확인
+
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        this.reservations = response.data;
+      } else {
+        console.warn("예약 데이터가 없습니다."); // 데이터가 없을 때 로그
+        this.reservations = [];
+      }
     } catch (error) {
-      console.error("예약 정보를 가져오는 중 오류 발생:", error);
-      this.reservations = [];
+      console.error("전체 예약 정보를 가져오는 중 오류 발생:", error.response || error);
+      this.reservations = []; // 오류 발생 시 빈 배열
     }
   },
-  // 예약 수정 요청
   async updateReservation() {
-    if (!this.editingReservation) {
-      alert("수정할 예약을 선택하세요.");
-      return;
-    }
+  if (!this.editingReservation) {
+    alert("수정할 예약을 선택하세요.");
+    return;
+  }
 
-    try {
-      await axios.put(
-        `http://localhost:8081/api/auth/reservation/${this.editingReservation.reservationId}`,
-        this.editingReservation,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
-      alert("예약 정보가 성공적으로 수정되었습니다!");
-      this.editingReservation = null; // 수정 상태 해제
-      this.fetchReservations(); // 수정 후 예약 데이터 다시 가져오기
-    } catch (error) {
-      console.error("예약 수정 중 오류 발생:", error);
-      alert("예약 수정에 실패했습니다.");
-    }
+  // 날짜 유효성 검사
+  if (new Date(this.editingReservation.checkIn) >= new Date(this.editingReservation.checkOut)) {
+    alert("체크인 날짜는 체크아웃 날짜보다 이전이어야 합니다.");
+    return;
+  }
+
+  try {
+    // 수정 요청 데이터
+    const requestData = {
+      status: this.editingReservation.status,
+      checkIn: this.editingReservation.checkIn,
+      checkOut: this.editingReservation.checkOut,
+      request: this.editingReservation.request,
+    };
+
+    // PUT 요청
+    const response = await axios.put(
+      `http://localhost:8081/api/auth/reservation/${this.editingReservation.reservationId}`,
+      requestData,
+      {
+        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
+      }
+    );
+
+    console.log("예약 수정 응답:", response.data); // 응답 데이터 로깅
+
+    // 성공 시 상태 업데이트
+    alert("예약 정보가 성공적으로 수정되었습니다!");
+    this.editingReservation = null; // 수정 상태 초기화
+    this.fetchAllReservations(); // 수정 후 예약 데이터 갱신
+
+  } catch (error) {
+    console.error("예약 수정 요청 실패:", error);
+    alert("예약 수정 중 오류가 발생했습니다.");
+  }
 },
   // 예약 수정 모달 열기
   openEditReservation(reservation) {
     this.editingReservation = { ...reservation }; // 선택한 예약 데이터를 수정 상태에 저장
   },
+
   cancelEdit(type) {
-    if (type === "room") {
-      this.editingRoom = null; // 객실 수정 상태 해제
-    } else if (type === "reservation") {
+    if (type === "reservation") {
       this.editingReservation = null; // 예약 수정 상태 해제
     }
   },
   },
   mounted() {
-      this.fetchRoomSummary(); // 대시보드 로드 시 API 호출
-      this.fetchReservationSummary(); // 예약 요약 정보 API 호출
-      this.fetchRooms(); // 컴포넌트가 로드될 때 API 호출
-      this.fetchReservations(); // 예약 데이터
-      // 모든 room에 기본 상태 추가
-      this.rooms.forEach((room) => {
-      this.$set(room, "amenitiesExpanded", false); // 접힌 상태 기본값
-  });
+      this.fetchHotelId(); // 컴포넌트 로드 시 호텔 ID 가져오기
+      this.fetchAllReservations();
   },
 };
 </script>
