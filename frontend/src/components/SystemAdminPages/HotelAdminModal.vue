@@ -59,7 +59,7 @@
       async handleCreateAdmin() {
         try {
           // 계정 생성 API 요청
-          await requestCreateHotelAdmin(
+          const response = await requestCreateHotelAdmin(
             this.adminToken,
             {
               email: this.newAdmin.email,
@@ -68,7 +68,7 @@
             },
             this.newAdmin.hotelId
           );
-          alert("호텔 관리자 계정이 성공적으로 생성되었습니다!");
+          alert(response.data);
           this.closeModal();
         } catch (error) {
           this.errorMessage = error.response?.data || "오류가 발생했습니다.";
