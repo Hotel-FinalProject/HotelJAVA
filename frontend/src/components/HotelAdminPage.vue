@@ -61,11 +61,11 @@
               <table class="reservation-table">
                 <thead>
                   <tr>
-                    <th>객실 유형</th>
-                    <th>예약자 이름</th>
-                    <th>휴대폰 번호</th>
-                    <th>요청 사항</th>
-                    <th>예약 상태</th>
+                    <th style="width: 10%;">객실 유형</th>
+                    <th style="width: 7%;">예약자 이름</th>
+                    <th style="width: 10%;">휴대폰 번호</th>
+                    <th style="width: 25%;">요청 사항</th>
+                    <th style="width: 5%;">예약 상태</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -121,10 +121,11 @@
                     <li v-for="(amenity, index) in getLimitedAmenities(room)" :key="index">
                       {{ amenity }}
                     </li>
+                    <a class="toggle-button" @click="toggleAmenities(room)">
+                      {{ room.amenitiesExpanded ? "접기" : "더보기" }}
+                    </a>
                   </ul>
-                  <a class="toggle-button" @click="toggleAmenities(room)">
-                    {{ room.amenitiesExpanded ? "접기" : "더보기" }}
-                  </a>
+                  
                 </td>
                 <!-- 수정 버튼 -->
                 <td>
@@ -174,13 +175,13 @@
     <table class="reservation-table">
       <thead>
         <tr>
-          <th>객실 이름</th>
-          <th>예약자 이름</th>
-          <th>체크인</th>
-          <th>체크아웃</th>
-          <th>요청 사항</th>
-          <th>상태</th>
-          <th>수정</th>
+          <th style="width: 10%;">객실 이름</th>
+          <th style="width: 10%;">예약자 이름</th>
+          <th style="width: 10%;">체크인</th>
+          <th style="width: 10%;">체크아웃</th>
+          <th style="width: 25%;">요청 사항</th>
+          <th style="width: 10%;">상태</th>
+          <th style="width: 5%;">수정</th>
         </tr>
       </thead>
       <tbody>
@@ -471,6 +472,8 @@ export default {
   cancelEdit(type) {
     if (type === "reservation") {
       this.editingReservation = null; // 예약 수정 상태 해제
+    } else if (type === "room") {
+      this.editingRoom = null; // 객실 수정 상태 해제
     }
   },
   },
@@ -602,6 +605,20 @@ export default {
   text-align: center;
 }
 
+/* 상태 열 가운데 정렬 */
+.reservation-table th:nth-child(6),
+.reservation-table td:nth-child(6) {
+  text-align: center; /* 가로 가운데 정렬 */
+  vertical-align: middle; /* 세로 가운데 정렬 */
+}
+
+/* 수정 열 가운데 정렬 */
+.reservation-table th:nth-child(7),
+.reservation-table td:nth-child(7) {
+  text-align: center; /* 가로 가운데 정렬 */
+  vertical-align: middle; /* 세로 가운데 정렬 */
+}
+
 .room-table {
   width: 100%;
   border-collapse: collapse;
@@ -654,6 +671,7 @@ export default {
   white-space: normal; /* 줄바꿈 허용 */
   word-wrap: break-word; /* 단어가 길면 줄바꿈 */
   overflow: visible; /* 넘치는 내용 표시 */
+  text-align: center;
 }
 
 /* 기준 인원 열 */
@@ -668,6 +686,18 @@ export default {
 .room-table td:nth-child(3) {
   width: 150px; /* 고정된 너비 */
   text-align: center; /* 우측 정렬 */
+}
+
+/* 편의시설 열 가운데 정렬 */
+.room-table th:nth-child(5) {
+  text-align: center;
+  vertical-align: middle; /* 수직 정렬 (중앙 정렬) */
+}
+
+/* 수정 열 가운데 정렬 */
+.room-table th:nth-child(6),
+.room-table td:nth-child(6) {
+  text-align: center;
 }
 
 .modal {
@@ -779,6 +809,12 @@ export default {
 
 .reservation-table th {
   background-color: #f4f4f4;
+}
+
+/* 예약 상태 열 가운데 정렬 */
+.reservation-table th:nth-child(5),
+.reservation-table td:nth-child(5) {
+  text-align: center;
 }
 
 .modal {
