@@ -48,7 +48,7 @@
           <button class="detail-button" @click="openDetailModal(review)">
             리뷰 상세 보기
           </button>
-          <button class="edit-button" @click="openEditModal(review)">
+          <button v-if="review.content.trim() !== '신고된 글입니다'" class="edit-button" @click="openEditModal(review)">
             수정하기
           </button>
           <button class="delete-button" @click="confirmDelete(review.reviewId)">

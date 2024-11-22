@@ -180,7 +180,7 @@
             <span :class=" report.status !== '신고 접수됨' ? 'review-active' : 'review-deactive' ">{{ report.status === "신고 접수됨" ? "미처리" : "처리완료" }}</span>
             <span>{{ report.reportId }}</span>
             <span>{{ report.reportedName }}</span>
-            <span>{{ report.content }}</span>
+            <span class="review-content" @click="openReviewModal(report)">{{ report.content }}</span>
             <span>{{ report.reporterName }}</span>
             <div class="user-activeBtn-container">
               <button v-if="report.status === '신고 접수됨'" @click="handleHideReport(report.reportId)">
@@ -193,6 +193,8 @@
     </div>
     <!-- 비밀번호 인증 모달 -->
     <PasswordVerification :isOpen="isPasswordModalOpen" :adminToken="adminToken" @close="closePasswordModal" @verified="handleVerified" />
+    <!-- 리뷰 모달 -->
+    <ReviewModal :isOpen="isReviewModalOpen" :review="selectedReview" @close="closeReviewModal" />
   </SidebarLayout>
 </template>
 
@@ -200,6 +202,7 @@
 import SidebarLayout from "@/layout/SidebarLayout.vue";
 import HotelAdminModal from "@/components/SystemAdminPages/HotelAdminModal.vue";
 import PasswordVerification from "./SystemAdminPages/PasswordVerification.vue";
+import ReviewModal from "@/components/reviewViewModal.vue";
 import {
   getUserListByAdmin,
   getHotelManagerListByAdmin,
@@ -217,6 +220,7 @@ export default {
   name: "SystemAdminPage",
   components: {
     SidebarLayout,
+    ReviewModal,
     HotelAdminModal,
     PasswordVerification,
   },
@@ -225,6 +229,7 @@ export default {
       currentView: "Dashboard", // 초기 화면 설정
       isModalOpen: false,
       isVerified: false,
+      isReviewModalOpen: false,
       adminToken: sessionStorage.getItem("token"),
     };
   },
@@ -445,7 +450,15 @@ export default {
           this.expireSession();
         }
       }
-    }
+    },
+    openReviewModal(review) {
+      this.selectedReview = review;
+      this.isReviewModalOpen = true;
+    },
+    closeReviewModal() {
+      this.isReviewModalOpen = false;
+      this.selectedReview = null;
+    },
   },
   beforeRouteLeave() {
     sessionStorage.removeItem("isVerified");
@@ -524,11 +537,20 @@ export default {
   padding: 20px;
   gap: 20px
 }
+
 .search-input {
   width: 300px;
   border-radius: 5px;
   border: 1px solid lightgray;
 }
+
+.review-content {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 300px; /* 원하는 최대 너비로 설정하세요 */
+}
+
 .user-table-container {
   display: flex;
   flex-direction: column;
