@@ -10,7 +10,7 @@ const config = axios.create({
 
 /** 회원가입 */
 function signupUser(userData, verificationToken) {
-  return config.post('/users/signup', userData, {
+  return config.post(process.env.VUE_APP_API_URL+'/users/signup', userData, {
     headers: {
       'verificationToken': `Bearer ${verificationToken}`,
     },
@@ -38,7 +38,7 @@ function findIdUser(name) {
 
 /** 이메일 인증 */
 function sendVerificationEmailAPI(email, mode) {
-  return config.post('/users/send-verification-email', {
+  return config.post(process.env.VUE_APP_API_URL+'/users/send-verification-email', {
     email: email,
     mode: mode,
   });
@@ -46,7 +46,7 @@ function sendVerificationEmailAPI(email, mode) {
 
 /** 이메일 인증 확인 */
 function verifyEmailToken(token) {
-  return config.get('/users/verify-email', {
+  return config.get(process.env.VUE_APP_API_URL+'/users/verify-email', {
     params: {
       token: token
     }
