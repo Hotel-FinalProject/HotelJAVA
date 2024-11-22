@@ -28,8 +28,6 @@ public class S3Config {
         AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKeyId, secretAccessKey);
         return S3Client.builder()
                 .region(Region.of(region))
-                // aws 자격 증명
-                //.credentialsProvider(DefaultCredentialsProvider.create())
                 .credentialsProvider(StaticCredentialsProvider.create(awsCreds)) // 하드코딩된 자격 증명 사용
                 .build();
     }
