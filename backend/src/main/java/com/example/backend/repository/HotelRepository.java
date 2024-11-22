@@ -23,6 +23,12 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
 	
 	List<Hotel> findByLocation(String location);
 	
-	
+	 /**
+     * managerId로 호텔 정보를 조회
+     *
+     * @param managerId 매니저 ID
+     * @return Optional<Hotel> 객체
+     */
+	Optional<Hotel> findByManager_UserId(Long managerUserId);
 }
 

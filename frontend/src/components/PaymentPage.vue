@@ -207,7 +207,7 @@
                 <input type="checkbox" v-model="agree5"><span class="check-text">[선택] 이벤트, 혜택 정보 전송을 위한 개인정보 수집 및 이용 동의</span>
             </div>
         </div>
-        <div><button :disabled="!canSubmit" class = "payment-btn" @click="submitReservationIfPossible">{{ Number(dataObj.roomPrice). toLocaleString() }}원 결제하기</button></div>
+        <div><button :disabled="!canSubmit" class = "payment-btn" @click="submitReservationIfPossible">{{ formattedTotal }}원 결제하기</button></div>
         <div class="info"> (주) HotelJava플랫폼은 통신판매 중개자로서 통신판매의 당사자가 아니며 상품 예약, 이용 및 환불과는 관련한 의무와 책임은 각 판매자에게 있습니다. </div>
     </div>
     

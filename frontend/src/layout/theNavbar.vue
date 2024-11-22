@@ -28,7 +28,7 @@
             @mouseover="hover = true"
             @mouseleave="hover = false"
           >
-            {{ hover ? '마이페이지' : userName+"님" }}
+            {{ hover ? pageLabel : userName }}
           </span>
         </li>
       </ul>

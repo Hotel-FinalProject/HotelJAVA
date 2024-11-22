@@ -68,7 +68,7 @@
   
       <!-- 검색 결과 목록 -->
       <div class="results">
-        <div v-if="hotels.length === 0">검색 결과가 없습니다.</div>
+        <div v-if="hotels.length === 0"></div>
         <div
           v-for="hotel in hotels"
           :key="hotel.hotelId"
