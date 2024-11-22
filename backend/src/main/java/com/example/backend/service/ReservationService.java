@@ -194,6 +194,7 @@ public class ReservationService {
         List<Reservation> reservations = reservationRepository.findByRooms_Hotel(hotel);
         return reservations.stream()
                 .map(reservation -> ReservationSummaryDTO.builder()
+                		.reservationId(reservation.getReservationId())
                         .roomName(reservation.getRooms() != null ? reservation.getRooms().getName() : "N/A")
                         .userName(reservation.getUser() != null ? reservation.getUser().getName() : "Unknown")
                         .userPhone(reservation.getUser() != null ? reservation.getUser().getPhone() : "없음")
