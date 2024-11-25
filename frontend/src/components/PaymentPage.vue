@@ -298,7 +298,7 @@ export default {
           pay_method: 'card',
           merchant_uid: `mid_${new Date().getTime()}`,
           name: this.dataObj.hotelName + "/" + dataObj.roomName,
-          amount: this.dataObj.roomPrice,
+          amount: this.formattedTotal,
           buyer_name: this.userName,
           buyer_tel: this.userPhone,
         },
@@ -327,7 +327,7 @@ export default {
                         userId: userId,
                         checkIn: userCheckIn,
                         checkOut: userCheckOut,
-                        totalPrice: this.dataObj.roomPrice,
+                        totalPrice: this.formattedTotal,
                         roomId: this.dataObj.roomId,
                         request: this.request,
                         guestNum: this.dataObj.guestNum,
@@ -349,9 +349,10 @@ export default {
               console.error('서버 요청 실패:', error);
               alert('결제 정보 저장에 실패하였습니다.');
             }
-          } else {
-            alert(`결제에 실패하였습니다: ${rsp.error_msg}`);
-          }
+          } 
+         // else {
+         //   alert(`결제에 실패하였습니다: ${rsp.error_msg}`);
+          //}
         },
       );
     },
