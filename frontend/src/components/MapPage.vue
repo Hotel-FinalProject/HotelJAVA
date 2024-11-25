@@ -181,7 +181,7 @@
 
 .back-button {
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: #00aef0;
   color: white;
   border: none;
   border-radius: 5px;
@@ -201,4 +201,4 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     margin-top: 20px;
   }
-  </style>
+</style>

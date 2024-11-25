@@ -103,8 +103,7 @@ public class HotelController {
             return ResponseEntity.status(401).body("JWT 인증 실패: " + e.getMessage());
         }
     }
-
-
+	
     // API 호출
     @PostMapping("/hotels/fetch")
     public String fetchAndSaveHotels() {
@@ -117,59 +116,14 @@ public class HotelController {
     public List<Hotel> getAllHotels() {
         return hotelService.getAllHotels();
     }
-
-    // 특정 호텔 조회
-//    @GetMapping("/hotels/{id}")
-//    public Hotel getHotelById(@PathVariable("id") Long id) {
-//        return hotelService.getHotelById(id);
-//    }
-
+    
     // 10개 랜덤 호텔 조회
     @GetMapping("/hotels/random")
     public List<HotelReviewDTO> getRandomHotels() {
         return hotelService.getRandomHotels(10); // 10개 랜덤 호텔 반환
     }
 
-    // 검색 엔드포인트 추가
-//    @GetMapping("/hotels/search")
-//    public List<HotelDTO> searchHotels(@RequestParam("query") String query) {
-//        return hotelService.searchHotelsByName(query);
-//    }
-//    @GetMapping("/hotels/search")
-//    public List<HotelDTO> searchHotels(@RequestParam(value = "query", required = false) String query) {
-//        if (query == null || query.isEmpty()) {
-//            // 검색어가 없으면 전체 호텔 목록 반환
-//            return hotelService.searchHotelsByLocation(null);
-//        }
-//        // 검색어가 있으면 해당 구에 맞는 호텔 목록 반환
-//        return hotelService.searchHotelsByLocation(query);
-//    }
-
-
-
-
-
-
-//    @GetMapping("/hotels/search")
-//    public List<HotelDTO> searchHotels(@RequestParam(value = "query", required = false) String query) {
-//        if (query == null || query.isEmpty()) {
-//            // 검색어가 없으면 전체 호텔 목록 반환 (지도 표시용)
-//            return hotelService.getAllHotels().stream()
-//                .map(hotel -> new HotelDTO(
-//                    hotel.getHotelId(),
-//                    hotel.getName(),
-//                    hotel.getAddress(),
-//                    hotel.getImageUrl(),
-//                    hotel.getRating(),
-//                    hotel.getMapX(),
-//                    hotel.getMapY()
-//                ))
-//                .collect(Collectors.toList());
-//        }
-//        // 검색어가 있으면 해당 구에 맞는 호텔 목록 반환
-//        return hotelService.searchHotelsByName(query);
-//    }
-
+    // 호텔 검색
     @GetMapping("/hotels/search")
     public List<HotelDTO> searchHotels(@RequestParam(value = "query", required = false) String query) {
         if (query == null || query.isEmpty()) {
@@ -202,12 +156,14 @@ public class HotelController {
 //    public HotelRoomDTO getHotelDetailById(@PathVariable("id") Long id) {
 //        return hotelService.getHotelDetailById(id);
 //    }
-
+    
+	// 특정 호텔 조회
     @GetMapping("/hotels/{id}")
     public HotelRoomDTO getHotelDetailById(@PathVariable("id") Long id) {
         return hotelService.getHotelDetailById(id);
     }
-
+    
+// 날짜, 인원 조건 검색
     @GetMapping("/hotels/search-by-date-and-guest")
     public List<HotelDTO> searchHotelsByDateAndGuest(
             @RequestParam(value = "checkInDate", required = false) LocalDate checkInDate,

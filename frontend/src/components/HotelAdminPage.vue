@@ -62,7 +62,7 @@
                 <thead>
                   <tr>
                     <th style="width: 10%;">객실 유형</th>
-                    <th style="width: 7%;">예약자 이름</th>
+                    <th style="width: 7%;">예약자 성함</th>
                     <th style="width: 10%;">휴대폰 번호</th>
                     <th style="width: 25%;">요청 사항</th>
                     <th style="width: 5%;">예약 상태</th>
@@ -142,7 +142,7 @@
         <!-- 수정 모달 -->
         <div v-if="editingRoom" class="modal">
           <div class="modal-content">
-            <h3>객실 정보 수정</h3>
+            <h3 class="modal-title">객실 정보 수정</h3>
             <form @submit.prevent="saveEdit">
               <label>
                 객실 유형:
@@ -160,8 +160,10 @@
                 객실 설명:
                 <textarea v-model="editingRoom.description"></textarea>
               </label>
-              <button type="submit" class="save-button">저장</button>
-              <button type="button" class="cancel-button" @click="cancelEdit('room')">취소</button>
+              <div class="modal-buttons">
+                <button type="submit" class="save-button">저장</button>
+                <button type="button" class="cancel-button" @click="cancelEdit('room')">취소</button>
+              </div>
             </form>
           </div>
         </div>
@@ -193,7 +195,7 @@
           <td>{{ reservation.request || '없음' }}</td>
           <td>{{ reservation.status }}</td>
           <td>
-            <button @click="openEditReservation(reservation)">수정</button>
+            <button class="reservation-edit-button" @click="openEditReservation(reservation)">수정</button>
           </td>
         </tr>
       </tbody>
@@ -206,7 +208,7 @@
   <!-- 수정 모달 -->
   <div v-if="editingReservation" class="modal">
     <div class="modal-content">
-      <h3>예약 정보 수정</h3>
+      <h3 class="modal-title">예약 정보 수정</h3>
       <form @submit.prevent="updateReservation">
         <label>
           상태:
@@ -228,8 +230,10 @@
           요청 사항:
           <textarea v-model="editingReservation.request"></textarea>
         </label>
-        <button type="submit" class="save-button">저장</button>
-        <button type="button" class="cancel-button" @click="cancelEdit('reservation')">취소</button>
+        <div class="modal-buttons">
+          <button type="submit" class="save-button">저장</button>
+          <button type="button" class="cancel-button" @click="cancelEdit('reservation')">취소</button>
+        </div>
       </form>
     </div>
   </div>
@@ -268,7 +272,7 @@ export default {
   methods: {
     async fetchHotelId() {
       try {
-        //const response = await axios.get("http://localhost:8081/api/manager-hotel-id", { //로컬
+        // const response = await axios.get("http://localhost:8081/api/manager-hotel-id", { //로컬
         const response = await axios.get("http://43.200.45.122/api/manager-hotel-id", { // 배포
           
           headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
@@ -291,7 +295,7 @@ export default {
           console.error("호텔 ID가 설정되지 않았습니다.");
           return;
         }
-        //const response = await axios.get(`http://localhost:8081/api/rooms/hotel/${this.hotelId}/room-summary`); //로컬
+        // const response = await axios.get(`http://localhost:8081/api/rooms/hotel/${this.hotelId}/room-summary`); //로컬
         const response = await axios.get(`http://43.200.45.122/api/rooms/hotel/${this.hotelId}/room-summary`);
         
         this.roomSummary = response.data;
@@ -302,7 +306,7 @@ export default {
     },
     async fetchReservationSummary() {
         try {
-             //const response = await axios.get(`http://localhost:8081/api/auth/reservation-summary`, {  //로컬
+            //  const response = await axios.get(`http://localhost:8081/api/auth/reservation-summary`, {  //로컬
             const response = await axios.get(`http://43.200.45.122/api/auth/reservation-summary`, { // 배포
             
                 headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
@@ -319,7 +323,7 @@ export default {
           console.error("호텔 ID가 설정되지 않았습니다.");
           return;
         }
-        //const response = await axios.get(`http://localhost:8081/api/rooms/hotel/${this.hotelId}`); //로컬
+        // const response = await axios.get(`http://localhost:8081/api/rooms/hotel/${this.hotelId}`); //로컬
         const response = await axios.get(`http://43.200.45.122/api/rooms/hotel/${this.hotelId}`); // 배포
         this.rooms = response.data;
       } catch (error) {
@@ -344,7 +348,7 @@ export default {
       try {
         // PUT 요청으로 서버에 수정 데이터 전송
         await axios.put(
-          //`http://localhost:8081/api/rooms/${this.editingRoom.roomId}`, //로컬
+          // `http://localhost:8081/api/rooms/${this.editingRoom.roomId}`, //로컬
           `http://43.200.45.122/api/rooms/${this.editingRoom.roomId}`,
           
           this.editingRoom
@@ -388,7 +392,7 @@ export default {
           ...this.editingRoom,
           amenities: (this.editingRoom.amenities || "").split(",").map((item) => item.trim()),
         };
-        //await axios.put(`http://localhost:8081/api/rooms/${updatedRoom.roomId}`, updatedRoom); //로컬
+        // await axios.put(`http://localhost:8081/api/rooms/${updatedRoom.roomId}`, updatedRoom); //로컬
         await axios.put(`http://43.200.45.122/api/rooms/${updatedRoom.roomId}`, updatedRoom); //배포
         
         alert("객실 정보가 수정되었습니다.");
@@ -406,7 +410,7 @@ export default {
           console.error("호텔 ID가 설정되지 않았습니다.");
           return;
         }
-        //const response = await axios.get(`http://localhost:8081/api/auth/reservation-summary?hotelId=${this.hotelId}`, { //로컬
+        // const response = await axios.get(`http://localhost:8081/api/auth/reservation-summary?hotelId=${this.hotelId}`, { //로컬
         const response = await axios.get(`http://43.200.45.122/api/auth/reservation-summary?hotelId=${this.hotelId}`, {
           
           headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
@@ -419,7 +423,7 @@ export default {
     },
     async fetchAllReservations() {
     try {
-      //const response = await axios.get("http://localhost:8081/api/auth/all-reservations", { //로컬
+      // const response = await axios.get("http://localhost:8081/api/auth/all-reservations", { //로컬
       const response = await axios.get("http://43.200.45.122/api/auth/all-reservations", { //배포
         
         headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
@@ -460,7 +464,7 @@ export default {
 
     // PUT 요청
     const response = await axios.put(
-      //`http://localhost:8081/api/auth/reservation/${this.editingReservation.reservationId}`, //로컬
+      // `http://localhost:8081/api/auth/reservation/${this.editingReservation.reservationId}`, //로컬
       `http://43.200.45.122/api/auth/reservation/${this.editingReservation.reservationId}`,
       
       requestData,
@@ -666,7 +670,7 @@ export default {
   margin: 0 5px;
   padding: 5px 10px;
   border: none;
-  background-color: #007bff;
+  background-color: #00aef0;
   color: white;
   cursor: pointer;
   border-radius: 4px;
@@ -680,6 +684,21 @@ export default {
   background-color: #cccccc;
   cursor: not-allowed;
 }
+
+.reservation-edit-button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: none;
+  background-color: #00aef0;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.reservation-edit-button:hover {
+  background-color: #0056b3;
+}
+
 
 /* 객실유형 */
 .room-table th:nth-child(1),
@@ -738,6 +757,13 @@ export default {
   box-sizing: border-box; /* 여백 포함 */
 }
 
+.modal-buttons {
+  display: flex; /* 플렉스 박스로 변경 */
+  justify-content: center; /* 버튼 가로 가운데 정렬 */
+  gap: 10px; /* 버튼 간격 */
+  margin-top: 20px; /* 위쪽 여백 */
+}
+
 .modal-content label {
   display: block;
   margin-bottom: 10px;
@@ -764,7 +790,7 @@ export default {
 /* 저장 버튼 스타일 */
 .save-button {
   margin: 0 5px;
-  padding: 5px 10px;
+  padding: 10px 15px;
   border: none;
   background-color: #28a745; /* 초록색 */
   color: white;
@@ -780,7 +806,7 @@ export default {
 /* 취소 버튼 스타일 */
 .cancel-button {
   margin: 0 5px;
-  padding: 5px 10px;
+  padding: 10px 15px;
   border: none;
   background-color: #dc3545; /* 빨간색 */
   color: white;
@@ -875,6 +901,13 @@ input, textarea {
   width: 100%; /* 부모 요소 너비에 맞추기 */
   max-width: 100%; /* 최대 너비 제한 */
   box-sizing: border-box; /* 패딩과 테두리를 포함 */
+}
+
+.modal-title {
+  text-align: center; /* 텍스트 가로 가운데 정렬 */
+  margin-bottom: 20px; /* 아래쪽 여백 */
+  font-size: 18px; /* 글자 크기 */
+  font-weight: bold; /* 글자 굵게 */
 }
 
 </style>
