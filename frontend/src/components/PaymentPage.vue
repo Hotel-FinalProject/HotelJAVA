@@ -1,3 +1,4 @@
+
 <template>
 <div class="details-container" >
     <h3>숙소</h3>
@@ -322,7 +323,7 @@ export default {
 
                  
             try {
-                    const reservationResponse = await axios.post(`http://localhost:8081/api/auth/reservation/${imp_uid}`, { 
+                    const reservationResponse = await axios.post(`/api/auth/reservation/${imp_uid}`, { 
                         userId: userId,
                         checkIn: userCheckIn,
                         checkOut: userCheckOut,
@@ -553,8 +554,12 @@ hr{
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 .pyment-btn-container{
-    display:flex;
-    justify-content:space-between;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    flex-wrap: wrap; 
+    gap: 10px; 
+    height: 100%;
 }
 
 .user-info-container{
@@ -622,7 +627,7 @@ hr{
     border-radius: 10px;
     height: 40px;
     background-color: #3183F6;
-    color: white;
+    color: black;
     font-weight: bold;
     text-align: center;
     border: none;
@@ -662,4 +667,39 @@ hr{
 .check-conatiner-detail{
     margin-bottom : 10px;
 }
+
+
+@media (min-width: 800px) and (max-width: 1024px) {
+  .reservation-conatiner-info {
+    flex-direction: row;
+  }
+
+  .pyment-btn-container {
+    background-color: red;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .reservation-conatiner-info {
+    flex-direction: column;
+
+  }
+
+  .pyment-btn-container {
+    flex-direction: column;
+  
+  }
+
+  .payment-btn {
+    font-size: 14px;
+  }
+
+  .payment-info, .payment-total-conatiner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+
 </style>

@@ -1,4 +1,3 @@
-
 package com.example.backend.Controller;
 
 import java.math.BigDecimal;
@@ -33,14 +32,14 @@ public class HotelController {
 
     @Autowired
     private HotelService hotelService;
-    
+
     private final JwtUtil jwtUtil;
     private final HotelRepository hotelRepository;
 
     @Autowired
     public HotelController(HotelService hotelService, JwtUtil jwtUtil, HotelRepository hotelRepository) {
-    	this.hotelService = hotelService;
-    	this.jwtUtil = jwtUtil;
+        this.hotelService = hotelService;
+        this.jwtUtil = jwtUtil;
         this.hotelRepository = hotelRepository;
     }
 
@@ -73,6 +72,7 @@ public class HotelController {
             return ResponseEntity.status(401).body("JWT 인증 실패: " + e.getMessage());
         }
     }
+
     @GetMapping("/manager/hotel")
     public ResponseEntity<?> getManagerHotelInfo(@RequestHeader("Authorization") String token) {
         try {
@@ -85,14 +85,14 @@ public class HotelController {
             if (hotelOptional.isPresent()) {
                 Hotel hotel = hotelOptional.get();
                 HotelDTO hotelDTO = new HotelDTO(
-                    hotel.getHotelId(),
-                    hotel.getName(),
-                    hotel.getAddress(),
-                    hotel.getImageUrl(),
-                    hotelService.calculateAverageRating(hotel),
-                    hotel.getMapX(),
-                    hotel.getMapY(),
-                    null
+                        hotel.getHotelId(),
+                        hotel.getName(),
+                        hotel.getAddress(),
+                        hotel.getImageUrl(),
+                        hotelService.calculateAverageRating(hotel),
+                        hotel.getMapX(),
+                        hotel.getMapY(),
+                        null
                 );
                 return ResponseEntity.ok(hotelDTO);
             } else {
@@ -102,7 +102,7 @@ public class HotelController {
             return ResponseEntity.status(401).body("JWT 인증 실패: " + e.getMessage());
         }
     }
-    
+
     // API 호출
     @PostMapping("/hotels/fetch")
     public String fetchAndSaveHotels() {
@@ -115,47 +115,33 @@ public class HotelController {
     public List<Hotel> getAllHotels() {
         return hotelService.getAllHotels();
     }
-    
+
     // 10개 랜덤 호텔 조회
     @GetMapping("/hotels/random")
     public List<HotelReviewDTO> getRandomHotels() {
         return hotelService.getRandomHotels(10); // 10개 랜덤 호텔 반환
     }
-    
+
     // 호텔 검색
     @GetMapping("/hotels/search")
     public List<HotelDTO> searchHotels(@RequestParam(value = "query", required = false) String query) {
         if (query == null || query.isEmpty()) {
             return hotelService.getAllHotels().stream()
-                .map(hotel -> new HotelDTO(
-                    hotel.getHotelId(),
-                    hotel.getName(),
-                    hotel.getAddress(),
-                    hotel.getImageUrl(),
-                    hotelService.calculateAverageRating(hotel),
-                    hotel.getMapX(),
-                    hotel.getMapY(),
-                    null
-                ))
-                .collect(Collectors.toList());
+                    .map(hotel -> new HotelDTO(
+                            hotel.getHotelId(),
+                            hotel.getName(),
+                            hotel.getAddress(),
+                            hotel.getImageUrl(),
+                            hotelService.calculateAverageRating(hotel),
+                            hotel.getMapX(),
+                            hotel.getMapY(),
+                            null
+                    ))
+                    .collect(Collectors.toList());
         }
         return hotelService.searchHotelsByNameOrAddress(query);
     }
 
-
-
-//    // 특정 호텔 조회 (HotelDetailDTO로 반환)
-//    @GetMapping("/hotels/{id}")
-//    public HotelRoomDTO getHotelDetailById(@PathVariable("id") Long id) {
-//        return hotelService.getHotelDetailById(id);
-//    }
-    
-    // 특정 호텔 상세 정보 조회 (HotelRoomDTO로 반환)
-//    @GetMapping("/hotels/{id}")
-//    public HotelRoomDTO getHotelDetailById(@PathVariable("id") Long id) {
-//        return hotelService.getHotelDetailById(id);
-//    }
-    
     // 특정 호텔 조회
     @GetMapping("/hotels/{id}")
     public HotelRoomDTO getHotelDetailById(@PathVariable("id") Long id) {

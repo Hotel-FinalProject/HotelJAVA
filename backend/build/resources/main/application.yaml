@@ -1,20 +1,27 @@
+
 server:
   port: 8081
 
+
+
 spring:
-  application:
-    name: backend
+#  application:
+#    name: backend
+  profiles:
+    active: server
+
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USER}
-    password: ${DATABASE_PASSWORD}
+    url: jdbc:mysql://43.200.45.122:3306/hotel?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    username: admin
+    password: test1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
 #    url: jdbc:mysql://localhost:3306/hotel?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
 #    username: root
 #    password: root
 #    url: jdbc:mysql://hoteldb.cyzrnn6eoqnk.ap-northeast-2.rds.amazonaws.com:3306/hotel?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
 #    username: admin
 #    password: test1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto:  update
@@ -89,8 +96,8 @@ api:
   key: ${API_KEY}
 
 import:
-  api-key: 8574783258275564
-  secret-key: JsGOComCLXxULGSVO4eHqPMjS5X1N4YzBiLrYSVbBQtf58RxmT0Wq71qyhj3ulWjvvtuHlJII7b6FTST
+  api-key: ${IMPORT_KEY}
+  secret-key: ${IMPORT_SECRET_KEY}
 
 aws:
   access-key-id: ${ACCESS_KEY_ID}
@@ -98,4 +105,5 @@ aws:
   s3:
     bucket-name: hotel-java
     region: ap-northeast-2
+
 

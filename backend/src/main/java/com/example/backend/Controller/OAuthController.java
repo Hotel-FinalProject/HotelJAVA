@@ -24,32 +24,32 @@ public class OAuthController {
 
     private final ClientRegistrationRepository clientRegistrationRepository;
 
-//    /** OAuth 로그인 시도 */
-//    @GetMapping("/oauth2/authorize/{provider}")
-//    public void redirectToOAuth(@PathVariable String provider, HttpServletResponse response) throws IOException {
-//        ClientRegistration registration = clientRegistrationRepository.findByRegistrationId(provider);
-//
-//        if (registration == null) {
-//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, provider + " 클라이언트 등록 정보가 없습니다.");
-//            return;
-//        }
-//
-//        // 리다이렉트 하기 위해 URL 생성
-//        String authorizationUri = registration.getProviderDetails().getAuthorizationUri();
-//        String redirectUri = registration.getRedirectUri().replace("{registrationId}", provider);
-//
-//        String redirectUrl = String.format(
-//                "%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s",
-//                authorizationUri,
-//                registration.getClientId(),
-//                redirectUri,
-//                String.join(" ", registration.getScopes()),
-//                "state"
-//        );
-//
-//        // 서버 측에서 직접 리다이렉트
-//        response.sendRedirect(redirectUrl);
-//    }
+    /** OAuth 로그인 시도 */
+    @GetMapping("/oauth2/authorize/{provider}")
+    public void redirectToOAuth(@PathVariable String provider, HttpServletResponse response) throws IOException {
+        ClientRegistration registration = clientRegistrationRepository.findByRegistrationId(provider);
+
+        if (registration == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, provider + " 클라이언트 등록 정보가 없습니다.");
+            return;
+        }
+
+        // 리다이렉트 하기 위해 URL 생성
+        String authorizationUri = registration.getProviderDetails().getAuthorizationUri();
+        String redirectUri = registration.getRedirectUri().replace("{registrationId}", provider);
+
+        String redirectUrl = String.format(
+                "%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s",
+                authorizationUri,
+                registration.getClientId(),
+                redirectUri,
+                String.join(" ", registration.getScopes()),
+                "state"
+        );
+
+        // 서버 측에서 직접 리다이렉트
+        response.sendRedirect(redirectUrl);
+    }
 
     /** OAuth 구글 로그인 */
     @GetMapping("/oauth2/authorize/google")

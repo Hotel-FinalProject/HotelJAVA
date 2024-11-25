@@ -15,6 +15,9 @@
             <router-link to="/find-my-id">
               <span class="find-id-btn">아이디 찾기</span>
             </router-link>
+            <router-link to="/reset-password">
+              <span class="find-id-btn">비밀번호 초기화</span>
+            </router-link>
             <button type="submit" class="login-button">로그인</button>
           </div>
         </form>
@@ -43,10 +46,10 @@
     },
     methods: {
       async googleLogin() {
-        window.location.href = "http://localhost:8081/oauth2/authorization/google";
+        window.location.href = process.env.VUE_APP_API_URL+"/oauth2/authorization/google";
       },
       async naverLogin() {
-        window.location.href = "http://localhost:8081/oauth2/authorization/naver"
+        window.location.href = process.env.VUE_APP_API_URL+"/oauth2/authorization/naver"
       },
       async submitForm() {
         const payload = {

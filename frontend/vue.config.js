@@ -6,7 +6,7 @@ module.exports = defineConfig({
     port: 8082,
     proxy: {
       '/api': {
-        target: 'http://localhost:8081', // 백엔드 서버 주소
+        target: process.env.VUE_APP_API_URL, // 백엔드 서버 주소
         changeOrigin: true,
       },
     },

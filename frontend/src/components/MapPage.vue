@@ -49,7 +49,7 @@
       async fetchHotels() {
         try {
           const response = await axios.get(
-            `http://localhost:8081/api/hotels/search?location=${
+            `/api/hotels/search?location=${
               this.location || ""
             }`
           );
@@ -64,7 +64,7 @@
       loadKakaoMap() {
         if (typeof kakao === "undefined") {
           const script = document.createElement("script");
-          script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=&autoload=false`;
+          script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=8e08ae88fe732a2c4cfd5d4e46ee2fe5&autoload=false`;
           script.onload = this.initMap;
           document.head.appendChild(script);
         } else {
@@ -201,4 +201,4 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     margin-top: 20px;
   }
-  </style>
+</style>

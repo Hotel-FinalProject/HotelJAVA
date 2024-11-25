@@ -96,45 +96,6 @@
       </div>
     </div>
 
-    <!-- 후기 섹션 -->
-    <h2 class="section-title">후기</h2>
-    <div class="review-container">
-      <div class="review-grid">
-        <div class="review-top">
-          <div class="review-rating">⭐⭐⭐⭐⭐</div>
-          <div class="review-date">2024.10.25</div>
-        </div>
-        <div class="reviewer">작성자명</div>
-        <div class="room-name">객실명</div>
-        <div class="review-content">
-          숙소도 전반적으로 깔끔했구요~ 고층이었는데 바다도 보이는 객실이라 좋았어요!
-        </div>
-      </div>
-      <div class="review-grid">
-        <div class="review-top">
-          <div class="review-rating">⭐⭐⭐⭐⭐</div>
-          <div class="review-date">2024.10.25</div>
-        </div>
-        <div class="reviewer">작성자명</div>
-        <div class="room-name">객실명</div>
-        <div class="review-content">
-          리뷰
-        </div>
-      </div>
-      <div class="review-grid">
-        <div class="review-top">
-          <div class="review-rating">⭐⭐⭐⭐⭐</div>
-          <div class="review-date">2024.10.25</div>
-        </div>
-        <div class="reviewer">작성자명</div>
-        <div class="room-name">객실명</div>
-        <div class="review-content">
-          리뷰
-        </div>
-      </div>
-    </div>
-    <button class="review-all-btn">리뷰 더보기</button>
-
     <!-- 편의시설 정보 -->
     <div class="amenities-container">
       <h2 class="section-title">편의시설</h2>
@@ -185,7 +146,7 @@ export default {
     async fetchRoomDetails() {
       const roomId = this.$route.params.roomId;
       try {
-        const response = await axios.get(`http://localhost:8081/api/rooms/${roomId}`);
+        const response = await axios.get(`/api/rooms/${roomId}`);
         this.room = response.data;
         console.log("객실 데이터:", this.room);
         this.selectedPersonCount = this.room.occupancy || 1;

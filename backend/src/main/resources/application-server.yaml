@@ -1,0 +1,14 @@
+#
+#spring:
+##  datasource:
+##    url: ${DATABASE_URL}  # .env 파일 또는 Docker 환경 변수에 설정된 DATABASE_URL 사용
+##    username: ${DATABASE_USER}  # .env 파일 또는 Docker 환경 변수에 설정된 DATABASE_USER 사용
+##    password: ${DATABASE_PASSWORD}  # .env 파일 또는 Docker 환경 변수에 설정된 DATABASE_PASSWORD 사용
+#  mail:
+#    secret: ${MAIL_SECRET}  # 환경 변수 MAIL_SECRET 사용
+#  naver:
+#    client-id: ${NAVER_CLIENT_ID}  # 환경 변수 NAVER_CLIENT_ID 사용
+#    client-secret: ${NAVER_CLIENT_SECRET}  # 환경 변수 NAVER_CLIENT_SECRET 사용
+#  google:
+#    client-id: ${GOOGLE_CLIENT_ID}  # 환경 변수 GOOGLE_CLIENT_ID 사용
+#    client-secret: ${GOOGLE_CLIENT_SECRET}  # 환경 변수 GOOGLE_CLIENT_SECRET 사용

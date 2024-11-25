@@ -2,7 +2,8 @@ import axios from 'axios';
 
 /** axios 기본 url 및 헤더 설정 */
 const config = axios.create({
-  baseURL: 'http://localhost:8081/api/admin/auth/',  // Spring Boot API 경로
+  //baseURL: process.env.VUE_APP_API_URL+'/api/admin/auth/',  // Spring Boot API 경로(로컬)
+  baseURL: 'http://43.200.45.122/api/admin/auth/', // Spring Boot API 경로(배포용
   headers: {
     'Content-Type': 'application/json'
   }
@@ -101,6 +102,15 @@ function getReportInfo(token) {
   })
 }
 
+/** 호텔 관리자 계정 생성 */
+function requestCreateHotelAdmin(token, userInfo, hotelId){
+  return config.post(`hotelAdmin-create/${hotelId}`, userInfo, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+}
+
 export {
   getUserListByAdmin,
   getHotelManagerListByAdmin,
@@ -111,4 +121,5 @@ export {
   getReportListByAdmin,
   getAcountInfo,
   getReportInfo,
+  requestCreateHotelAdmin
 }
