@@ -151,8 +151,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth) {
     // 특정 경로에 대해 권한이 필요할 때
     if (!token || to.meta.requiredRole !== userRole) {
-      // 토큰이 없거나 요구된 권한이 맞지 않으면 관리자 로그인 페이지로 이동
-      return next({ path: '/admin' });
+      return next({ path: '/' });
     }
   }
 

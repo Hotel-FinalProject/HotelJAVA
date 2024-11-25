@@ -21,7 +21,17 @@
         <li>
           <button @click="logout" class="logout_btn">로그아웃</button>
         </li>
-        <li>
+        <li v-if="isAdminPage">
+          <span
+            class="my_page_btn"
+            @click="to_home"
+            @mouseover="hover = true"
+            @mouseleave="hover = false"
+          >
+            {{ hover ? '홈으로' : userName }}
+          </span>
+        </li>
+        <li v-else>
           <span
             class="my_page_btn"
             @click="to_my_page"
@@ -40,15 +50,17 @@
 import { useAuthStore } from '@/store/register_login';
 import { computed, ref } from 'vue';
 import { jwtDecode } from 'jwt-decode';
+import { useRoute } from 'vue-router';
 
 export default {
   name: "theNavbar",
   setup() {
     const authStore = useAuthStore();
+    const route = useRoute();
 
     // Pinia 스토어에서 로그인 상태를 반응형으로 가져오기 위해 computed 사용
     const isLoggedIn = computed(() => authStore.LoggedIn);
-    const userName = computed(() => authStore.userName || '사용자'); // 사용자 이름 가져오기
+    const userName = computed(() => authStore.userName + '님' || '사용자'); // 사용자 이름 가져오기
     
     const userRole = computed(() => {
       const token = sessionStorage.getItem("token");
@@ -71,6 +83,10 @@ export default {
       return '마이페이지';
     });
     
+    const isAdminPage = computed(() => {
+      return route.path.startsWith('/admin');
+    });
+    
     // 마우스 오버 상태 관리
     const hover = ref(false);
 
@@ -83,6 +99,7 @@ export default {
       isLoggedIn,
       userName,
       hover,
+      isAdminPage,
       logout,
       pageLabel
     }
