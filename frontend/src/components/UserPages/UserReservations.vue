@@ -88,6 +88,8 @@ import { onMounted, computed, reactive } from "vue";
 import { createReview } from "@/api/api";
 import ReviewModal from "@/components/UserPages/reviewModal";
 import dayjs from "dayjs";
+import { cancelReservationPay } from "@/api/api";
+
 
 export default {
   components: {
@@ -125,6 +127,31 @@ export default {
       const checkInDate = dayjs(checkIn);
       return checkInDate.diff(today, "day") >= 2;
     };
+
+    const cancelReservation = async (reservation) => {
+      try {
+        const token = sessionStorage.getItem("token");
+        if(!token) {
+          alert("로그인이 필요합니다.");
+          return;
+        }
+
+        const imp_uid = reservation.imp_uid;
+        const roomId = reservation.roomId;
+
+        const response = await cancelReservationPay(imp_uid, roomId, token);
+
+        if (response.status === 200){
+          console.log("결제 취소 결과 : ", response.data);
+          reservationStore.fetchReservations();
+        } else{
+          console.log("결제 취소 결과 : ", response.data);
+        }
+      } catch (error) {
+        console.error("결제 취소 오류 : ", error);
+        alert("결제 취소 중 오류가 발생했습니다.");
+      }
+    }
 
     const canWriteReview = (checkOut) => {
       const today = dayjs();
@@ -215,6 +242,7 @@ export default {
       visiblePastReservations,
       loading,
       canCancel,
+      cancelReservation,
       canWriteReview,
       hasReview,
       openReviewModal,
