@@ -314,12 +314,12 @@ export default {
             };
 
             const userCheckIn = this.dataObj.userCheckIn
-                ? addOneDay(this.dataObj.userCheckIn) // userCheckIn에 하루 더하기
-                : addOneDay(new Date()+1); // 현재 날짜에 하루 더하기
+                ? addOneDay(this.dataObj.userCheckIn+1) // userCheckIn에 하루 더하기
+                : addOneDay(new Date()); // 현재 날짜에 하루 더하기
 
             const userCheckOut = this.dataObj.userCheckOut
-                ? addOneDay(this.dataObj.userCheckOut) // userCheckOut에 하루 더하기
-                : addOneDay(new Date()+1); 
+                ? addOneDay(this.dataObj.userCheckOut+1) // userCheckOut에 하루 더하기
+                : addOneDay(new Date()); 
 
                  
             try {
