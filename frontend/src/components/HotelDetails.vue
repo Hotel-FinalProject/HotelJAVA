@@ -800,7 +800,7 @@ export default {
   margin-left: 10px;
   padding: 5px 10px;
   font-size: 14px;
-  background-color: #007bff;
+  background-color: #00aef0;
   color: white;
   border: none;
   border-radius: 5px;
