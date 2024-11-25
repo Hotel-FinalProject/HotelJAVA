@@ -297,7 +297,7 @@ export default {
           pg: pg_method,
           pay_method: 'card',
           merchant_uid: `mid_${new Date().getTime()}`,
-          name: '숙소 예약 결제',
+          name: this.dataObj.hotelName + "/" + dataObj.roomName,
           amount: this.dataObj.roomPrice,
           buyer_name: this.userName,
           buyer_tel: this.userPhone,
