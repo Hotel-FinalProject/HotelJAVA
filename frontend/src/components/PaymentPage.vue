@@ -297,7 +297,7 @@ export default {
           pg: pg_method,
           pay_method: 'card',
           merchant_uid: `mid_${new Date().getTime()}`,
-          name: this.dataObj.hotelName + "/" + dataObj.roomName,
+          name: this.dataObj.hotelName + "/" + this.dataObj.roomName,
           amount: this.formattedTotal,
           buyer_name: this.userName,
           buyer_tel: this.userPhone,
@@ -314,11 +314,11 @@ export default {
             };
 
             const userCheckIn = this.dataObj.userCheckIn
-                ? addOneDay(this.dataObj.userCheckIn) // userCheckIn에 하루 더하기
+                ? addOneDay(this.dataObj.userCheckIn +1) // userCheckIn에 하루 더하기
                 : addOneDay(new Date()); // 현재 날짜에 하루 더하기
 
             const userCheckOut = this.dataObj.userCheckOut
-                ? addOneDay(this.dataObj.userCheckOut) // userCheckOut에 하루 더하기
+                ? addOneDay(this.dataObj.userCheckOut+1) // userCheckOut에 하루 더하기
                 : addOneDay(new Date()); 
 
                  
