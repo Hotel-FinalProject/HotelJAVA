@@ -599,12 +599,12 @@ hr{
     border-radius: 10px;
 }
 .submit-button-center{
-    margin-left:30px;
-    margin-right:30px;
+    margin-left:38px;
+    margin-right:38px;
 }
 
 .btn-card{
-    width: 250px;
+    width: 300px;
     border-radius: 10px;
     height: 40px;
     background-color: white;
@@ -616,7 +616,7 @@ hr{
     cursor: pointer;
 }
 .btn-kakao{
-    width: 250px; 
+    width: 300px; 
     border-radius: 10px;
     height: 40px;
     background-color: #FFEB00;
@@ -628,7 +628,7 @@ hr{
     cursor: pointer;
 }
 .btn-toss{
-    width: 250px;  
+    width: 300px;  
     border-radius: 10px;
     height: 40px;
     background-color: #3183F6;
