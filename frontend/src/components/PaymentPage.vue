@@ -670,41 +670,10 @@ hr{
 }
 
 
-@media (min-width: 800px) ans @media(max: 1024px) {
-  .reservation-conatiner-info {
-    flex-direction: row;
-
-  }
-
-  .pyment-btn-container {
-    background-color:red
-  
-  }
-
- 
-}
 
 
-@media (max-width: 768px) {
-  .reservation-conatiner-info {
-    flex-direction: column;
 
-  }
 
-  .pyment-btn-container {
-    flex-direction: column;
-  
-  }
-
-  .payment-btn {
-    font-size: 14px;
-  }
-
-  .payment-info, .payment-total-conatiner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
 
 
 </style>
