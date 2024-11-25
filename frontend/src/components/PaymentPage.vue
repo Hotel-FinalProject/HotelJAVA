@@ -161,7 +161,7 @@
                 'btn-card': selectedPaymentMethod !== 'html5_inicis'}"> 카드 결제 </button>
             </div>
         
-            <div class="submit-button">
+            <div class="submit-button-center">
                 <button class="btn-kakao" @click="selectPaymentMethod('kakaopay')" :class="{'btn-kakao-selected': selectedPaymentMethod === 'kakaopay', 
                 'btn-kakao': selectedPaymentMethod !== 'kakaopay'}">카카오페이</button>
             </div>
@@ -556,7 +556,7 @@ hr{
 }
 .pyment-btn-container{
     display: flex;
-    justify-content: space-between; 
+    //justify-content: space-between; 
     align-items: center; 
     flex-wrap: wrap; 
     gap: 10px; 
@@ -598,9 +598,13 @@ hr{
     height: 40px;
     border-radius: 10px;
 }
+.submit-button-center{
+    margin-left:30px;
+    margin-right:30px;
+}
 
 .btn-card{
-    width: 350px;
+    width: 250px;
     border-radius: 10px;
     height: 40px;
     background-color: white;
@@ -612,7 +616,7 @@ hr{
     cursor: pointer;
 }
 .btn-kakao{
-    width: 350px; 
+    width: 250px; 
     border-radius: 10px;
     height: 40px;
     background-color: #FFEB00;
@@ -624,7 +628,7 @@ hr{
     cursor: pointer;
 }
 .btn-toss{
-    width: 350px;  
+    width: 250px;  
     border-radius: 10px;
     height: 40px;
     background-color: #3183F6;
