@@ -421,9 +421,10 @@ export default {
 
     const fetchDashboard = async () => {
       const token = sessionStorage.getItem('token');
-      const response = await getAcountInfo(tok.data;
-        hotelTotalPages.value = Maen);
+      const token = sessionStorage.getItem('token');
+      const response = await getAcountInfo(token);
       const reportResponse = await getReportInfo(token);
+
 
       totalUserCount.value = response.data.userAllCount;
       totalHotelCount.value = response.data.hotelAllCount;
