@@ -196,18 +196,18 @@
           </div>
           <div class="pagination-container">
             <button
-              :disabled="hotelCurrentPage === 1"
-              @click="hotelChangePage(hotelCurrentPage - 1)" class="pagination-button"
-            >
-              이전
-            </button>
-            <span>페이지 {{ hotelCurrentPage }} / {{ hotelTotalPages }}</span>
-            <button
-              :disabled="hotelCurrentPage === hotelTotalPages"
-              @click="hotelChangePage(hotelCurrentPage + 1)" class="pagination-button"
-            >
-              다음
-            </button>
+            :disabled="currentPage === 1"
+            @click="changePage(currentPage - 1)" class="pagination-button"
+          >
+            이전
+          </button>
+          <span>페이지 {{ currentPage }} / {{ totalPages }}</span>
+          <button
+            :disabled="currentPage === totalPages"
+            @click="changePage(currentPage + 1)" class="pagination-button"
+          >
+            다음
+          </button>
           </div>
         </div>
       </div>

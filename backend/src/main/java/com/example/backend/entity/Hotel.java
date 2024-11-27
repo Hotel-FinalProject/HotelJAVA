@@ -44,7 +44,7 @@ public class Hotel {
     private List<Review> reviews;
 
     @OneToMany(mappedBy = "hotel")
-    private Set<Favorites> favorite;
+    private List<Favorites> favorite;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id")
