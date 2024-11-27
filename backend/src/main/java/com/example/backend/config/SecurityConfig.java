@@ -67,7 +67,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 로컬용 IP
-//        configuration.setAllowedOrigins(List.of("http://localhost:8082"));
+        //configuration.setAllowedOrigins(List.of("http://localhost:8082"));
 
         //배포용 IP
         configuration.setAllowedOrigins(List.of("http://43.200.45.122"));

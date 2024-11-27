@@ -42,7 +42,7 @@
         try {
           const authStore = useAuthStore();
           await authStore.login(payload);
-          alert("로그인 성공!");
+          //alert("로그인 성공!");
           router.push({ path: "/admin/hotel" });
         } catch (error) {
           console.error("로그인 중 오류 발생: ", error);
