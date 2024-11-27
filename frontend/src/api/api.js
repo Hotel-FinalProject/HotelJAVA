@@ -3,7 +3,7 @@ import axios from 'axios';
 /** axios 기본 url 및 헤더 설정 */
 const config = axios.create({
 //  baseURL: process.env.VUE_APP_API_URL+'/api',  // Spring Boot API 경로(로컬)
-  baseURL: 'http://43.200.45.122/api',
+  baseURL: 'http://43.200.45.122',
 
   headers: {
     'Content-Type': 'application/json'
