@@ -171,7 +171,7 @@
           </div>
           <!-- 테이블 내용 -->
           <div
-            v-for="user in hotelManagerList"
+            v-for="user in paginatedHotelList"
             :key="user.id"
             class="user-table-row"
           >
@@ -228,7 +228,7 @@
           </div>
           <!-- 테이블 내용 -->
           <div
-            v-for="report in reportList"
+            v-for="report in paginatedReviewList"
             :key="report.id"
             class="user-table-row"
           >
@@ -363,13 +363,13 @@ export default {
     const hotelChangePage = (newPage) => {
       if (newPage >= 1 && newPage <= hotelTotalPages.value) {
         hotelCurrentPage.value = newPage;
-        fetchUserList(); // 페이지 변경 후 데이터 가져오기
+        fetchHotelManagerList(); // 페이지 변경 후 데이터 가져오기
       }
     };
     const reviewChangePage = (newPage) => {
       if (newPage >= 1 && newPage <= reviewTotalPages.value) {
         reviewCurrentPage.value = newPage;
-        fetchUserList(); // 페이지 변경 후 데이터 가져오기
+        fetchReportList(); // 페이지 변경 후 데이터 가져오기
       }
     };
 
@@ -377,11 +377,7 @@ export default {
 
     const fetchUserList = async () => {
       try {
-        const response = await getUserListByAdmin(
-          token,
-          currentPage.value,
-          pageSize
-        );
+        const response = await getUserListByAdmin(token);
         userList.value = response.data;
         console.log(
           '사용자 목록 길이 : ',
@@ -397,9 +393,11 @@ export default {
     const fetchHotelManagerList = async () => {
       try {
         const response = await getHotelManagerListByAdmin(token);
-        hotelManagerList.value = response.data;
 
-        totalPages.value = Math.ceil(response.data.length / pageSize.value);
+        hotelManagerList.value = response.data;
+        hotelTotalPages.value = Math.ceil(
+          response.data.length / pageSize.value
+        );
       } catch (error) {
         console.error('호텔 관리자 목록 불러오기 실패', error);
       }
@@ -407,13 +405,9 @@ export default {
 
     const fetchReportList = async () => {
       try {
-        const response = await getReportListByAdmin(
-          token,
-          currentPage,
-          pageSize
-        );
-        reportList.value = response.data.reports;
-        totalPages.value = Math.ceil(response.data.length / pageSize.value);
+        const response = await getReportListByAdmin(token);
+        reportList.value = response.data;
+        reviewTotalPages.value = Math.ceil(response.data.length / pageSize.value);
       } catch (error) {
         console.error('리뷰 목록 불러오기 실패', error);
       }
@@ -421,10 +415,8 @@ export default {
 
     const fetchDashboard = async () => {
       const token = sessionStorage.getItem('token');
-      const token = sessionStorage.getItem('token');
       const response = await getAcountInfo(token);
       const reportResponse = await getReportInfo(token);
-
 
       totalUserCount.value = response.data.userAllCount;
       totalHotelCount.value = response.data.hotelAllCount;
@@ -504,9 +496,25 @@ export default {
     const paginatedUserList = computed(() => {
       const start = (currentPage.value - 1) * pageSize.value;
       const end = start + pageSize.value;
-      console.log('currentPage:', currentPage.value);
-      console.log('totalPages:', totalPages.value);
+      // console.log('currentPage:', currentPage.value);
+      // console.log('totalPages:', totalPages.value);
       return userList.value.slice(start, end); // 현재 페이지 데이터 반환
+    });
+
+    const paginatedHotelList = computed(() => {
+      const start = (hotelCurrentPage.value - 1) * pageSize.value;
+      const end = start + pageSize.value;
+      // console.log('currentPage:', hotelCurrentPage.value);
+      // console.log('totalPages:', hotelTotalPages.value);
+      return hotelManagerList.value.slice(start, end); // 현재 페이지 데이터 반환
+    });
+
+    const paginatedReviewList = computed(() => {
+      const start = (reviewCurrentPage.value - 1) * pageSize.value;
+      const end = start + pageSize.value;
+      // console.log('currentPage:', reviewCurrentPage.value);
+      // console.log('totalPages:', reviewTotalPages.value);
+      return reportList.value.slice(start, end); // 현재 페이지 데이터 반환
     });
 
     return {
@@ -542,7 +550,9 @@ export default {
       reviewCurrentPage,
       reviewTotalPages,
       hotelChangePage,
-      reviewChangePage
+      reviewChangePage,
+      paginatedHotelList,
+      paginatedReviewList,
     };
   },
   mounted() {
@@ -828,31 +838,31 @@ export default {
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
- .pagination-container {
-    display: flex;
-    justify-content: center; /* 중앙 정렬 */
-    align-items: center; /* 세로 중앙 정렬 */
-    margin: 20px 0;
-  }
+.pagination-container {
+  display: flex;
+  justify-content: center; /* 중앙 정렬 */
+  align-items: center; /* 세로 중앙 정렬 */
+  margin: 20px 0;
+}
 
-  .pagination-button {
-    background-color: #00aef0;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    margin: 0 10px;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 5px;
-  }
+.pagination-button {
+  background-color: #00aef0;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 10px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+}
 
-  .pagination-button:disabled {
-    background-color: #d1d1d1;
-    cursor: not-allowed;
-  }
+.pagination-button:disabled {
+  background-color: #d1d1d1;
+  cursor: not-allowed;
+}
 
-  .pagination-text {
-    font-size: 16px;
-    color: #333;
-  }
+.pagination-text {
+  font-size: 16px;
+  color: #333;
+}
 </style>
