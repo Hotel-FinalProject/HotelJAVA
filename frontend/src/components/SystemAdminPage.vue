@@ -118,19 +118,18 @@
         <!-- 페이징 처리 -->
         <div class="pagination-container">
           <button
-              :disabled="hotelCurrentPage === 1"
-              @click="hotelChangePage(hotelCurrentPage - 1)" class="pagination-button"
-            >
-              이전
-            </button>
-            <span>페이지 {{ hotelCurrentPage }} / {{ hotelTotalPages }}</span>
-            <button
-              :disabled="hotelCurrentPage === hotelTotalPages"
-              @click="hotelChangePage(hotelCurrentPage + 1)" class="pagination-button"
-            >
-              다음
-            </button>
-
+            :disabled="currentPage === 1"
+            @click="changePage(currentPage - 1)" class="pagination-button"
+          >
+            이전
+          </button>
+          <span>페이지 {{ currentPage }} / {{ totalPages }}</span>
+          <button
+            :disabled="currentPage === totalPages"
+            @click="changePage(currentPage + 1)" class="pagination-button"
+          >
+            다음
+          </button>
         </div>
       </div>
 
@@ -147,7 +146,7 @@
               type="text"
               placeholder="이름, 이메일로 검색해주세요."
               v-model="searchKeyword"
-              @input="handleHotelSearch"  
+              @input="handleHotelSearch"
             />
             <button class="styled-button" @click="openModal">
               호텔 관리자 계정 생성
@@ -155,7 +154,7 @@
             <HotelAdminModal
               :isOpen="isModalOpen"
               :adminToken="adminToken"
-              @close="closeModal"  
+              @close="closeModal"
             />
           </div>
         </div>
@@ -197,18 +196,18 @@
           </div>
           <div class="pagination-container">
             <button
-            :disabled="currentPage === 1"
-            @click="changePage(currentPage - 1)" class="pagination-button"
-          >
-            이전
-          </button>
-          <span>페이지 {{ currentPage }} / {{ totalPages }}</span>
-          <button
-            :disabled="currentPage === totalPages"
-            @click="changePage(currentPage + 1)" class="pagination-button"
-          >
-            다음
-          </button>
+              :disabled="hotelCurrentPage === 1"
+              @click="hotelChangePage(hotelCurrentPage - 1)" class="pagination-button"
+            >
+              이전
+            </button>
+            <span>페이지 {{ hotelCurrentPage }} / {{ hotelTotalPages }}</span>
+            <button
+              :disabled="hotelCurrentPage === hotelTotalPages"
+              @click="hotelChangePage(hotelCurrentPage + 1)" class="pagination-button"
+            >
+              다음
+            </button>
           </div>
         </div>
       </div>
@@ -268,8 +267,8 @@
           </button>
           <span>페이지 {{ reviewCurrentPage }} / {{ reviewTotalPages }}</span>
           <button
-            :disabled="reviewCurrentPage === reviewTotalPages"
-            @click="reviewChangePage(reviewCurrentPage + 1)" class="pagination-button"
+            :disabled="reviewCurrentPage === reviewTotalPages" class="pagination-button"
+            @click="reviewChangePage(reviewCurrentPage + 1)"
           >
             다음
           </button>
