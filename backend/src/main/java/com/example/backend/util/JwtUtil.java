@@ -65,7 +65,7 @@ public class JwtUtil {
         // JWT Claims 생성 (이메일만 포함)
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(email)
-                .expirationTime(new Date(new Date().getTime() + 15 * 60 * 1000)) // 토큰 만료 시간 15분 설정
+                .expirationTime(new Date(new Date().getTime() + 60 * 60 * 1000)) // 토큰 만료 시간 15분 설정
                 .build();
 
         // 서명 알고리즘 및 키 설정
@@ -77,6 +77,7 @@ public class JwtUtil {
                 claimsSet
         );
         signedJWT.sign(signer);
+        
 
         // JWT 문자열 반환
         return signedJWT.serialize();
