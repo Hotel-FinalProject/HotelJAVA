@@ -1,868 +1,813 @@
 <template>
-  <SidebarLayout title="시스템 관리자">
-    <!-- 사이드바 메뉴 -->
-    <template #menu>
-      <div class="menu-container">
-        <a
-          href="#"
-          :class="{ active: currentView === 'Dashboard' }"
-          @click.prevent="currentView = 'Dashboard'"
-        >
-          <span class="icon">📋</span>대시보드
-        </a>
-        <a
-          href="#"
-          :class="{ active: currentView === 'UserManagement' }"
-          @click.prevent="currentView = 'UserManagement'"
-        >
-          <span class="icon">🔍</span> 사용자 관리
-        </a>
-        <a
-          href="#"
-          :class="{ active: currentView === 'HotelAdminAccounts' }"
-          @click.prevent="currentView = 'HotelAdminAccounts'"
-        >
-          <span class="icon">🏨</span> 호텔 관리자 계정 관리
-        </a>
-        <a
-          href="#"
-          :class="{ active: currentView === 'ReviewReports' }"
-          @click.prevent="currentView = 'ReviewReports'"
-        >
-          <span class="icon">🚨</span> 리뷰 관리
-        </a>
-      </div>
-    </template>
+  <div v-if="hotel" class="details-container">
+    <!-- 호텔 이미지 -->
+    <div class="img-container">
+      <template v-if="hotel.imageUrl">
+        <img :src="hotel.imageUrl" alt="Hotel Image" />
+      </template>
+      <template v-else>
+        <div class="no-image-container">
+          <p class="no-image-text">업체측에서 제공된 이미지가 없습니다</p>
+        </div>
+      </template>
+    </div>
 
-    <!-- 메인 콘텐츠 -->
-    <div class="main-content">
-      <div v-if="currentView === 'Dashboard'">
-        <h2>대시보드</h2>
-        <p>시스템의 전체 상태를 한눈에 확인하세요.</p>
-        <ul class="dashboard-summary">
-          <li class="dashboard-item">
-            <h3>🔍 사용자 관리</h3>
-            <p>총 사용자 수: {{ totalUserCount }}명</p>
-            <p>활성 계정: {{ activeUserCount }}명</p>
-            <p>비활성 계정: {{ inactiveUserCount }}명</p>
-          </li>
-          <li class="dashboard-item">
-            <h3>🏨 호텔 관리자 계정 관리</h3>
-            <p>등록된 호텔 관리자: {{ totalHotelCount }}명</p>
-            <p>활성 계정: {{ activeHotelCount }}명</p>
-            <p>비활성 계정: {{ inactiveHotelCount }}명</p>
-          </li>
-          <li class="dashboard-item">
-            <h3>🚨 리뷰 관리</h3>
-            <p>신고된 리뷰: {{ totalReportCount }}건</p>
-            <p>검토 완료 리뷰: {{ completeReportCount }}건</p>
-            <p>미검토 리뷰: {{ incompleteReportCount }}건</p>
-          </li>
-        </ul>
-      </div>
-
-      <!--사용자 관리사용자 -->
-      <div v-if="currentView === 'UserManagement' && isVerified">
-        <!-- 비밀번호 인증이 완료된 경우 -->
-        <div class="top-container">
-          <div class="title">
-            <h2>사용자 관리</h2>
-          </div>
-          <div class="search-container">
-            <input
-              class="search-input"
-              type="text"
-              placeholder="이름, 이메일로 검색해주세요."
-              v-model="searchKeyword"
-              @input="handleUserSearch"
-            />
+    <!-- 호텔 정보 -->
+    <div class="hotel-info-card">
+      <div class="hotel-top">
+        <div>
+          <div class="hotel-name">{{ hotel.name }}</div>
+        </div>
+        <div class="favorite-container" v-if="isLoggedIn">
+          <div 
+            class="heart-button" 
+            :class="{'favorited': isFavorited, 'unfavorited': !isFavorited}" 
+            @click="toggleFavorite">
+            <i class="fas fa-heart" v-if="isFavorited"></i>
+            <i class="far fa-heart" v-else></i>
           </div>
         </div>
-        <hr />
-        <div class="user-table-container">
-          <!-- 테이블 헤더 -->
-          <div class="user-table-header">
-            <span>계정 상태</span>
-            <span>Index</span>
-            <span>이름</span>
-            <span>이메일</span>
-            <span>전화번호</span>
-            <span>관리</span>
-          </div>
-          <!-- 테이블 내용 -->
+      </div>
+      <div class="hotel-info">
+        <span class="rating">⭐ {{ hotel.rating || "0" }}</span>
+        <span>({{ hotel.reviewCount || 0 }} 리뷰)</span>
+      </div>
+      <div class="hotel-info-details">
+        <p>
+          <span class="phone-icon">📞</span>
+          전화번호 : {{ hotel.hotelnum || "업체측에서 제공된 정보가 없습니다." }}
+        </p>
+        <p>
+          <span class="location-icon">📍</span> 
+          {{ hotel.address || "업체측에서 제공된 정보가 없습니다." }}
+          <button class="copy-button" @click="copyAddressToClipboard">주소복사</button>
+        </p>
+        <div id="map" style="width:500px;height:400px;"></div>
+      </div>
+    </div>
+
+    <!-- 리뷰 섹션 -->
+    <div class="review-container">
+      <h3>
+        리뷰
+        <button class="toggle-review-btn" @click="toggleReviewMode">
+          {{ isAllReviewsMode ? '일부 보기' : '전체 보기' }}
+        </button>
+      </h3>
+
+      <!-- 리뷰가 없을 때 -->
+      <div v-if="hotelReviews && hotelReviews.length === 0">
+        <p>이 호텔에 대한 리뷰가 없습니다.</p>
+      </div>
+
+      <!-- 리뷰가 있을 때 -->
+      <div v-else>
+        <div class="review-list">
           <div
-            v-for="user in paginatedUserList"
-            :key="user.id"
-            class="user-table-row"
+            v-for="(review, index) in visibleReviews"
+            :key="index"
+            class="review-grid"
+            @click="openReviewModal(review)"
           >
-            <span :class="user.isActive ? 'user-active' : 'user-deactive'">{{
-              user.isActive
-            }}</span>
-            <span>{{ user.userId }}</span>
-            <span>{{ user.name }}</span>
-            <span>{{ user.email }}</span>
-            <span>{{ user.phone }}</span>
-            <div class="user-activeBtn-container">
-              <button
-                v-if="user.isActive"
-                @click="handleUserStatusChange(user.userId)"
-              >
-                정지
-              </button>
-              <button v-else @click="handleUserStatusChange(user.userId)">
-                활성화
-              </button>
+            <!-- 리뷰 간략 내용 표시 -->
+            <div class="review-top">
+              <div class="review-rating">
+                <span
+                  v-for="star in 5"
+                  :key="star"
+                  class="star"
+                  :class="star <= review.rating ? 'filled' : 'empty'"
+                >
+                  ★
+                </span>
+              </div>
+              <div class="review-date">
+                {{ reviewFormatDate(review.updateDate || review.writeDate) }}
+                <button v-if="review.content !== '신고된 글입니다'" class="report-button" @click.stop="reportReviews(review.reviewId, review.userId)">신고</button>
+              </div>
+            </div>
+            <div class="reviewer">{{ review.userName }}</div>
+            <div class="review-content">{{ review.content }}</div>
+            <div v-if="review.imageUrl && review.imageUrl.length > 0" class="review-images">
+              <img
+                v-for="(image, imgIndex) in review.imageUrl"
+                :key="imgIndex"
+                :src="image"
+                alt="Review Image"
+                class="review-image"
+              />
             </div>
           </div>
-        </div>
-        <!-- 페이징 처리 -->
-        <div class="pagination-container">
-          <button
-            :disabled="currentPage === 1"
-            @click="changePage(currentPage - 1)" class="pagination-button"
-          >
-            이전
-          </button>
-          <span>페이지 {{ currentPage }} / {{ totalPages }}</span>
-          <button
-            :disabled="currentPage === totalPages"
-            @click="changePage(currentPage + 1)" class="pagination-button"
-          >
-            다음
-          </button>
-        </div>
-      </div>
-
-      <!-- 호텔 관리 -->
-      <div v-if="currentView === 'HotelAdminAccounts' && isVerified">
-        <!-- 비밀번호 인증이 완료된 경우 -->
-        <div class="top-container">
-          <div class="title">
-            <h2>호텔 관리자 계정 관리</h2>
-          </div>
-          <div class="search-container">
-            <input
-              class="search-input"
-              type="text"
-              placeholder="이름, 이메일로 검색해주세요."
-              v-model="searchKeyword"
-              @input="handleHotelSearch"
-            />
-            <button class="styled-button" @click="openModal">
-              호텔 관리자 계정 생성
-            </button>
-            <HotelAdminModal
-              :isOpen="isModalOpen"
-              :adminToken="adminToken"
-              @close="closeModal"
-            />
-          </div>
-        </div>
-        <hr />
-        <div class="user-table-container">
-          <!-- 테이블 헤더 -->
-          <div class="user-table-header">
-            <span>계정 상태</span>
-            <span>Index</span>
-            <span>호텔명</span>
-            <span>이메일</span>
-            <span>전화번호</span>
-            <span>관리</span>
-          </div>
-          <!-- 테이블 내용 -->
-          <div
-            v-for="user in paginatedHotelList"
-            :key="user.id"
-            class="user-table-row"
-          >
-            <span :class="user.isActive ? 'user-active' : 'user-deactive'">{{
-              user.isActive
-            }}</span>
-            <span>{{ user.userId }}</span>
-            <span>{{ user.name }}</span>
-            <span>{{ user.email }}</span>
-            <span>{{ user.phone }}</span>
-            <div class="user-activeBtn-container">
-              <button
-                v-if="user.isActive"
-                @click="handleAccountStatusChange(user.userId)"
-              >
-                정지
-              </button>
-              <button v-else @click="handleAccountStatusChange(user.userId)">
-                활성화
-              </button>
-            </div>
-          </div>
-          <div class="pagination-container">
-            <button
-              :disabled="hotelCurrentPage === 1"
-              @click="hotelChangePage(hotelCurrentPage - 1)" class="pagination-button"
-            >
-              이전
-            </button>
-            <span>페이지 {{ hotelCurrentPage }} / {{ hotelTotalPages }}</span>
-            <button
-              :disabled="hotelCurrentPage === hotelTotalPages"
-              @click="hotelChangePage(hotelCurrentPage + 1)" class="pagination-button"
-            >
-              다음
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 리뷰 관리: 인증 필요 없음 -->
-      <div v-if="currentView === 'ReviewReports'">
-        <h2>리뷰 관리</h2>
-        <hr />
-        <div class="user-table-container">
-          <!-- 테이블 헤더 -->
-          <div class="review-table-header">
-            <span>계정 상태</span>
-            <span>Index</span>
-            <span>이름</span>
-            <span>리뷰 내용</span>
-            <span>신고자 이름</span>
-            <span>관리</span>
-          </div>
-          <!-- 테이블 내용 -->
-          <div
-            v-for="report in paginatedReviewList"
-            :key="report.id"
-            class="user-table-row"
-          >
-            <span
-              :class="
-                report.status !== '신고 접수됨'
-                  ? 'review-active'
-                  : 'review-deactive'
-              "
-              >{{
-                report.status === '신고 접수됨' ? '미처리' : '처리완료'
-              }}</span
-            >
-            <span>{{ report.reportId }}</span>
-            <span>{{ report.reportedName }}</span>
-            <span class="review-content" @click="openReviewModal(report)">{{
-              report.content
-            }}</span>
-            <span>{{ report.reporterName }}</span>
-            <div class="user-activeBtn-container">
-              <button
-                v-if="report.status === '신고 접수됨'"
-                @click="handleHideReport(report.reportId)"
-              >
-                숨김 처리
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="pagination-container">
-          <button
-            :disabled="reviewCurrentPage === 1"
-            @click="reviewChangePage(reviewCurrentPage - 1)" class="pagination-button"
-          >
-            이전
-          </button>
-          <span>페이지 {{ reviewCurrentPage }} / {{ reviewTotalPages }}</span>
-          <button
-            :disabled="reviewCurrentPage === reviewTotalPages" class="pagination-button"
-            @click="reviewChangePage(reviewCurrentPage + 1)"
-          >
-            다음
-          </button>
         </div>
       </div>
     </div>
-    <!-- 비밀번호 인증 모달 -->
-    <PasswordVerification
-      :isOpen="isPasswordModalOpen"
-      :adminToken="adminToken"
-      @close="closePasswordModal"
-      @verified="handleVerified"
-    />
-    <!-- 리뷰 모달 -->
+
+    <!-- 리뷰 모달 컴포넌트 -->
     <ReviewModal
       :isOpen="isReviewModalOpen"
       :review="selectedReview"
       @close="closeReviewModal"
     />
-  </SidebarLayout>
+
+    <div class="room-list">
+      <h3>객실 정보</h3>
+      <div v-if="hotel.rooms && hotel.rooms.length > 0">
+        <div v-for="room in hotel.rooms" :key="room.roomId" class="room-card">
+          <div class="room-image-container">
+            <template v-if="room.roomImageUrl">
+              <img :src="room.roomImageUrl" class="room-img" alt="Room Image" />
+            </template>
+            <template v-else>
+              <div class="no-room-image">
+                <p class="no-room-image-text">업체측에서 제공된 이미지가 없습니다</p>
+              </div>
+            </template>
+          </div>
+
+          <div class="room-info">
+            <h4 class="room-name">{{ room.roomType }}</h4>
+            <div class="avg-person">
+              <img class="person-icon" src="https://yaimg.yanolja.com/stay/static/images/v3/icon_my.png" />
+              <span class="avg-person-text">기준인원 {{ room.roomOccupancy }}인</span>
+            </div>
+            <div class="reservation-info">
+              <h5 class="reservation-text">숙박</h5>
+              <div class="check-info">
+                체크인 <span v-html="formattedCheckIn"></span> ~ 체크아웃 <span v-html="formattedCheckOut"></span>
+              </div>
+              <h2 class="price">{{ room.roomPrice ? `${room.roomPrice.toLocaleString()}원` : "가격 정보 없음" }}</h2>
+              <div class="reservation-bottom">
+                <div class="room-count">남은 객실 {{ room.roomCount }}개</div>
+                  <button @click="move(room)" class="reservation_btn">예약 및 상세보기</button>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        <div class="room-card">
+          <div class="no-room-info-container">
+            <p class="no-room-info-text">업체측에서 제공된 객실 정보가 없습니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div v-else>
+    <p>호텔 정보를 불러오는 중입니다...</p>
+  </div>
 </template>
 
 <script>
-import SidebarLayout from '@/layout/SidebarLayout.vue';
-import HotelAdminModal from '@/components/SystemAdminPages/HotelAdminModal.vue';
-import PasswordVerification from './SystemAdminPages/PasswordVerification.vue';
-import ReviewModal from '@/components/reviewViewModal.vue';
-import {
-  getUserListByAdmin,
-  getHotelManagerListByAdmin,
-  getReportListByAdmin,
-  getAcountInfo,
-  getUserSearch,
-  getReportInfo,
-  requestReportControl,
-  requestActiveStatus,
-  getHotelAdminSearch,
-} from '@/api/admin';
-import { ref, computed } from 'vue';
+/* global kakao */
+import axios from "axios";
+import { getReviewsByHotel, reportReview } from "@/api/api";
+import { useAuthStore } from "@/store/register_login";
+import ReviewModal from "./reviewViewModal.vue";
 
 export default {
-  name: 'SystemAdminPage',
+  name: "HotelDetails",
   components: {
-    SidebarLayout,
     ReviewModal,
-    HotelAdminModal,
-    PasswordVerification,
   },
   data() {
     return {
-      currentView: 'Dashboard', // 초기 화면 설정
-      isModalOpen: false,
-      isVerified: false,
+      hotel: null,
+      hotelReviews: [],
+      visibleReviews: [],
+      visibleReviewCount: 3,
+      isFavorited: false,
+      isLoggedIn: false,
       isReviewModalOpen: false,
-      adminToken: sessionStorage.getItem('token'),
-    };
-  },
-  setup() {
-    const userList = ref([]);
-    const reportList = ref([]);
-    const hotelManagerList = ref([]);
-    const currentPage = ref(1);
-    const pageSize = ref(10);
-    const hotelCurrentPage = ref(1);
-    const hotelTotalPages = ref(0);
-    const reviewCurrentPage = ref(1);
-    const reviewTotalPages = ref(0);
-    const totalPages = ref(0);
-    const searchKeyword = ref('');
-    const totalUserCount = ref(0);
-    const totalHotelCount = ref(0);
-    const totalReportCount = ref(0);
-    const activeUserCount = ref(0);
-    const inactiveUserCount = ref(0);
-    const activeHotelCount = ref(0);
-    const inactiveHotelCount = ref(0);
-    const completeReportCount = ref(0);
-    const incompleteReportCount = ref(0);
-
-    const loadData = () => {
-      fetchUserList();
-      fetchHotelManagerList();
-      fetchReportList();
-    };
-
-    const changePage = (newPage) => {
-      if (newPage >= 1 && newPage <= totalPages.value) {
-        currentPage.value = newPage;
-        fetchUserList(); // 페이지 변경 후 데이터 가져오기
-      }
-    };
-    const hotelChangePage = (newPage) => {
-      if (newPage >= 1 && newPage <= hotelTotalPages.value) {
-        hotelCurrentPage.value = newPage;
-        fetchHotelManagerList(); // 페이지 변경 후 데이터 가져오기
-      }
-    };
-    const reviewChangePage = (newPage) => {
-      if (newPage >= 1 && newPage <= reviewTotalPages.value) {
-        reviewCurrentPage.value = newPage;
-        fetchReportList(); // 페이지 변경 후 데이터 가져오기
-      }
-    };
-
-    const token = sessionStorage.getItem('token');
-
-    const fetchUserList = async () => {
-      try {
-        const response = await getUserListByAdmin(token);
-        userList.value = response.data;
-        console.log(
-          '사용자 목록 길이 : ',
-          response.data.length / pageSize.value
-        );
-        totalPages.value = Math.ceil(response.data.length / pageSize.value); // 총 페이지 계산
-        console.log('totalPages : ', totalPages.value);
-      } catch (error) {
-        console.error('사용자 목록 불러오기 실패', error);
-      }
-    };
-
-    const fetchHotelManagerList = async () => {
-      try {
-        const response = await getHotelManagerListByAdmin(token);
-
-        hotelManagerList.value = response.data;
-        hotelTotalPages.value = Math.ceil(
-          response.data.length / pageSize.value
-        );
-      } catch (error) {
-        console.error('호텔 관리자 목록 불러오기 실패', error);
-      }
-    };
-
-    const fetchReportList = async () => {
-      try {
-        const response = await getReportListByAdmin(token);
-        reportList.value = response.data;
-        reviewTotalPages.value = Math.ceil(response.data.length / pageSize.value);
-      } catch (error) {
-        console.error('리뷰 목록 불러오기 실패', error);
-      }
-    };
-
-    const fetchDashboard = async () => {
-      const token = sessionStorage.getItem('token');
-      const response = await getAcountInfo(token);
-      const reportResponse = await getReportInfo(token);
-
-      totalUserCount.value = response.data.userAllCount;
-      totalHotelCount.value = response.data.hotelAllCount;
-      totalReportCount.value = reportResponse.data.reportCount;
-      activeUserCount.value = response.data.userActiveCount;
-      inactiveUserCount.value = response.data.userUnActiveCount;
-      activeHotelCount.value = response.data.hotelActiveCount;
-      inactiveHotelCount.value = response.data.hotelUnActiveCount;
-      completeReportCount.value = reportResponse.data.reportInComplete;
-      incompleteReportCount.value = reportResponse.data.reportComplete;
-    };
-
-    const handleHideReport = async (reportId) => {
-      try {
-        const response = await requestReportControl(token, reportId);
-        console.log(response.data);
-        fetchReportList();
-        fetchDashboard();
-      } catch (error) {
-        console.error('리뷰 숨김처리 실패 ', error);
-      }
-    };
-
-    const handleAccountStatusChange = async (userId) => {
-      try {
-        const response = await requestActiveStatus(token, userId);
-        console.log(response.data);
-        // 상태 변경 후 목록을 갱신합니다.
-        fetchHotelManagerList();
-        fetchDashboard();
-      } catch (error) {
-        console.error('계정 상태 변경 실패 ', error);
-      }
-    };
-
-    const handleUserStatusChange = async (userId) => {
-      try {
-        const response = await requestActiveStatus(token, userId);
-        console.log(response.data);
-        // 상태 변경 후 목록을 갱신합니다.
-        fetchUserList();
-        fetchDashboard();
-      } catch (error) {
-        console.error('계정 상태 변경 실패 ', error);
-      }
-    };
-
-    const handleUserSearch = async () => {
-      try {
-        if (searchKeyword.value.trim() === '') {
-          await fetchUserList(); // 검색어가 없으면 전체 목록을 다시 불러옴
-        } else {
-          const response = await getUserSearch(token, searchKeyword.value);
-          userList.value = response.data;
-        }
-      } catch (error) {
-        console.error('사용자 검색 실패', error);
-      }
-    };
-
-    const handleHotelSearch = async () => {
-      try {
-        if (searchKeyword.value.trim() === '') {
-          await fetchHotelManagerList();
-        } else {
-          const response = await getHotelAdminSearch(
-            token,
-            searchKeyword.value
-          );
-          hotelManagerList.value = response.data;
-        }
-      } catch (error) {
-        console.error('사용자 검색 실패', error);
-      }
-    };
-
-    const paginatedUserList = computed(() => {
-      const start = (currentPage.value - 1) * pageSize.value;
-      const end = start + pageSize.value;
-      // console.log('currentPage:', currentPage.value);
-      // console.log('totalPages:', totalPages.value);
-      return userList.value.slice(start, end); // 현재 페이지 데이터 반환
-    });
-
-    const paginatedHotelList = computed(() => {
-      const start = (hotelCurrentPage.value - 1) * pageSize.value;
-      const end = start + pageSize.value;
-      // console.log('currentPage:', hotelCurrentPage.value);
-      // console.log('totalPages:', hotelTotalPages.value);
-      return hotelManagerList.value.slice(start, end); // 현재 페이지 데이터 반환
-    });
-
-    const paginatedReviewList = computed(() => {
-      const start = (reviewCurrentPage.value - 1) * pageSize.value;
-      const end = start + pageSize.value;
-      // console.log('currentPage:', reviewCurrentPage.value);
-      // console.log('totalPages:', reviewTotalPages.value);
-      return reportList.value.slice(start, end); // 현재 페이지 데이터 반환
-    });
-
-    return {
-      userList,
-      hotelManagerList,
-      reportList,
-      totalUserCount,
-      totalHotelCount,
-      totalReportCount,
-      activeUserCount,
-      inactiveUserCount,
-      activeHotelCount,
-      inactiveHotelCount,
-      completeReportCount,
-      incompleteReportCount,
-      searchKeyword,
-      fetchUserList,
-      fetchHotelManagerList,
-      fetchReportList,
-      fetchDashboard,
-      handleHideReport,
-      handleAccountStatusChange,
-      handleUserStatusChange,
-      handleUserSearch,
-      handleHotelSearch,
-      loadData,
-      currentPage,
-      totalPages,
-      changePage,
-      paginatedUserList,
-      hotelCurrentPage,
-      hotelTotalPages,
-      reviewCurrentPage,
-      reviewTotalPages,
-      hotelChangePage,
-      reviewChangePage,
-      paginatedHotelList,
-      paginatedReviewList,
+      isAllReviewsMode: false,
+      selectedReview: null,
     };
   },
   mounted() {
-    this.fetchUserList();
-    this.fetchHotelManagerList();
-    this.fetchDashboard();
-    this.fetchReportList();
-    this.checkSessionValidity();
+    this.fetchFavoriteStatus();
+  },
+  async created() {
+    const authStore = useAuthStore();
+    authStore.checkLoginStatus();
+    this.isLoggedIn = authStore.LoggedIn;
+    this.token = authStore.accessToken;
+
+    await this.fetchHotelDetails();
+    if (this.hotel && this.hotel.mapX && this.hotel.mapY) {
+      this.loadKakaoMap();
+    }
+  },
+  beforeUnmount() {
+    // Kakao Map 스크립트를 제거하여 충돌 방지
+    const kakaoScript = document.querySelector("script[src*='//dapi.kakao.com/v2/maps/sdk.js']");
+    if (kakaoScript) {
+      kakaoScript.remove();
+      delete window.kakao; // 전역 kakao 객체 삭제
+    }
   },
   watch: {
-    searchKeyword(newValue) {
-      if (this.currentView.valueOf === 'UserManagement') {
-        this.handleUserSearch(newValue);
-      } else if (this.currentView.valueOf === 'HotelAdminAccounts') {
-        this.handleHotelSearch(newValue);
+    hotel(newHotel) {
+      if (newHotel && newHotel.mapX && newHotel.mapY) {
+        this.loadKakaoMap();
       }
-    },
-    currentView(newView) {
-      if (
-        (newView === 'UserManagement' || newView === 'HotelAdminAccounts') &&
-        !this.isVerified
-      ) {
-        this.openPasswordModal();
-      } else if (newView === 'Dashboard' || newView === 'ReviewReports') {
-        this.isPasswordModalOpen = false;
+    }
+  },
+
+  computed: {
+  formattedCheckIn() {
+    return this.hotel.checkIn ? this.hotel.checkIn.replace(/<br\s*\/?>/gi, '<br>') : "정보없음";
+  },
+  formattedCheckOut() {
+    return this.hotel.checkOut ? this.hotel.checkOut.replace(/<br\s*\/?>/gi, '<br>') : "정보없음";
+  },
+  chunkedVisibleReviews() {
+      const chunks = [];
+      for (let i = 0; i < this.visibleReviews.length; i += 3) {
+        chunks.push(this.visibleReviews.slice(i, i + 3));
       }
+      return chunks;
     },
   },
   methods: {
-    openModal() {
-      this.isModalOpen = true;
-    },
-    closeModal() {
-      this.isModalOpen = false;
-    },
-    openPasswordModal() {
-      this.isPasswordModalOpen = true;
-    },
-    closePasswordModal() {
-      this.isPasswordModalOpen = false;
-    },
-    handleVerified() {
-      this.isVerified = true; // 비밀번호 인증 성공 시 플래그 변경
-      this.isPasswordModalOpen = false; // 모달 닫기
+    async fetchHotelDetails() {
+      const hotelId = this.$route.params.id;
+      try {
+        const response = await axios.get(`/api/hotels/${hotelId}`);
+        this.hotel = response.data; // HotelDetailDTO 형태로 데이터 수신
+        console.log(this.hotel);
 
-      const currentTime = new Date().getTime();
-      sessionStorage.setItem('isVerified', 'true');
-      sessionStorage.setItem('verifiedTime', currentTime.toString());
-
-      // 세션 만료 타이머 시작 (예: 15분 후 만료)
-      this.startSessionTimeout(15); // 15분
-    },
-    startSessionTimeout(minutes) {
-      const timeoutDuration = minutes * 60 * 1000; // 분을 밀리초로 변환
-      setTimeout(() => {
-        this.expireSession();
-      }, timeoutDuration);
-    },
-    expireSession() {
-      this.isVerified = false;
-      sessionStorage.removeItem('isVerified');
-      sessionStorage.removeItem('verifiedTime');
-      alert('인증이 만료되었습니다. 다시 인증해주세요.');
-      this.openPasswordModal(); // 인증이 만료되면 다시 비밀번호 모달 열기
-    },
-    handleBeforeUnload() {
-      sessionStorage.removeItem('isVerified');
-      sessionStorage.removeItem('verifiedTime');
-    },
-    checkSessionValidity() {
-      const verifiedTime = sessionStorage.getItem('verifiedTime');
-      if (verifiedTime) {
-        const currentTime = new Date().getTime();
-        const timeElapsed = currentTime - parseInt(verifiedTime, 10);
-        const sessionDuration = 15 * 60 * 1000; // 15분
-
-        if (timeElapsed <= sessionDuration) {
-          // 세션이 유효한 경우
-          this.isVerified = true;
-          this.startSessionTimeout(
-            (sessionDuration - timeElapsed) / (60 * 1000)
-          ); // 남은 시간으로 타이머 시작
-        } else {
-          // 세션이 만료된 경우
-          this.expireSession();
-        }
+        await this.fetchHotelReviews(hotelId);
+      } catch (error) {
+        console.error("호텔 상세 정보를 가져오는 중 오류 발생:", error);
       }
     },
-    openReviewModal(review) {
-      this.selectedReview = review;
-      this.isReviewModalOpen = true;
+    move(room) {
+      this.$router.push({
+        params: { roomId: room.roomId },
+        name: 'HotelRoom',
+        state: {
+          hotelName: this.hotel.name,
+          roomName: room.roomType,
+          roomPrice: room.roomPrice,
+          checkIn: this.hotel.checkIn,
+          checkOut: this.hotel.checkOut,
+          roomId: room.roomId,
+        },
+      });
+    },
+    copyAddressToClipboard() {
+      if (this.hotel && this.hotel.address) {
+        navigator.clipboard.writeText(this.hotel.address)
+          .then(() => {
+            alert("주소가 복사되었습니다.");
+          })
+          .catch(err => {
+            console.error("주소 복사 중 오류가 발생했습니다.", err);
+          });
+      }
+    },
+    loadKakaoMap() {
+      if (typeof kakao === "undefined") {
+        const script = document.createElement("script");
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=8e08ae88fe732a2c4cfd5d4e46ee2fe5&autoload=false`;
+        script.onload = this.initMap; // 스크립트 로드 후 initMap 호출
+        document.head.appendChild(script);
+      } else {
+        this.initMap(); // kakao 객체가 이미 있으면 바로 지도 초기화
+      }
+    },
+    initMap() {
+      kakao.maps.load(() => {
+        const container = document.getElementById("map");
+        const options = {
+          center: new kakao.maps.LatLng(this.hotel.mapY || "좌표❌", this.hotel.mapX || "좌표❌"), // 지도의 중심 좌표
+          level: 3, // 지도의 확대 레벨
+        };
+
+        // 여기서 map을 지역 변수로 정의
+        const map = new kakao.maps.Map(container, options); // 지도 생성
+
+        // 마커를 생성하고 지도에 표시
+        const markerPosition = new kakao.maps.LatLng(this.hotel.mapY || "좌표❌", this.hotel.mapX || "좌표❌");
+        const marker = new kakao.maps.Marker({
+          position: markerPosition,
+        });
+        marker.setMap(map);
+      });
+    },
+    async fetchFavoriteStatus() {
+      const token = this.token;
+      const hotelId = this.$route.params.id;
+
+      if (!this.isLoggedIn) {
+        return;
+      }
+
+     try {
+        const response = await axios.get(`/api/auth/favorites/status/${hotelId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        this.isFavorited = response.data; // 서버에서 받은 true/false 값을 isFavorited에 반영
+      } catch (error) {
+        console.error("찜 상태 불러오기 실패", error);
+      }
+    },
+    async toggleFavorite() {
+      const token = this.token;
+       const hotelId = this.$route.params.id;
+       if (!this.isLoggedIn) {
+        alert("로그인 후 즐겨찾기를 추가할 수 있습니다.");
+        return;
+      }
+      const url = this.isFavorited
+        ? `/api/auth/favorites/cancel/${hotelId}`
+        : `/api/auth/favorites/${hotelId}`;
+
+      try {
+        await axios.post(url, {}, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        this.isFavorited = !this.isFavorited; // 상태 변경 후 isFavorited 반영
+      } catch (error) {
+        console.error("찜 상태 변경 실패", error);
+      }
+    },
+    async fetchHotelReviews(hotelId) {
+      try {
+        const response = await getReviewsByHotel(hotelId);
+        this.hotelReviews = response.data;
+
+        // 초기 visibleReviews 설정 (처음에는 일부만 표시)
+        this.updateVisibleReviews();
+      } catch (error) {
+        console.error("호텔 리뷰 조회 중 오류 발생:", error);
+      }
+    },
+    updateVisibleReviews() {
+      this.visibleReviews = this.isAllReviewsMode
+        ? this.hotelReviews
+        : this.hotelReviews.slice(0, this.visibleReviewCount);
+    },
+    toggleReviewMode() {
+      this.isAllReviewsMode = !this.isAllReviewsMode;
+      this.updateVisibleReviews();
+    },
+    reviewFormatDate(dateString) {
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Date(dateString).toLocaleDateString("ko-KR", options);
+    },
+    expandReviews() {
+      const newCount = this.visibleReviewCount + 3;
+      this.visibleReviewCount = newCount;
+      this.visibleReviews = this.hotelReviews.slice(0, newCount);
+    },
+    async reportReviews(reviewId, reviewUser) {
+      const authStore = useAuthStore();
+      const token = sessionStorage.getItem("token");
+
+      // 로그인 확인
+      if (!this.isLoggedIn) {
+        alert("로그인이 필요합니다");
+        this.$router.push("/login");
+        return;
+      }
+
+      // loggedInUserId와 reviewId 확인
+      if (!reviewId) {
+        alert("신고 정보를 확인할 수 없습니다.");
+        console.error("Missing userId or reviewId");
+        return;
+      }
+
+      console.log("리뷰 id : ", reviewId);
+      console.log("리뷰 유저 : ", reviewUser);
+
+      // 리퀘스트 바디 생성
+      const reportData = {
+        reporterId: authStore.userId, // 현재 로그인된 사용자 ID
+        reportedId: reviewUser, // 신고 대상 사용자 ID
+        reviewId: reviewId, // 신고 대상 리뷰 ID
+      };
+
+      try {
+        // Axios를 사용한 신고 요청
+        const response = await reportReview(reportData, token);
+
+        if (response.data) {
+          alert("신고되었습니다.");
+          console.log(response.data);
+
+        }
+      } catch (error) {
+        alert("신고 중 오류가 발생했습니다.");
+        console.error("Axios request error:", error.response || error.message);
+      }
+    },
+     openReviewModal(review) {
+      this.selectedReview = review; // 선택된 리뷰 설정
+      this.isReviewModalOpen = true; // 모달 열기
     },
     closeReviewModal() {
-      this.isReviewModalOpen = false;
-      this.selectedReview = null;
+      this.isReviewModalOpen = false; // 모달 닫기
+      this.selectedReview = null; // 선택된 리뷰 초기화
     },
-  },
-  beforeRouteLeave() {
-    sessionStorage.removeItem('isVerified');
-    sessionStorage.removeItem('verifiedTime');
-  },
-  beforeUnmount() {
-    window.removeEventListener('beforeunload', this.handleBeforeUnload);
+    openAllReviewsModal() {
+      this.isAllReviewsModalOpen = true; 
+    },
+    closeAllReviewsModal() {
+      this.isAllReviewsModalOpen = false;
+    },
   },
 };
 </script>
 
 <style scoped>
-/* 사이드바 메뉴 스타일 */
-.menu-container {
-  display: flex;
-  flex-direction: column;
+.details-container {
+  width: 65%;
+  margin: auto;
 }
-
-.menu-container a {
+.img-container {
+  width: 100%;
+  height: 300px; /* 이미지 틀의 고정 높이 */
   display: flex;
+  justify-content: center; /* 이미지 중앙 정렬 */
   align-items: center;
-  padding: 15px 20px;
-  color: #ffffff;
-  font-size: 18px;
-  text-decoration: none;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  border-radius: 4px;
-  margin-bottom: 5px;
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  background-color: #f8f8f8;
 }
 
-.menu-container a:hover {
-  background-color: #16518c;
+.img-container img {
+  width: auto;
+  height: 100%;
+  object-fit: contain;
 }
 
-.menu-container a.active {
-  background-color: #004b8d;
-  font-weight: bold;
+.no-image-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f8f8;
 }
 
-/* 아이콘 스타일 */
-.menu-container a .icon {
-  margin-right: 10px;
-  font-size: 20px;
+.no-image-text {
+  font-size: 16px;
+  color: gray;
+  text-align: center;
 }
 
-/* 메인 콘텐츠 스타일 */
-.main-content {
+.hotel-info-card {
+  background-color: #f9f9f9;
   padding: 20px;
-  background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
 }
-
-/* 대시보드 요약 스타일 */
-.dashboard-summary {
-  list-style: none;
-  padding: 0;
-}
-
-.dashboard-item {
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-}
-
-.top-container {
+.hotel-top {
   display: flex;
   justify-content: space-between;
 }
-
-.search-container {
+.fa-heart {
+  font-size: 30px;
+}
+.favorite-container {
   display: flex;
-  padding: 20px;
-  gap: 20px;
-}
-
-.search-input {
-  width: 300px;
-  border-radius: 5px;
-  border: 1px solid lightgray;
-}
-
-.review-content {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  max-width: 300px; /* 원하는 최대 너비로 설정하세요 */
-}
-
-.user-table-container {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  overflow: hidden;
-}
-
-.user-table-header,
-.user-table-row {
-  display: grid;
-  grid-template-columns: 0.5fr 0.5fr 1fr 2fr 1.5fr 1fr;
-  gap: 10px;
-  padding: 10px 20px;
-  font-size: 14px;
   align-items: center;
 }
-.review-table-header {
-  display: grid;
-  grid-template-columns: 0.5fr 0.5fr 1fr 2fr 1.5fr 1fr;
-  gap: 10px;
-  padding: 10px 20px;
-  font-size: 14px;
-  align-items: center;
+.favorited {
+  color: #FF0000;
+}
+.unfavorited {
+  color: gray;
+}
+.location-icon {
+  margin-right: 5px;
+  font-size: 18px; /* 이모지 크기 조정 */
+  vertical-align: middle;
 }
 
-.user-table-header,
-.review-table-header {
-  background-color: #ddd;
-  color: #fff;
+.copy-button {
+  background-color: #00aef0; /* 기본 파란색 배경 */
+  color: white; /* 텍스트 색상 */
+  padding: 5px 10px; /* 여백 */
+  font-size: 14px; /* 글자 크기 */
+  border: none; /* 테두리 제거 */
+  border-radius: 5px; /* 모서리 둥글게 */
+  cursor: pointer; /* 포인터 커서 */
+}
+
+.copy-button:hover {
+  background-color: #0056b3; /* 호버 시 어두운 파란색 */
+}
+
+.hotel-name {
+  font-size: 24px;
   font-weight: bold;
-}
-
-.user-table-row {
-  background-color: #ffffff;
-}
-
-.user-active,
-.review-active {
-  width: 60px;
-  background-color: rgb(219, 238, 159);
-  border-radius: 4px;
-  font-weight: bold;
-  padding: 5px 10px;
-  text-align: center;
-}
-.user-deactive,
-.review-deactive {
-  width: 60px;
-  background-color: lightgray;
-  border-radius: 4px;
-  font-weight: bold;
-  padding: 5px 10px;
-  text-align: center;
-}
-
-.user-activeBtn-container {
-  display: flex;
-  gap: 5px;
-}
-
-.user-activeBtn-container button {
-  padding: 5px 10px;
-  font-size: 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: #fff;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.user-activeBtn-container button:hover {
-  background-color: #f0f0f0;
-}
-
-.dashboard-item h3 {
   margin-bottom: 10px;
-  font-size: 20px;
 }
-
-.dashboard-item p {
-  margin: 5px 0;
+.hotel-info {
+  font-size: 18px;
   color: #555;
 }
-
-.styled-button {
-  background-color: #004b8d;
-  color: #ffffff;
-  border: none;
-  padding: 10px 15px;
+.hotel-info-details p {
+  margin: 5px 0;
   font-size: 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  color: #666;
 }
 
-.pagination-container {
+.review-list {
   display: flex;
-  justify-content: center; /* 중앙 정렬 */
-  align-items: center; /* 세로 중앙 정렬 */
-  margin: 20px 0;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start;
 }
 
-.pagination-button {
+.review-grid {
+  flex: 0 1 calc(33.333% - 20px); 
+  box-sizing: border-box; 
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  padding: 10px;
+  height: 200px;
+  background-color: #ffffff;
+  transition: transform 0.2s ease-in-out; 
+}
+
+.review-grid:last-child {
+  margin-right: 0; 
+}
+
+.review-rating {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffcc00;
+}
+
+.review-date {
+  font-size: 14px;
+  color: #999;
+}
+
+.reviewer {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.review-images {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.review-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.review-top {
+  display: flex;
+  justify-content: space-between; /* 좌우 정렬 */
+  align-items: center; /* 수직 정렬 */
+  margin-bottom: 10px;
+}
+
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.review-actions {
+  display: flex;
+  gap: 10px; /* 버튼 간격 설정 */
+}
+
+.review-date {
+  color: rgb(109, 109, 109);
+}
+.review-content {
+  overflow: hidden;
+  white-space: normal;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.load-more-container {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.load-more-btn {
+  background-color: #00aef0;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.load-more-btn:hover {
+  background-color: #0056b3;
+}
+
+.room-list {
+  margin-top: 30px;
+}
+
+.room-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  padding: 15px;
+  margin-top: 20px;
+  min-height: 280px;
+  text-align: center;
+}
+
+.no-room-info-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.no-room-info-text {
+  font-size: 18px;
+  color: gray;
+}
+
+.room-image-container {
+  width: 40%;
+  margin-right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: #f8f8f8;
+}
+
+.room-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.no-room-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 280px;
+  background-color: #f8f8f8;
+}
+
+.no-room-image-text {
+  font-size: 16px;
+  color: gray;
+  text-align: center;
+}
+
+.room-info {
+  width: 60%;
+}
+.room-name {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.avg-person {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.person-icon {
+  width: 20px;
+}
+.avg-person-text {
+  margin-left: 5px;
+  color: rgb(109, 109, 109);
+}
+.reservation-info {
+  margin-top: 10px;
+  padding: 10px;
+  border-top: 1px solid lightgray;
+}
+.reservation-text,
+.check-info {
+  color: rgb(109, 109, 109);
+  font-size: 20px;
+}
+.price {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin: 10px 0;
+}
+.room-count {
+  color: orange;
+  font-weight: bold;
+  margin-top: 10px;
+}
+.reservation-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.reservation_btn {
+  width: 150px;
+  height: 40px;
+  background-color: #00aef0;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.reservation_btn:hover{
+  background-color: #0056b3;
+}
+
+#map {
+  width: auto !important;
+  height: 400px !important;
+  margin-top: 10px;
+  margin-left: 30px;
+}
+
+.edit-button {
+  background-color: #00aef0;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+.report-button {
+  background-color: #ff4d4d;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.report-button:hover {
+  background-color: #d32f2f;
+}
+
+.star {
+  font-size: 20px;
+  color: lightgray; /* 기본적으로 비워진 별은 연한 회색 */
+}
+
+.filled {
+  color: #ffcc00; /* 채워진 별의 색상 */
+}
+
+.empty {
+  color: lightgray; /* 비워진 별의 색상 */
+}
+
+.toggle-review-btn {
+  margin-left: 10px;
+  padding: 5px 10px;
+  font-size: 14px;
   background-color: #00aef0;
   color: white;
   border: none;
-  padding: 10px 20px;
-  margin: 0 10px;
-  cursor: pointer;
-  font-size: 16px;
   border-radius: 5px;
+  cursor: pointer;
 }
 
-.pagination-button:disabled {
-  background-color: #d1d1d1;
-  cursor: not-allowed;
-}
-
-.pagination-text {
-  font-size: 16px;
-  color: #333;
+.toggle-review-btn:hover {
+  background-color: #0056b3;
 }
 </style>
