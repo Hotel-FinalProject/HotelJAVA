@@ -83,7 +83,7 @@ google:
   people-api-url: "https://people.googleapis.com/v1/people/me"
 
 jwt:
-  secret: your_very_long_secret_key_that_is_at_least_msa6th_2team
+  secret: 
 
 logging:
   level:
