@@ -31,7 +31,7 @@ public class HotelService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final String apiUrl = "https://apis.data.go.kr/B551011/KorService1/searchStay1";
     private final String detailApiUrl = "http://apis.data.go.kr/B551011/KorService1/detailIntro1";
-    private final String apiKey = "2CO9iXaU94uL2TpF9yjZ0FY25Q%2BI4dNYmea7vdL%2FFvX9qPCpHnHTetc7Vh3CU4AGRJ3nyUjIGE4REwrxVaj17A%3D%3D"; // 실제 API 키로 변경 필요
+    private final String apiKey = ""; // 실제 API 키로 변경 필요
 
     public void fetchAndSaveHotels() {
         try {
@@ -146,7 +146,7 @@ public class HotelService {
 //
 //    private final RestTemplate restTemplate = new RestTemplate();
 //    private final String apiUrl = "https://apis.data.go.kr/B551011/KorService1/searchStay1";
-//    private final String apiKey = "2CO9iXaU94uL2TpF9yjZ0FY25Q%2BI4dNYmea7vdL%2FFvX9qPCpHnHTetc7Vh3CU4AGRJ3nyUjIGE4REwrxVaj17A%3D%3D"; // 실제 API 키로 변경 필요
+//    private final String apiKey = ""; // 실제 API 키로 변경 필요
 //
 //    public void fetchAndSaveHotels() {
 //        try {
