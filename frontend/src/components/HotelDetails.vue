@@ -191,7 +191,7 @@ export default {
     loadKakaoMap() {
       if (typeof kakao === "undefined") {
         const script = document.createElement("script");
-        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=d685c63d7eb74d08883cdb9e13b5fb6c&autoload=false`;
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=&autoload=false`;
         script.onload = this.initMap;  // 스크립트 로드 후 initMap 호출
         document.head.appendChild(script);
       } else {
