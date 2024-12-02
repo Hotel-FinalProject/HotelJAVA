@@ -67,7 +67,7 @@ google:
   people-api-url: "https://people.googleapis.com/v1/people/me"
 
 jwt:
-  secret: your_very_long_secret_key_that_is_at_least_msa6th_2team
+  secret: 
 
 logging:
   level:
@@ -80,5 +80,5 @@ api:
   key: ${API_KEY}
 
 import:
-  api-key: 8574783258275564
-  secret-key: JsGOComCLXxULGSVO4eHqPMjS5X1N4YzBiLrYSVbBQtf58RxmT0Wq71qyhj3ulWjvvtuHlJII7b6FTST
+  api-key: 
+  secret-key: 
