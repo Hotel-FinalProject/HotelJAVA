@@ -34,17 +34,17 @@ spring:
       client:
         registration:
           naver:
-            clientId: 9EWyUF5g73oX_Rw5ouos
-            clientSecret: QG3wQOti25
+            clientId: 
+            clientSecret: 
             scope:
               - email
               - response
-            redirect-uri: "http://localhost:8081/login/oauth2/code/{registrationId}"
+            redirect-uri: 
             client-name: naver
             authorization-grant-type: authorization_code
           google:
-            clientId: 179544849550-03o449lptj1skbr25sqvt95vftvin1ii.apps.googleusercontent.com
-            clientSecret: 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
+            clientId: 
+            clientSecret: 
             scope:
               - email
               - profile
@@ -70,7 +70,7 @@ google:
   people-api-url: "https://people.googleapis.com/v1/people/me"
 
 jwt:
-  secret: your_very_long_secret_key_that_is_at_least_msa6th_2team
+  secret: 
 
 logging:
   level:
@@ -83,8 +83,8 @@ api:
   key: 
 
 import:
-  api-key: 8574783258275564
-  secret-key: JsGOComCLXxULGSVO4eHqPMjS5X1N4YzBiLrYSVbBQtf58RxmT0Wq71qyhj3ulWjvvtuHlJII7b6FTST
+  api-key: 
+  secret-key: 
 
 aws:
   access-key-id: ${ACCESS_KEY_ID}
