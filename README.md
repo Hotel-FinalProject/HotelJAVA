@@ -17,7 +17,7 @@
 
 ### 팀 노션  : https://www.notion.so/Final-Team-Project-119ddc2b002680dc9e2ff6d85aeea917
 
-## 깃허브 링크
+## 깃허브 링크 ( 최종 코드)
 https://github.com/Hotel-FinalProject/HotelJAVA/tree/dev
 ## ⭐ 배포 링크
 http://43.200.45.122/
